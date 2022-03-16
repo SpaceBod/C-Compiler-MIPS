@@ -56,8 +56,6 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        // TODO-F: Implement this similar to how AddOperator was implemented.
-        // throw std::runtime_error("NegOperator::evaluate is not implemented.");
         double neg = getExpr()->evaluate(bindings);
         return -neg;
     }

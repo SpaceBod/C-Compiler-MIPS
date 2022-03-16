@@ -1,62 +1,30 @@
-#ifndef ast_primitives_hpp
-#define ast_primitives_hpp
+#ifndef ast_expression_hpp
+#define ast_expression_hpp
 
 #include <string>
 #include <iostream>
+#include <map>
 
-class Variable
-    : public Expression
+#include <memory>
+
+class Expression;
+
+typedef const Expression *ExpressionPtr;
+
+class Expression
 {
-private:
-    std::string id;
 public:
-    Variable(const std::string &_id)
-        : id(_id)
+    virtual ~Expression()
     {}
 
-    const std::string getId() const
-    { return id; }
+    //! Tell and expression to print itself to the given stream
+    virtual void print(std::ostream &dst) const =0;
 
-    virtual void print(std::ostream &dst) const override
-    {
-        dst<<id;
-    }
-
+    //! Evaluate the tree using the given mapping of variables to numbers
     virtual double evaluate(
         const std::map<std::string,double> &bindings
-    ) const override
-    {
-        // TODO-B : Run bin/eval_expr with a variable binding to make sure you understand how this works.
-        // If the binding does not exist, this will throw an error
-        return bindings.at(id);
-    }    
-};
-
-class Number
-    : public Expression
-{
-private:
-    double value;
-public:
-    Number(double _value)
-        : value(_value)
-    {}
-
-    double getValue() const
-    { return value; }
-
-    virtual void print(std::ostream &dst) const override
-    {
-        dst<<value;
-    }
-
-    virtual double evaluate(
-        const std::map<std::string,double> &bindings
-    ) const override
-    {
-        // TODO-A : Run bin/eval_expr with a numeric expression to make sure you understand how this works.
-        return value;
-    }
+    ) const
+    { throw std::runtime_error("Not implemented."); }
 };
 
 

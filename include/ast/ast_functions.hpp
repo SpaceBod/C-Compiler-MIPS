@@ -1,7 +1,9 @@
 #ifndef ast_functions_hpp
 #define ast_functions_hpp
 
-#include "ast_expression.hpp"
+#include "ast_expressions.hpp"
+#include "ast_primitives.hpp"
+#include "ast_statements.hpp"
 
 #include <cmath>
 
@@ -36,7 +38,7 @@ public:
         arg->print(dst);
         dst << " )";
     }
-    // NOTE : This should be implemented by the inheriting function nodes, e.g. LogFunction
+    
 };
 
 class LogFunction

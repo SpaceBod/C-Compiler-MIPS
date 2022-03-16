@@ -23,8 +23,10 @@ include "C90Parser.tab.hpp"
 "!="                { return T_NEQUAL           ; }
 
 "||"                { return T_LOR              ; }
+"|"                 { return T_BOR              ; }
 "&&"                { return T_LAND             ; }
 "&"                 { return T_BAND             ; }
+"^"	  			        { return T_BXOR             ; }
 
 "("                 { return T_LPAREN           ; }
 ")"                 { return T_RPAREN           ; }
