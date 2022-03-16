@@ -41,7 +41,7 @@ include "C90Parser.tab.hpp"
 "int"               { return T_INT_TYPE         ; }
 
 [0-9]+([.][0-9]*)?            { yylval.number=strtod(yytext, 0); return T_NUMBER; }
-[a-zA-Z_][a-zA-Z_\d]*         { yylval.string=new std::string(yytext); return T_VARIABLE; }
+[a-zA-Z_][0-9a-zA-Z_]*         { yylval.string=new std::string(yytext); return T_VARIABLE; }
 [ \t\r\n]+		                {;}
 .                             { fprintf(stderr, "Invalid token\n"); exit(1); }
 
