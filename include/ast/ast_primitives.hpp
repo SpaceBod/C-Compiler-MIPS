@@ -99,4 +99,39 @@ public:
     }
 };
 
+class Decl_list;
+
+typedef const Decl_list *Decl_listPtr;
+
+class Decl_list
+    : public Variable
+{
+private:
+    Variable *variable;
+    Decl_listPtr decl_List;
+public:
+    Decl_list(Variable *_variable, Decl_listPtr _declarationList = nullptr)
+        : variable(_variable)
+        , decl_List(_declarationList)
+    {}
+
+    virtual ~Decl_list() {
+        delete variable;
+        delete decl_List;
+    }
+    Variable *getVar() const
+    { return variable; }
+    Decl_listPtr getdecllist() const
+    { return decl_List; }
+
+    virtual void pretty_print(std::ostream &dst) const override
+    {
+        variable->pretty_print(dst);
+        if(decl_List!=nullptr){
+            decl_List->pretty_print(dst);
+        }
+    }
+  
+};
+
 #endif

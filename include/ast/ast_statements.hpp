@@ -122,11 +122,11 @@ public:
     { return stat; }
 };
 
-class While_loop
+class While_Stat
     : public Loop_Stat
 {
 public:
-    While_loop(ExpressionPtr _condition, StatPtr _stat = nullptr)
+    While_Stat(ExpressionPtr _condition, StatPtr _stat = nullptr)
         : Loop_Stat(_condition, _stat)
     {}
 
@@ -140,7 +140,7 @@ public:
     }
 };
 
-class For_loop
+class For_Stat
     : public Loop_Stat
 {
 private:
@@ -150,19 +150,19 @@ private:
     ExpressionPtr updateExpr;
     StatPtr stat;
 public:
-    For_loop(ExpressionPtr _initExpr, ExpressionPtr _checkExpr, ExpressionPtr _updateExpr, StatPtr _stat)
+    For_Stat(ExpressionPtr _initExpr, ExpressionPtr _checkExpr, ExpressionPtr _updateExpr, StatPtr _stat)
      : initExpr(_initExpr)
      , checkExpr(_checkExpr)
      , updateExpr(_updateExpr)
      , stat(_stat)
     {}
-    For_loop(Variable *_initVar, ExpressionPtr _checkExpr, ExpressionPtr _updateExpr, StatPtr _stat)
+    For_Stat(Variable *_initVar, ExpressionPtr _checkExpr, ExpressionPtr _updateExpr, StatPtr _stat)
     : initVar(_initVar)
     , checkExpr(_checkExpr)
     , updateExpr(_updateExpr)
     , stat(_stat)
     {}
-    ~For_loop() {
+    ~For_Stat() {
         delete initVar;
         delete initExpr;
         delete checkExpr;
@@ -231,8 +231,55 @@ public:
         if(expression!=nullptr){
             expression->pretty_print(dst);
         }
-        
+
         dst<<";";
+        dst<<'\n';
+    }
+};
+
+class Comp_Stat
+    : public Stat
+{
+private:
+    Stat_listPtr stat_List;
+    Decl_listPtr decl_List;
+public:
+     Comp_Stat()
+    {} 
+    Comp_Stat(Stat_listPtr _stat_List)
+        : stat_List(_stat_List)
+    {} 
+    Comp_Stat(Decl_listPtr _decl_List)
+        : decl_List(_decl_List)
+    {} 
+    Comp_Stat(Decl_listPtr _decl_List, Stat_listPtr _stat_List)
+        : stat_List(_stat_List)
+        , decl_List(_decl_List)
+    {} 
+    ~Comp_Stat() {
+        delete stat_List;
+        delete decl_List;
+    }
+
+    Stat_listPtr getstatlist() const
+    { 
+        return stat_List; 
+        }
+
+    Decl_listPtr getdecllist() const
+    { 
+        return decl_List;
+         }
+    virtual void pretty_print(std::ostream &dst) const override
+    {
+        dst<<"{ ";
+        if(decl_List!=nullptr){
+            decl_List->pretty_print(dst);
+        }
+        if(stat_List!=nullptr){
+            stat_List->pretty_print(dst);
+        }
+        dst<<"}";
         dst<<'\n';
     }
 };
