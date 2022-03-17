@@ -231,6 +231,7 @@ public:
         if(expression!=nullptr){
             expression->pretty_print(dst);
         }
+        
         dst<<";";
         dst<<'\n';
     }
