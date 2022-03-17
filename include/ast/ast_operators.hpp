@@ -37,14 +37,14 @@ public:
         return right;
     }
 
-    virtual void print(std::ostream &dst) const override
+    virtual void pretty_print(std::ostream &dst) const override
     {
         dst << "( ";
-        left->print(dst);
+        left->pretty_print(dst);
         dst << " ";
         dst << getOpcode();
         dst << " ";
-        right->print(dst);
+        right->pretty_print(dst);
         dst << " )";
     }
 };
@@ -166,9 +166,9 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double vl = getLeft()->evaluate(bindings);
-        double vr = getRight()->evaluate(bindings);
-        return vl%vr;
+        int vl = getLeft()->evaluate(bindings);
+        int vr = getRight()->evaluate(bindings);
+        return vl % vr;
     }
 };
 
@@ -266,7 +266,7 @@ public:
     {
         double vl = getLeft()->evaluate(bindings);
         double vr = getRight()->evaluate(bindings);
-        return vl=<vr;
+        return vl <= vr;
     }
 };
 
@@ -326,7 +326,7 @@ class LogicAnd
 protected:
     virtual const char *getOpcode() const override
     {
-        return "&&"
+        return "&&";
     }
 
 public:
@@ -350,7 +350,7 @@ class BitAnd
 protected:
     virtual const char *getOpcode() const override
     {
-        return "&"
+        return "&";
     }
 
 public:
@@ -362,8 +362,8 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double vl = getLeft()->evaluate(bindings);
-        double vr = getRight()->evaluate(bindings);
+        int vl = getLeft()->evaluate(bindings);
+        int vr = getRight()->evaluate(bindings);
         return vl&vr;
     }
 };
@@ -374,7 +374,7 @@ class LogicOr
 protected:
     virtual const char *getOpcode() const override
     {
-        return "||"
+        return "||";
     }
 
 public:
@@ -398,7 +398,7 @@ class BitOr
 protected:
     virtual const char *getOpcode() const override
     {
-        return "|"
+        return "|";
     }
 
 public:
@@ -410,8 +410,8 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double vl = getLeft()->evaluate(bindings);
-        double vr = getRight()->evaluate(bindings);
+        int vl = getLeft()->evaluate(bindings);
+        int vr = getRight()->evaluate(bindings);
         return vl|vr;
     }
 };
@@ -422,7 +422,7 @@ class BitXOr
 protected:
     virtual const char *getOpcode() const override
     {
-        return "^"
+        return "^";
     }
 
 public:
@@ -434,8 +434,8 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double vl = getLeft()->evaluate(bindings);
-        double vr = getRight()->evaluate(bindings);
+        int vl = getLeft()->evaluate(bindings);
+        int vr = getRight()->evaluate(bindings);
         return vl^vr;
     }
 };

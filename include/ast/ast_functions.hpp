@@ -12,6 +12,8 @@ class Function
 {
 private:
     ExpressionPtr arg;
+    Variable *name;
+    StatPtr stat;
 
 protected:
     Function(ExpressionPtr _arg)
@@ -23,20 +25,27 @@ public:
     virtual ~Function()
     {
         delete arg;
+        delete name;
+        delete stat;
     }
 
-    virtual const char *getFunction() const = 0;
+    const std::string getFunction() const
+    {
+        return name->getId();
+    }
 
     ExpressionPtr getArg() const
     {
         return arg;
     }
 
-    virtual void print(std::ostream &dst) const override
+    void pretty_print(std::ostream &dst) const
     {
-        dst << getFunction() << "( ";
-        arg->print(dst);
+        name->pretty_print(dst);
+        dst << "( ";
         dst << " )";
+        dst<<"\n";
+        stat->pretty_print(dst);
     }
     
 };
@@ -55,7 +64,6 @@ public:
         return "log";
     }
 
-    // TODO-E : Override evaluate, and implement it
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {

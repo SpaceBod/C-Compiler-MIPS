@@ -48,23 +48,26 @@ public:
     const std::string getType() const
     { return type; }
 
-    virtual void print(std::ostream &dst) const override
+    ExpressionPtr getExpr() const
+    { return Expr; }
+
+    virtual void pretty_print(std::ostream &dst) const override
     {
-        dst<<id;
-        dst<<" -> ";
         dst<<type;
+        dst<<" ";
+        dst<<id;
         if(Expr!=nullptr){
             dst<<" = ";
-            Expr->print(dst);
+            Expr->pretty_print(dst);
+            dst<<";";
+            dst<<'\n';
         }
-        
     }
 
     virtual double evaluate(
         const std::map<std::string,double> &bindings
     ) const override
     {
-
         return bindings.at(id);
     }    
 };
@@ -83,7 +86,7 @@ public:
     { return value; }
     
 
-    virtual void print(std::ostream &dst) const override
+    virtual void pretty_print(std::ostream &dst) const override
     {
         dst<<value;
     }
@@ -95,6 +98,5 @@ public:
         return value;
     }
 };
-
 
 #endif

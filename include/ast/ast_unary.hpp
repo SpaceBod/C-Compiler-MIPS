@@ -29,12 +29,12 @@ public:
         return expr;
     }
 
-    virtual void print(std::ostream &dst) const override
+    virtual void pretty_print(std::ostream &dst) const override
     {
         dst << "( ";
         dst << getOpcode();
         dst << " ";
-        expr->print(dst);
+        expr->pretty_print(dst);
         dst << " )";
     }
 };
@@ -76,8 +76,8 @@ public:
         const std::map<std::string, double> &bindings
     ) const override
     {
-        double not=getExpr()->evaluate(bindings);
-        return (!not);
+        double val = getExpr()->evaluate(bindings);
+        return (!val);
     }
 };
 
@@ -96,7 +96,7 @@ public:
         const std::map<std::string, double> &bindings
     ) const override
     {
-        double ret=getExpr()->evaluate(bindings);
+        double ret = getExpr()->evaluate(bindings);
         return ret;
     }
 };

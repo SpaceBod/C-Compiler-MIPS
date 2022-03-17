@@ -1,212 +1,238 @@
-#ifndef ast_statement_hpp
-#define ast_statement_hpp
+#ifndef ast_statements_hpp
+#define ast_statements_hpp
 
 #include "ast_expressions.hpp"
 #include "ast_primitives.hpp"
 
-class Statement;
+class Stat;
 
-typedef const Statement *StatementPtr;
+typedef const Stat *StatPtr;
 
-class Statement
+class Stat
 {
 public:
-    virtual ~Statement()
-    {}
-    virtual void print(std::ostream &dst) const =0;
+    virtual ~Stat() {}
+    virtual void pretty_print(std::ostream &dst) const = 0;
 };
 
-class StatementList;
+class Stat_list;
 
-typedef const StatementList *StatementListPtr;
+typedef const Stat_list *Stat_listPtr;
 
-class StatementList
-    : public Statement
+class Stat_list
+    : public Stat
 {
 private:
-    StatementPtr statement;
-    StatementListPtr statementList;
+    StatPtr stat;
+    Stat_listPtr stat_list;
 public:
-    StatementList(StatementPtr _statement, StatementListPtr _statementList = nullptr)
-        : statement(_statement)
-        , statementList(_statementList)
+    Stat_list(StatPtr _stat, Stat_listPtr _stat_list = nullptr)
+        : stat(_stat)
+        , stat_list(_stat_list)
     {}
-    virtual ~StatementList() {
-        delete statement;
-        delete statementList;
+    virtual ~Stat_list() {
+        delete stat;
+        delete stat_list;
     }
-
-    virtual void print(std::ostream &dst) const override
+    StatPtr return_Stat() const
+    { return stat; }
+    Stat_listPtr return_Stat_list() const
+    { return stat_list; }
+    virtual void pretty_print(std::ostream &dst) const override
     {
-        statement->print(dst);
-        if(statementList!=nullptr){
-            statementList->print(dst);
+        stat->pretty_print(dst);
+        if(stat_list!=nullptr){
+            stat_list->pretty_print(dst);
         }
     }
 };
 
-class SelectStatement
-    : public Statement
+class Select_Stat
+    : public Stat
 {
 private:
     ExpressionPtr condition;
-    StatementPtr statement;
+    StatPtr stat;
 public:
-    SelectStatement(ExpressionPtr _condition, StatementPtr _statement = nullptr)
+    Select_Stat(ExpressionPtr _condition, StatPtr _stat = nullptr)
         : condition(_condition)
-        , statement(_statement)
+        , stat(_stat)
     {}
-    virtual ~SelectStatement() {
+    virtual ~Select_Stat() {
         delete condition;
-        delete statement;
+        delete stat;
     }
     ExpressionPtr getCond() const
     { return condition; }
-    StatementPtr getStat() const
-    { return statement; }
+    StatPtr return_Stat() const
+    { return stat; }
     
 };
 
-class IfStatement
-    : SelectStatement
+class If_Stat
+    : public Select_Stat
 {
 private:
-    StatementPtr else_branch;
+    StatPtr else_branch;
 public:
-    IfStatement(ExpressionPtr _condition, StatementPtr _if_branch = nullptr, StatementPtr _else_branch = nullptr)
-        : SelectStatement(_condition, _if_branch)
+    If_Stat(ExpressionPtr _condition, StatPtr _if_branch = nullptr, StatPtr _else_branch = nullptr)
+        : Select_Stat(_condition, _if_branch)
         , else_branch(_else_branch)
     {}
-    ~IfStatement() {
+    ~If_Stat() {
         delete else_branch;
     }
+    StatPtr getElse() const
+    { return else_branch; }
 
-    virtual void print(std::ostream &dst) const override
+
+    virtual void pretty_print(std::ostream &dst) const override
     {
         dst<<"if ( ";
-        getCond()->print(dst);
+        getCond()->pretty_print(dst);
         dst<<" ) ";
-        getStat()->print(dst);
+        return_Stat()->pretty_print(dst);
         if(else_branch!=nullptr) {
             dst<<"else ";
-            else_branch->print(dst);
+            else_branch->pretty_print(dst);
         }
-        
+        dst<<'\n';
     }
 };
 
-class LoopStatement
-    : Statement
+class Loop_Stat
+    : public Stat
 {
 private:
     ExpressionPtr condition;
-    StatementPtr statement;
+    StatPtr stat;
 public:
-    LoopStatement(ExpressionPtr _condition, StatementPtr _statement = nullptr)
+    Loop_Stat() {}
+    Loop_Stat(ExpressionPtr _condition, StatPtr _stat = nullptr)
         : condition(_condition)
-        , statement(_statement)
+        , stat(_stat)
     {}
-    ~LoopStatement() {
+    ~Loop_Stat() {
         delete condition;
-        delete statement;
+        delete stat;
     }
     ExpressionPtr getCond() const
     { return condition; }
-    StatementPtr getStat() const
-    { return statement; }
+    StatPtr return_Stat() const
+    { return stat; }
 };
 
-class WhileLoop
-    : LoopStatement
+class While_loop
+    : public Loop_Stat
 {
 public:
-    WhileLoop(ExpressionPtr _condition, StatementPtr _statement = nullptr)
-        : LoopStatement(_condition, _statement)
+    While_loop(ExpressionPtr _condition, StatPtr _stat = nullptr)
+        : Loop_Stat(_condition, _stat)
     {}
 
-    virtual void print(std::ostream &dst) const override
+    virtual void pretty_print(std::ostream &dst) const override
     {
         dst<<"while ( ";
-        getCond()->print(dst);
+        getCond()->pretty_print(dst);
         dst<<" ) ";
-        getStat()->print(dst);
+        return_Stat()->pretty_print(dst);
+        dst<<'\n';
     }
 };
 
-class ExpressionStatement
-    : Statement
+class For_loop
+    : public Loop_Stat
+{
+private:
+    Variable *initVar = nullptr;
+    ExpressionPtr initExpr = nullptr;
+    ExpressionPtr checkExpr;
+    ExpressionPtr updateExpr;
+    StatPtr stat;
+public:
+    For_loop(ExpressionPtr _initExpr, ExpressionPtr _checkExpr, ExpressionPtr _updateExpr, StatPtr _stat)
+     : initExpr(_initExpr)
+     , checkExpr(_checkExpr)
+     , updateExpr(_updateExpr)
+     , stat(_stat)
+    {}
+    For_loop(Variable *_initVar, ExpressionPtr _checkExpr, ExpressionPtr _updateExpr, StatPtr _stat)
+    : initVar(_initVar)
+    , checkExpr(_checkExpr)
+    , updateExpr(_updateExpr)
+    , stat(_stat)
+    {}
+    ~For_loop() {
+        delete initVar;
+        delete initExpr;
+        delete checkExpr;
+        delete updateExpr;
+        delete stat;
+    }
+    virtual void pretty_print(std::ostream &dst) const override
+    {
+        dst<<"for ( ";
+        if(initVar != nullptr && initExpr == nullptr) {
+            initVar->pretty_print(dst);
+        }
+        else if(initVar == nullptr && initExpr != nullptr) {
+            initExpr->pretty_print(dst);
+        }
+        dst<<" ; ";
+        checkExpr->pretty_print(dst);
+        dst<<" ; ";
+        updateExpr->pretty_print(dst);
+        dst<<" ) \n";
+        return_Stat()->pretty_print(dst);
+    }
+};
+
+class Expression_Stat
+    : public Stat
 {
 private:
     ExpressionPtr expression;
 public:
-    ExpressionStatement(ExpressionPtr _expression = nullptr)
+    Expression_Stat(ExpressionPtr _expression = nullptr)
         : expression(_expression)
     {}
-    ~ExpressionStatement() {
+    ~Expression_Stat() {
         delete expression;
     }
-    virtual void print(std::ostream &dst) const override
+    ExpressionPtr getExp() const
+    { return expression; }
+    virtual void pretty_print(std::ostream &dst) const override
     {
         if(expression!=nullptr){
-            expression->print(dst);
+            expression->pretty_print(dst);
         }
         dst<<";";
+        dst<<'\n';
     }
 };
 
-class JumpStatement
-    : Statement
+class Jump_Stat
+    : public Stat
 {
 private:
     ExpressionPtr expression;
 public:
-    JumpStatement(ExpressionPtr _expression = nullptr)
+    Jump_Stat(ExpressionPtr _expression = nullptr)
         : expression(_expression)
     {}
-    ~JumpStatement() {
+    ~Jump_Stat() {
         delete expression;
     }
-    virtual void print(std::ostream &dst) const override
+    ExpressionPtr getExp() const
+    { return expression; }
+    virtual void pretty_print(std::ostream &dst) const override
     {
         dst<<"return ";
         if(expression!=nullptr){
-            expression->print(dst);
+            expression->pretty_print(dst);
         }
         dst<<";";
-    }
-};
-
-class CompoundStatement
-    : Statement
-{
-private:
-    StatementListPtr statementList;
-    DeclarationListPtr declarationList;
-public:
-    CompoundStatement(StatementListPtr _statementList = nullptr)
-        : statementList(_statementList)
-    {} 
-    CompoundStatement(DeclarationListPtr _declarationList = nullptr)
-        : declarationList(_declarationList)
-    {} 
-    CompoundStatement(DeclarationListPtr _declarationList = nullptr, StatementListPtr _statementList = nullptr)
-        : statementList(_statementList)
-        , declarationList(_declarationList)
-    {} 
-    ~CompoundStatement() {
-        delete statementList;
-        delete declarationList;
-    }
-    virtual void print(std::ostream &dst) const override
-    {
-        dst<<"{ ";
-        if(declarationList!=nullptr){
-            declarationList->print(dst);
-        }
-        if(statementList!=nullptr){
-            statementList->print(dst);
-        }
-        dst<<"}";
+        dst<<'\n';
     }
 };
 

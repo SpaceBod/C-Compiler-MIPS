@@ -1,10 +1,9 @@
-#ifndef ast_expression_hpp
-#define ast_expression_hpp
+#ifndef ast_expressions_hpp
+#define ast_expressions_hpp
 
 #include <string>
 #include <iostream>
 #include <map>
-
 #include <memory>
 
 class Expression;
@@ -16,15 +15,11 @@ class Expression
 public:
     virtual ~Expression()
     {}
-
-    //! Tell and expression to print itself to the given stream
-    virtual void print(std::ostream &dst) const =0;
-
-    //! Evaluate the tree using the given mapping of variables to numbers
+    virtual void pretty_print(std::ostream &dst) const =0;
     virtual double evaluate(
         const std::map<std::string,double> &bindings
     ) const
-    { throw std::runtime_error("Not implemented."); }
+    { throw std::runtime_error("Not yet implemented"); }
 };
 
 
