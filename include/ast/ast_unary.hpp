@@ -67,14 +67,16 @@ class NotOperator
 public:
     NotOperator(const ExpressionPtr _expr)
         : Unary(_expr)
-    {}
+    {
+    }
 
     virtual const char *getOpcode() const override
-    { return "!"; }
+    {
+        return "!";
+    }
 
     virtual double evaluate(
-        const std::map<std::string, double> &bindings
-    ) const override
+        const std::map<std::string, double> &bindings) const override
     {
         double val = getExpr()->evaluate(bindings);
         return (!val);
@@ -87,20 +89,20 @@ class Return
 public:
     Return(const ExpressionPtr _expr)
         : Unary(_expr)
-    {}
+    {
+    }
 
     virtual const char *getOpcode() const override
-    { return "return"; }
+    {
+        return "return";
+    }
 
     virtual double evaluate(
-        const std::map<std::string, double> &bindings
-    ) const override
+        const std::map<std::string, double> &bindings) const override
     {
         double ret = getExpr()->evaluate(bindings);
         return ret;
     }
 };
-
-
 
 #endif

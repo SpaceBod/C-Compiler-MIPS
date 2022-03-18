@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <map>
+
 #include <memory>
 
 class Expression;
@@ -14,13 +15,15 @@ class Expression
 {
 public:
     virtual ~Expression()
-    {}
-    virtual void pretty_print(std::ostream &dst) const =0;
-    virtual double evaluate(
-        const std::map<std::string,double> &bindings
-    ) const
-    { throw std::runtime_error("Not yet implemented"); }
-};
+    {
+    }
+    virtual void pretty_print(std::ostream &dst) const = 0;
 
+    virtual double evaluate(
+        const std::map<std::string, double> &bindings) const
+    {
+        throw std::runtime_error("Not yet implemented!");
+    }
+};
 
 #endif

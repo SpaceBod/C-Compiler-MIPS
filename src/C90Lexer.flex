@@ -6,7 +6,6 @@ include "C90Parser.tab.hpp"
 %}
 
 %%
-"="			            { return T_ASSIGN           ; }
 
 "*"                 { return T_MULT             ; }
 "/"                 { return T_DIV              ; }
@@ -28,18 +27,20 @@ include "C90Parser.tab.hpp"
 "&"                 { return T_BAND             ; }
 "^"	  			        { return T_BXOR             ; }
 
+"="			            { return T_ASSIGN           ; }
+";"                 { return T_SEMI             ; }
+","                 { return T_COMMA            ; }
+
 "("                 { return T_LPAREN           ; }
 ")"                 { return T_RPAREN           ; }
 "{"                 { return T_LBRACE           ; }
 "}"                 { return T_RBRACE           ; }
-";"                 { return T_SEMI             ; }
-","                 { return T_COMMA            ; }
 
 "if"			          { return T_IF               ; }
 "else"			        { return T_ELSE             ; }
 "while"			        { return T_WHILE            ; }
 "return"		        { return T_RETURN           ; }
-
+"for"               { return T_FOR              ; }
 "int"               { return T_INT_TYPE         ; }
 
 [0-9]+([.][0-9]*)?            { yylval.number=strtod(yytext, 0); return T_NUMBER; }

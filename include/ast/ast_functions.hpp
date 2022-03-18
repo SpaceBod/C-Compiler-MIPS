@@ -44,10 +44,9 @@ public:
         name->pretty_print(dst);
         dst << "( ";
         dst << " )";
-        dst<<"\n";
+        dst << "\n";
         stat->pretty_print(dst);
     }
-    
 };
 
 class LogFunction

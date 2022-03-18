@@ -69,7 +69,7 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-       
+
         double vl = getLeft()->evaluate(bindings);
         double vr = getRight()->evaluate(bindings);
         return vl + vr;
@@ -194,7 +194,7 @@ public:
     {
         double vl = getLeft()->evaluate(bindings);
         double vr = getRight()->evaluate(bindings);
-        return vl>vr;
+        return vl > vr;
     }
 };
 
@@ -218,7 +218,7 @@ public:
     {
         double vl = getLeft()->evaluate(bindings);
         double vr = getRight()->evaluate(bindings);
-        return vl<vr;
+        return vl < vr;
     }
 };
 
@@ -242,7 +242,7 @@ public:
     {
         double vl = getLeft()->evaluate(bindings);
         double vr = getRight()->evaluate(bindings);
-        return vl>=vr;
+        return vl >= vr;
     }
 };
 
@@ -290,7 +290,7 @@ public:
     {
         double vl = getLeft()->evaluate(bindings);
         double vr = getRight()->evaluate(bindings);
-        return vl==vr;
+        return vl == vr;
     }
 };
 
@@ -314,7 +314,7 @@ public:
     {
         double vl = getLeft()->evaluate(bindings);
         double vr = getRight()->evaluate(bindings);
-        return vl!=vr;
+        return vl != vr;
     }
 };
 
@@ -340,7 +340,7 @@ public:
     {
         double vl = getLeft()->evaluate(bindings);
         double vr = getRight()->evaluate(bindings);
-        return vl&&vr;
+        return vl && vr;
     }
 };
 
@@ -364,7 +364,7 @@ public:
     {
         int vl = getLeft()->evaluate(bindings);
         int vr = getRight()->evaluate(bindings);
-        return vl&vr;
+        return vl & vr;
     }
 };
 
@@ -388,7 +388,7 @@ public:
     {
         double vl = getLeft()->evaluate(bindings);
         double vr = getRight()->evaluate(bindings);
-        return vl||vr;
+        return vl || vr;
     }
 };
 
@@ -412,7 +412,7 @@ public:
     {
         int vl = getLeft()->evaluate(bindings);
         int vr = getRight()->evaluate(bindings);
-        return vl|vr;
+        return vl | vr;
     }
 };
 
@@ -436,7 +436,7 @@ public:
     {
         int vl = getLeft()->evaluate(bindings);
         int vr = getRight()->evaluate(bindings);
-        return vl^vr;
+        return vl ^ vr;
     }
 };
 

@@ -25,23 +25,30 @@ class Stat_list
 private:
     StatPtr stat;
     Stat_listPtr stat_list;
+
 public:
     Stat_list(StatPtr _stat, Stat_listPtr _stat_list = nullptr)
-        : stat(_stat)
-        , stat_list(_stat_list)
-    {}
-    virtual ~Stat_list() {
+        : stat(_stat), stat_list(_stat_list)
+    {
+    }
+    virtual ~Stat_list()
+    {
         delete stat;
         delete stat_list;
     }
     StatPtr return_Stat() const
-    { return stat; }
+    {
+        return stat;
+    }
     Stat_listPtr return_Stat_list() const
-    { return stat_list; }
+    {
+        return stat_list;
+    }
     virtual void pretty_print(std::ostream &dst) const override
     {
         stat->pretty_print(dst);
-        if(stat_list!=nullptr){
+        if (stat_list != nullptr)
+        {
             stat_list->pretty_print(dst);
         }
     }
@@ -53,20 +60,25 @@ class Select_Stat
 private:
     ExpressionPtr condition;
     StatPtr stat;
+
 public:
     Select_Stat(ExpressionPtr _condition, StatPtr _stat = nullptr)
-        : condition(_condition)
-        , stat(_stat)
-    {}
-    virtual ~Select_Stat() {
+        : condition(_condition), stat(_stat)
+    {
+    }
+    virtual ~Select_Stat()
+    {
         delete condition;
         delete stat;
     }
     ExpressionPtr getCond() const
-    { return condition; }
+    {
+        return condition;
+    }
     StatPtr return_Stat() const
-    { return stat; }
-    
+    {
+        return stat;
+    }
 };
 
 class If_Stat
@@ -74,29 +86,33 @@ class If_Stat
 {
 private:
     StatPtr else_branch;
+
 public:
     If_Stat(ExpressionPtr _condition, StatPtr _if_branch = nullptr, StatPtr _else_branch = nullptr)
-        : Select_Stat(_condition, _if_branch)
-        , else_branch(_else_branch)
-    {}
-    ~If_Stat() {
+        : Select_Stat(_condition, _if_branch), else_branch(_else_branch)
+    {
+    }
+    ~If_Stat()
+    {
         delete else_branch;
     }
     StatPtr getElse() const
-    { return else_branch; }
-
+    {
+        return else_branch;
+    }
 
     virtual void pretty_print(std::ostream &dst) const override
     {
-        dst<<"if ( ";
+        dst << "if ( ";
         getCond()->pretty_print(dst);
-        dst<<" ) ";
+        dst << " ) ";
         return_Stat()->pretty_print(dst);
-        if(else_branch!=nullptr) {
-            dst<<"else ";
+        if (else_branch != nullptr)
+        {
+            dst << "else ";
             else_branch->pretty_print(dst);
         }
-        dst<<'\n';
+        dst << '\n';
     }
 };
 
@@ -106,20 +122,26 @@ class Loop_Stat
 private:
     ExpressionPtr condition;
     StatPtr stat;
+
 public:
     Loop_Stat() {}
     Loop_Stat(ExpressionPtr _condition, StatPtr _stat = nullptr)
-        : condition(_condition)
-        , stat(_stat)
-    {}
-    ~Loop_Stat() {
+        : condition(_condition), stat(_stat)
+    {
+    }
+    ~Loop_Stat()
+    {
         delete condition;
         delete stat;
     }
     ExpressionPtr getCond() const
-    { return condition; }
+    {
+        return condition;
+    }
     StatPtr return_Stat() const
-    { return stat; }
+    {
+        return stat;
+    }
 };
 
 class While_Stat
@@ -128,15 +150,16 @@ class While_Stat
 public:
     While_Stat(ExpressionPtr _condition, StatPtr _stat = nullptr)
         : Loop_Stat(_condition, _stat)
-    {}
+    {
+    }
 
     virtual void pretty_print(std::ostream &dst) const override
     {
-        dst<<"while ( ";
+        dst << "while ( ";
         getCond()->pretty_print(dst);
-        dst<<" ) ";
+        dst << " ) ";
         return_Stat()->pretty_print(dst);
-        dst<<'\n';
+        dst << '\n';
     }
 };
 
@@ -149,20 +172,18 @@ private:
     ExpressionPtr checkExpr;
     ExpressionPtr updateExpr;
     StatPtr stat;
+
 public:
     For_Stat(ExpressionPtr _initExpr, ExpressionPtr _checkExpr, ExpressionPtr _updateExpr, StatPtr _stat)
-     : initExpr(_initExpr)
-     , checkExpr(_checkExpr)
-     , updateExpr(_updateExpr)
-     , stat(_stat)
-    {}
+        : initExpr(_initExpr), checkExpr(_checkExpr), updateExpr(_updateExpr), stat(_stat)
+    {
+    }
     For_Stat(Variable *_initVar, ExpressionPtr _checkExpr, ExpressionPtr _updateExpr, StatPtr _stat)
-    : initVar(_initVar)
-    , checkExpr(_checkExpr)
-    , updateExpr(_updateExpr)
-    , stat(_stat)
-    {}
-    ~For_Stat() {
+        : initVar(_initVar), checkExpr(_checkExpr), updateExpr(_updateExpr), stat(_stat)
+    {
+    }
+    ~For_Stat()
+    {
         delete initVar;
         delete initExpr;
         delete checkExpr;
@@ -171,18 +192,20 @@ public:
     }
     virtual void pretty_print(std::ostream &dst) const override
     {
-        dst<<"for ( ";
-        if(initVar != nullptr && initExpr == nullptr) {
+        dst << "for ( ";
+        if (initVar != nullptr && initExpr == nullptr)
+        {
             initVar->pretty_print(dst);
         }
-        else if(initVar == nullptr && initExpr != nullptr) {
+        else if (initVar == nullptr && initExpr != nullptr)
+        {
             initExpr->pretty_print(dst);
         }
-        dst<<" ; ";
+        dst << " ; ";
         checkExpr->pretty_print(dst);
-        dst<<" ; ";
+        dst << " ; ";
         updateExpr->pretty_print(dst);
-        dst<<" ) \n";
+        dst << " ) \n";
         return_Stat()->pretty_print(dst);
     }
 };
@@ -192,22 +215,28 @@ class Expression_Stat
 {
 private:
     ExpressionPtr expression;
+
 public:
     Expression_Stat(ExpressionPtr _expression = nullptr)
         : expression(_expression)
-    {}
-    ~Expression_Stat() {
+    {
+    }
+    ~Expression_Stat()
+    {
         delete expression;
     }
     ExpressionPtr getExp() const
-    { return expression; }
+    {
+        return expression;
+    }
     virtual void pretty_print(std::ostream &dst) const override
     {
-        if(expression!=nullptr){
+        if (expression != nullptr)
+        {
             expression->pretty_print(dst);
         }
-        dst<<";";
-        dst<<'\n';
+        dst << ";";
+        dst << '\n';
     }
 };
 
@@ -216,24 +245,30 @@ class Jump_Stat
 {
 private:
     ExpressionPtr expression;
+
 public:
     Jump_Stat(ExpressionPtr _expression = nullptr)
         : expression(_expression)
-    {}
-    ~Jump_Stat() {
+    {
+    }
+    ~Jump_Stat()
+    {
         delete expression;
     }
     ExpressionPtr getExp() const
-    { return expression; }
+    {
+        return expression;
+    }
     virtual void pretty_print(std::ostream &dst) const override
     {
-        dst<<"return ";
-        if(expression!=nullptr){
+        dst << "return ";
+        if (expression != nullptr)
+        {
             expression->pretty_print(dst);
         }
 
-        dst<<";";
-        dst<<'\n';
+        dst << ";";
+        dst << '\n';
     }
 };
 
@@ -243,44 +278,51 @@ class Comp_Stat
 private:
     Stat_listPtr stat_List;
     Decl_listPtr decl_List;
+
 public:
-     Comp_Stat()
-    {} 
+    Comp_Stat()
+    {
+    }
     Comp_Stat(Stat_listPtr _stat_List)
         : stat_List(_stat_List)
-    {} 
+    {
+    }
     Comp_Stat(Decl_listPtr _decl_List)
         : decl_List(_decl_List)
-    {} 
+    {
+    }
     Comp_Stat(Decl_listPtr _decl_List, Stat_listPtr _stat_List)
-        : stat_List(_stat_List)
-        , decl_List(_decl_List)
-    {} 
-    ~Comp_Stat() {
+        : stat_List(_stat_List), decl_List(_decl_List)
+    {
+    }
+    ~Comp_Stat()
+    {
         delete stat_List;
         delete decl_List;
     }
 
     Stat_listPtr getstatlist() const
-    { 
-        return stat_List; 
-        }
+    {
+        return stat_List;
+    }
 
     Decl_listPtr getdecllist() const
-    { 
+    {
         return decl_List;
-         }
+    }
     virtual void pretty_print(std::ostream &dst) const override
     {
-        dst<<"{ ";
-        if(decl_List!=nullptr){
+        dst << "{ ";
+        if (decl_List != nullptr)
+        {
             decl_List->pretty_print(dst);
         }
-        if(stat_List!=nullptr){
+        if (stat_List != nullptr)
+        {
             stat_List->pretty_print(dst);
         }
-        dst<<"}";
-        dst<<'\n';
+        dst << "}";
+        dst << '\n';
     }
 };
 
