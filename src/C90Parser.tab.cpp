@@ -1285,25 +1285,25 @@ yyreduce:
 
   case 15: /* COMPOUND_STAT: T_LBRACE T_RBRACE  */
 #line 69 "src/C90Parser.y"
-                                                                                    { (yyval.stat) = new Compound_Stat()      ; }
+                                                                                    { (yyval.stat) = new Comp_Stat()      ; }
 #line 1290 "src/C90Parser.tab.cpp"
     break;
 
   case 16: /* COMPOUND_STAT: T_LBRACE STAT_LIST T_RBRACE  */
 #line 70 "src/C90Parser.y"
-                                                                                    { (yyval.stat) = new Compound_Stat((yyvsp[-1].statlist))    ; }
+                                                                                    { (yyval.stat) = new Comp_Stat((yyvsp[-1].statlist))    ; }
 #line 1296 "src/C90Parser.tab.cpp"
     break;
 
   case 17: /* COMPOUND_STAT: T_LBRACE DECLARATION_LIST T_RBRACE  */
 #line 71 "src/C90Parser.y"
-                                                                                    { (yyval.stat) = new Compound_Stat((yyvsp[-1].decllist))    ; }
+                                                                                    { (yyval.stat) = new Comp_Stat((yyvsp[-1].decllist))    ; }
 #line 1302 "src/C90Parser.tab.cpp"
     break;
 
   case 18: /* COMPOUND_STAT: T_LBRACE DECLARATION_LIST STAT_LIST T_RBRACE  */
 #line 72 "src/C90Parser.y"
-                                                                                    { (yyval.stat) = new Compound_Stat((yyvsp[-2].decllist), (yyvsp[-1].statlist)); }
+                                                                                    { (yyval.stat) = new Comp_Stat((yyvsp[-2].decllist), (yyvsp[-1].statlist)); }
 #line 1308 "src/C90Parser.tab.cpp"
     break;
 
@@ -1543,7 +1543,7 @@ yyreduce:
 
   case 58: /* UNARY_EXPR: T_NOT FACTOR_EXPR  */
 #line 128 "src/C90Parser.y"
-                                                                                    { (yyval.expr) = new NotLogic((yyvsp[0].expr))   ; }
+                                                                                    { (yyval.expr) = new NotOperator((yyvsp[0].expr))   ; }
 #line 1548 "src/C90Parser.tab.cpp"
     break;
 

@@ -15,13 +15,13 @@ private:
     Variable *name;
     StatPtr stat;
 
-protected:
-    Function(ExpressionPtr _arg)
-        : arg(_arg)
+public:
+    Function(Variable *_name, StatPtr _stat = nullptr)
+        : name(_name)
+        , stat(_stat)
     {
     }
-
-public:
+    
     virtual ~Function()
     {
         delete arg;
@@ -53,8 +53,8 @@ class LogFunction
     : public Function
 {
 public:
-    LogFunction(ExpressionPtr _arg)
-        : Function(_arg)
+    LogFunction(Variable *_name, StatPtr _stat = nullptr)
+        : Function(_name, _stat)
     {
     }
 
@@ -75,8 +75,8 @@ class ExpFunction
     : public Function
 {
 public:
-    ExpFunction(ExpressionPtr _arg)
-        : Function(_arg)
+    ExpFunction(Variable *_name, StatPtr _stat = nullptr)
+        : Function(_name, _stat)
     {
     }
 
@@ -97,8 +97,8 @@ class SqrtFunction
     : public Function
 {
 public:
-    SqrtFunction(ExpressionPtr _arg)
-        : Function(_arg)
+    SqrtFunction(Variable *_name, StatPtr _stat = nullptr)
+        : Function(_name, _stat)
     {
     }
 

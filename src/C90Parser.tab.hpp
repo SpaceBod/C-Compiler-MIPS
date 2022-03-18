@@ -112,10 +112,10 @@ union YYSTYPE
 #line 16 "src/C90Parser.y"
 
   const Function *func;
-  const Statement *stat;
-  const StatementList *statlist;
+  const Stat *stat;
+  const Stat_list *statlist;
   const Expression *expr;
-  const DeclarationList *decllist;
+  const Decl_list *decllist;
   double number;
   Variable *var;
   std::string *str;

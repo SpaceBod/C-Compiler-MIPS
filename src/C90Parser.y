@@ -15,10 +15,10 @@
 // AST node.
 %union{
   const Function *func;
-  const Statement *stat;
-  const StatementList *statlist;
+  const Stat *stat;
+  const Stat_list *statlist;
   const Expression *expr;
-  const DeclarationList *decllist;
+  const Decl_list *decllist;
   double number;
   Variable *var;
   std::string *str;
@@ -66,10 +66,10 @@ STAT                : COMPOUND_STAT                                             
                     | ITERATION_STAT                                                { $$ = $1; }
                     | JUMP_STAT                                                     { $$ = $1; }
 
-COMPOUND_STAT       : T_LBRACE T_RBRACE                                             { $$ = new Compound_Stat()      ; }
-                    | T_LBRACE STAT_LIST T_RBRACE                                   { $$ = new Compound_Stat($2)    ; }
-                    | T_LBRACE DECLARATION_LIST T_RBRACE                            { $$ = new Compound_Stat($2)    ; }
-                    | T_LBRACE DECLARATION_LIST STAT_LIST T_RBRACE                  { $$ = new Compound_Stat($2, $3); }
+COMPOUND_STAT       : T_LBRACE T_RBRACE                                             { $$ = new Comp_Stat()      ; }
+                    | T_LBRACE STAT_LIST T_RBRACE                                   { $$ = new Comp_Stat($2)    ; }
+                    | T_LBRACE DECLARATION_LIST T_RBRACE                            { $$ = new Comp_Stat($2)    ; }
+                    | T_LBRACE DECLARATION_LIST STAT_LIST T_RBRACE                  { $$ = new Comp_Stat($2, $3); }
 
 EXPRESSION_STAT     : T_SEMI                                                        { $$ = new Expression_Stat()  ; }
                     | EXPR T_SEMI                                                   { $$ = new Expression_Stat($1); }
@@ -125,7 +125,7 @@ TERM_EXPR           : UNARY_EXPR                                                
 
 UNARY_EXPR          : FACTOR_EXPR                                                   { $$ = $1                 ; }
                     | T_SUB FACTOR_EXPR                                             { $$ = new NegOperator($2); }
-                    | T_NOT FACTOR_EXPR                                             { $$ = new NotLogic($2)   ; }
+                    | T_NOT FACTOR_EXPR                                             { $$ = new NotOperator($2)   ; }
 
 FACTOR_EXPR         : T_NUMBER                                                      { $$ = new Number($1)  ; }
                     | T_VARIABLE                                                    { $$ = new Variable($1); }
