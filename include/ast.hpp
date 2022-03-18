@@ -8,6 +8,6 @@
 #include "ast/ast_functions.hpp"
 #include "ast/ast_statements.hpp"
 
-extern const Expression *parseAST();
+extern const Function *parseAST();
 
 #endif
