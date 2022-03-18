@@ -23,7 +23,6 @@
   Variable *var;
   std::string *str;
   TypeDef T_type;
-  
 }
 
 %token T_VARIABLE T_NUMBER
@@ -38,8 +37,9 @@
 %type <stat> STAT COMPOUND_STAT EXPRESSION_STAT SELECTION_STAT ITERATION_STAT JUMP_STAT
 %type <expr> EXPR CONDITIONAL_EXPR LOR_EXPR LAND_EXPR BOR_EXPR BAND_EXPR BXOR_EXPR EQUAL_EXPR RELATION_EXPR ARITHMETIC_EXPR TERM_EXPR UNARY_EXPR FACTOR_EXPR
 %type <statlist> STAT_LIST
+%type <number> T_NUMBER
 %type <decllist> DECLARATION_LIST
-%type <str> T_INT T_VAR
+%type <str> T_INT_TYPE T_VARIABLE
 %type <var> DECLARATION
 %type <T_type> TYPE_DEF
 
@@ -49,13 +49,16 @@
 
 PROGRAM             : FUNCTION                                                      { g_root = $1; }
 
-FUNCTION            : TYPE_DEF T_VAR T_LPAREN T_RPAREN COMPOUND_STAT                { $$ = new Function((new Variable($1, $2)), $5); }
+FUNCTION            : TYPE_DEF T_VARIABLE T_LPAREN T_RPAREN COMPOUND_STAT           { $$ = new Function((new Variable($1, $2)), $5); }
+
+DECLARATION_LIST    : DECLARATION                                                   { $$ = new Decl_list($1)    ; }
+                    | DECLARATION  DECLARATION_LIST                                 { $$ = new Decl_list($1, $2); }
 
 STAT_LIST           : STAT                                                          { $$ = new Stat_list($1)    ; }
                     | STAT STAT_LIST                                                { $$ = new Stat_list($1, $2); }
 
-DECLARATION_LIST    : DECLARATION                                                   { $$ = new Decl_list($1)    ; }
-                    | DECLARATION  DECLARATION_LIST                                 { $$ = new Decl_list($1, $2); }
+DECLARATION         : TYPE_DEF T_VARIABLE T_SEMI                                    { $$ = new Variable($1, $2); }
+                    | TYPE_DEF T_VARIABLE T_ASSIGN EXPR T_SEMI                      { $$ = new Variable($1, $2, $4); }
 
 STAT                : COMPOUND_STAT                                                 { $$ = $1; }
                     | EXPRESSION_STAT                                               { $$ = $1; }
@@ -74,9 +77,9 @@ EXPRESSION_STAT     : T_SEMI                                                    
 SELECTION_STAT      : T_IF T_LPAREN EXPR T_RPAREN STAT                              { $$ = new If_Stat($3, $5)    ; }
                     | T_IF T_LPAREN EXPR T_RPAREN STAT T_ELSE STAT                  { $$ = new If_Stat($3, $5, $7); }
 
-ITERATION_STAT      : T_WHILE T_LPAREN EXPR T_RPAREN STAT                           { $$ = new While_Stat($3, $5)  ; }
-                    | T_FOR T_LPAREN EXPR T_SEMI EXPR T_SEMI EXPR T_RPAREN STAT     { $$ = new For_Stat($3, $5, $7); }
-                    | T_FOR T_LPAREN DECLARATION EXPR T_SEMI EXPR T_RPAREN STAT     { $$ = new For_Stat($3, $5, $7); }
+ITERATION_STAT      : T_WHILE T_LPAREN EXPR T_RPAREN STAT                           { $$ = new While_Stat($3, $5)      ; }
+                    | T_FOR T_LPAREN EXPR T_SEMI EXPR T_SEMI EXPR T_RPAREN STAT     { $$ = new For_Stat($3, $5, $7, $9); }
+                    | T_FOR T_LPAREN DECLARATION EXPR T_SEMI EXPR T_RPAREN STAT     { $$ = new For_Stat($3, $4, $6, $8); }
 
 JUMP_STAT           : T_RETURN T_SEMI                                               { $$ = new Jump_Stat()  ; }
                     | T_RETURN EXPR T_SEMI                                          { $$ = new Jump_Stat($2); }
@@ -89,7 +92,7 @@ CONDITIONAL_EXPR    : LOR_EXPR                                                  
 LOR_EXPR            : LAND_EXPR                                                     { $$ = $1                 ; }
                     | LOR_EXPR T_LOR LAND_EXPR                                      { $$ = new LogicOr($1, $3); }
 
-LAND_EXPR           : EQUAL_EXPR                                                    { $$ = $1                  ; }
+LAND_EXPR           : BOR_EXPR                                                    { $$ = $1                  ; }
                     | LAND_EXPR T_LAND EQUAL_EXPR                                   { $$ = new LogicAnd($1, $3); }
 
 BOR_EXPR            : BXOR_EXPR                                                     { $$ = $1; }
@@ -132,12 +135,11 @@ TYPE_DEF            : T_INT_TYPE                                                
 
 %%
 
-const Expression *g_root; // Definition of variable (to match declaration earlier)
+const Function *g_root;
 
-const Expression *parseAST()
+const Function *parseAST()
 {
   g_root=0;
   yyparse();
   return g_root;
 }
-
