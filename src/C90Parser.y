@@ -3,6 +3,7 @@
   #include <cassert>
 
   extern const Function *g_root; // A way of getting the AST out
+  extern FILE* yyin; // File input
 
   //! This is to fix problems when generating C++
   // We are declaring the functions provided by Flex, so
@@ -92,7 +93,7 @@ CONDITIONAL_EXPR    : LOR_EXPR                                                  
 LOR_EXPR            : LAND_EXPR                                                     { $$ = $1                 ; }
                     | LOR_EXPR T_LOR LAND_EXPR                                      { $$ = new LogicOr($1, $3); }
 
-LAND_EXPR           : BOR_EXPR                                                    { $$ = $1                  ; }
+LAND_EXPR           : BOR_EXPR                                                      { $$ = $1                  ; }
                     | LAND_EXPR T_LAND EQUAL_EXPR                                   { $$ = new LogicAnd($1, $3); }
 
 BOR_EXPR            : BXOR_EXPR                                                     { $$ = $1; }
@@ -130,16 +131,17 @@ UNARY_EXPR          : FACTOR_EXPR                                               
 FACTOR_EXPR         : T_NUMBER                                                      { $$ = new Number($1)  ; }
                     | T_VARIABLE                                                    { $$ = new Variable($1); }
                     | T_LPAREN EXPR T_RPAREN                                        { $$ = $2              ; }
-
+ 
 TYPE_DEF            : T_INT_TYPE                                                    { $$ = TypeDef::INT; }
 
 %%
 
 const Function *g_root;
 
-const Function *parseAST()
+const Function *parseAST(FILE *fileInput)
 {
   g_root=0;
+  yyin = fileInput;
   yyparse();
   return g_root;
 }

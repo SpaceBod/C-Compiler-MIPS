@@ -312,7 +312,7 @@ public:
     }
     virtual void pretty_print(std::ostream &dst) const override
     {
-        dst << "{ ";
+        dst << "{\n";
         if (decl_List != nullptr)
         {
             decl_List->pretty_print(dst);

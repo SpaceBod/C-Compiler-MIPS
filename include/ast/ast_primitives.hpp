@@ -20,24 +20,31 @@ private:
     ExpressionPtr Expr;
 
 public:
-    Variable() {}
+
+    Variable() {
+    }
+
+    Variable(const std::string *_id) 
+    {
+        id = *_id;
+    }
 
     Variable(TypeDef _type, const std::string *_id, ExpressionPtr _Expr = nullptr)
     {
         switch (_type)
         {
         case INT:
-            type = "INT";
+            type = "int";
             Expr = _Expr;
             id = *_id;
             break;
         case DOUBLE:
-            type = "DOUBLE";
+            type = "double";
             Expr = _Expr;
             id = *_id;
             break;
         case FLOAT:
-            type = "FLOAT";
+            type = "float";
             Expr = _Expr;
             id = *_id;
             break;
@@ -124,7 +131,8 @@ private:
 
 public:
     Decl_list(Variable *_variable, Decl_listPtr _declarationList = nullptr)
-        : variable(_variable), decl_List(_declarationList)
+        : variable(_variable)
+        , decl_List(_declarationList)
     {
     }
 

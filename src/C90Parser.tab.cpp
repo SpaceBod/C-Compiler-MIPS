@@ -536,13 +536,13 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    50,    50,    52,    54,    55,    57,    58,    60,    61,
-      63,    64,    65,    66,    67,    69,    70,    71,    72,    74,
-      75,    77,    78,    80,    81,    82,    84,    85,    87,    88,
-      90,    92,    93,    95,    96,    98,    99,   101,   102,   104,
-     105,   107,   108,   109,   111,   112,   113,   114,   115,   117,
-     118,   119,   121,   122,   123,   124,   126,   127,   128,   130,
-     131,   132,   134
+       0,    51,    51,    53,    55,    56,    58,    59,    61,    62,
+      64,    65,    66,    67,    68,    70,    71,    72,    73,    75,
+      76,    78,    79,    81,    82,    83,    85,    86,    88,    89,
+      91,    93,    94,    96,    97,    99,   100,   102,   103,   105,
+     106,   108,   109,   110,   112,   113,   114,   115,   116,   118,
+     119,   120,   122,   123,   124,   125,   127,   128,   129,   131,
+     132,   133,   135
 };
 #endif
 
@@ -1206,367 +1206,367 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* PROGRAM: FUNCTION  */
-#line 50 "src/C90Parser.y"
+#line 51 "src/C90Parser.y"
                                                                                     { g_root = (yyvsp[0].func); }
 #line 1212 "src/C90Parser.tab.cpp"
     break;
 
   case 3: /* FUNCTION: TYPE_DEF T_VARIABLE T_LPAREN T_RPAREN COMPOUND_STAT  */
-#line 52 "src/C90Parser.y"
+#line 53 "src/C90Parser.y"
                                                                                     { (yyval.func) = new Function((new Variable((yyvsp[-4].T_type), (yyvsp[-3].str))), (yyvsp[0].stat)); }
 #line 1218 "src/C90Parser.tab.cpp"
     break;
 
   case 4: /* DECLARATION_LIST: DECLARATION  */
-#line 54 "src/C90Parser.y"
+#line 55 "src/C90Parser.y"
                                                                                     { (yyval.decllist) = new Decl_list((yyvsp[0].var))    ; }
 #line 1224 "src/C90Parser.tab.cpp"
     break;
 
   case 5: /* DECLARATION_LIST: DECLARATION DECLARATION_LIST  */
-#line 55 "src/C90Parser.y"
+#line 56 "src/C90Parser.y"
                                                                                     { (yyval.decllist) = new Decl_list((yyvsp[-1].var), (yyvsp[0].decllist)); }
 #line 1230 "src/C90Parser.tab.cpp"
     break;
 
   case 6: /* STAT_LIST: STAT  */
-#line 57 "src/C90Parser.y"
+#line 58 "src/C90Parser.y"
                                                                                     { (yyval.statlist) = new Stat_list((yyvsp[0].stat))    ; }
 #line 1236 "src/C90Parser.tab.cpp"
     break;
 
   case 7: /* STAT_LIST: STAT STAT_LIST  */
-#line 58 "src/C90Parser.y"
+#line 59 "src/C90Parser.y"
                                                                                     { (yyval.statlist) = new Stat_list((yyvsp[-1].stat), (yyvsp[0].statlist)); }
 #line 1242 "src/C90Parser.tab.cpp"
     break;
 
   case 8: /* DECLARATION: TYPE_DEF T_VARIABLE T_SEMI  */
-#line 60 "src/C90Parser.y"
+#line 61 "src/C90Parser.y"
                                                                                     { (yyval.var) = new Variable((yyvsp[-2].T_type), (yyvsp[-1].str)); }
 #line 1248 "src/C90Parser.tab.cpp"
     break;
 
   case 9: /* DECLARATION: TYPE_DEF T_VARIABLE T_ASSIGN EXPR T_SEMI  */
-#line 61 "src/C90Parser.y"
+#line 62 "src/C90Parser.y"
                                                                                     { (yyval.var) = new Variable((yyvsp[-4].T_type), (yyvsp[-3].str), (yyvsp[-1].expr)); }
 #line 1254 "src/C90Parser.tab.cpp"
     break;
 
   case 10: /* STAT: COMPOUND_STAT  */
-#line 63 "src/C90Parser.y"
+#line 64 "src/C90Parser.y"
                                                                                     { (yyval.stat) = (yyvsp[0].stat); }
 #line 1260 "src/C90Parser.tab.cpp"
     break;
 
   case 11: /* STAT: EXPRESSION_STAT  */
-#line 64 "src/C90Parser.y"
+#line 65 "src/C90Parser.y"
                                                                                     { (yyval.stat) = (yyvsp[0].stat); }
 #line 1266 "src/C90Parser.tab.cpp"
     break;
 
   case 12: /* STAT: SELECTION_STAT  */
-#line 65 "src/C90Parser.y"
+#line 66 "src/C90Parser.y"
                                                                                     { (yyval.stat) = (yyvsp[0].stat); }
 #line 1272 "src/C90Parser.tab.cpp"
     break;
 
   case 13: /* STAT: ITERATION_STAT  */
-#line 66 "src/C90Parser.y"
+#line 67 "src/C90Parser.y"
                                                                                     { (yyval.stat) = (yyvsp[0].stat); }
 #line 1278 "src/C90Parser.tab.cpp"
     break;
 
   case 14: /* STAT: JUMP_STAT  */
-#line 67 "src/C90Parser.y"
+#line 68 "src/C90Parser.y"
                                                                                     { (yyval.stat) = (yyvsp[0].stat); }
 #line 1284 "src/C90Parser.tab.cpp"
     break;
 
   case 15: /* COMPOUND_STAT: T_LBRACE T_RBRACE  */
-#line 69 "src/C90Parser.y"
+#line 70 "src/C90Parser.y"
                                                                                     { (yyval.stat) = new Comp_Stat()      ; }
 #line 1290 "src/C90Parser.tab.cpp"
     break;
 
   case 16: /* COMPOUND_STAT: T_LBRACE STAT_LIST T_RBRACE  */
-#line 70 "src/C90Parser.y"
+#line 71 "src/C90Parser.y"
                                                                                     { (yyval.stat) = new Comp_Stat((yyvsp[-1].statlist))    ; }
 #line 1296 "src/C90Parser.tab.cpp"
     break;
 
   case 17: /* COMPOUND_STAT: T_LBRACE DECLARATION_LIST T_RBRACE  */
-#line 71 "src/C90Parser.y"
+#line 72 "src/C90Parser.y"
                                                                                     { (yyval.stat) = new Comp_Stat((yyvsp[-1].decllist))    ; }
 #line 1302 "src/C90Parser.tab.cpp"
     break;
 
   case 18: /* COMPOUND_STAT: T_LBRACE DECLARATION_LIST STAT_LIST T_RBRACE  */
-#line 72 "src/C90Parser.y"
+#line 73 "src/C90Parser.y"
                                                                                     { (yyval.stat) = new Comp_Stat((yyvsp[-2].decllist), (yyvsp[-1].statlist)); }
 #line 1308 "src/C90Parser.tab.cpp"
     break;
 
   case 19: /* EXPRESSION_STAT: T_SEMI  */
-#line 74 "src/C90Parser.y"
+#line 75 "src/C90Parser.y"
                                                                                     { (yyval.stat) = new Expression_Stat()  ; }
 #line 1314 "src/C90Parser.tab.cpp"
     break;
 
   case 20: /* EXPRESSION_STAT: EXPR T_SEMI  */
-#line 75 "src/C90Parser.y"
+#line 76 "src/C90Parser.y"
                                                                                     { (yyval.stat) = new Expression_Stat((yyvsp[-1].expr)); }
 #line 1320 "src/C90Parser.tab.cpp"
     break;
 
   case 21: /* SELECTION_STAT: T_IF T_LPAREN EXPR T_RPAREN STAT  */
-#line 77 "src/C90Parser.y"
+#line 78 "src/C90Parser.y"
                                                                                     { (yyval.stat) = new If_Stat((yyvsp[-2].expr), (yyvsp[0].stat))    ; }
 #line 1326 "src/C90Parser.tab.cpp"
     break;
 
   case 22: /* SELECTION_STAT: T_IF T_LPAREN EXPR T_RPAREN STAT T_ELSE STAT  */
-#line 78 "src/C90Parser.y"
+#line 79 "src/C90Parser.y"
                                                                                     { (yyval.stat) = new If_Stat((yyvsp[-4].expr), (yyvsp[-2].stat), (yyvsp[0].stat)); }
 #line 1332 "src/C90Parser.tab.cpp"
     break;
 
   case 23: /* ITERATION_STAT: T_WHILE T_LPAREN EXPR T_RPAREN STAT  */
-#line 80 "src/C90Parser.y"
+#line 81 "src/C90Parser.y"
                                                                                     { (yyval.stat) = new While_Stat((yyvsp[-2].expr), (yyvsp[0].stat))      ; }
 #line 1338 "src/C90Parser.tab.cpp"
     break;
 
   case 24: /* ITERATION_STAT: T_FOR T_LPAREN EXPR T_SEMI EXPR T_SEMI EXPR T_RPAREN STAT  */
-#line 81 "src/C90Parser.y"
+#line 82 "src/C90Parser.y"
                                                                                     { (yyval.stat) = new For_Stat((yyvsp[-6].expr), (yyvsp[-4].expr), (yyvsp[-2].expr), (yyvsp[0].stat)); }
 #line 1344 "src/C90Parser.tab.cpp"
     break;
 
   case 25: /* ITERATION_STAT: T_FOR T_LPAREN DECLARATION EXPR T_SEMI EXPR T_RPAREN STAT  */
-#line 82 "src/C90Parser.y"
+#line 83 "src/C90Parser.y"
                                                                                     { (yyval.stat) = new For_Stat((yyvsp[-5].var), (yyvsp[-4].expr), (yyvsp[-2].expr), (yyvsp[0].stat)); }
 #line 1350 "src/C90Parser.tab.cpp"
     break;
 
   case 26: /* JUMP_STAT: T_RETURN T_SEMI  */
-#line 84 "src/C90Parser.y"
+#line 85 "src/C90Parser.y"
                                                                                     { (yyval.stat) = new Jump_Stat()  ; }
 #line 1356 "src/C90Parser.tab.cpp"
     break;
 
   case 27: /* JUMP_STAT: T_RETURN EXPR T_SEMI  */
-#line 85 "src/C90Parser.y"
+#line 86 "src/C90Parser.y"
                                                                                     { (yyval.stat) = new Jump_Stat((yyvsp[-1].expr)); }
 #line 1362 "src/C90Parser.tab.cpp"
     break;
 
   case 28: /* EXPR: CONDITIONAL_EXPR  */
-#line 87 "src/C90Parser.y"
+#line 88 "src/C90Parser.y"
                                                                                     { (yyval.expr) = (yyvsp[0].expr); }
 #line 1368 "src/C90Parser.tab.cpp"
     break;
 
   case 29: /* EXPR: T_VARIABLE T_ASSIGN EXPR  */
-#line 88 "src/C90Parser.y"
+#line 89 "src/C90Parser.y"
                                                                                     {          }
 #line 1374 "src/C90Parser.tab.cpp"
     break;
 
   case 30: /* CONDITIONAL_EXPR: LOR_EXPR  */
-#line 90 "src/C90Parser.y"
+#line 91 "src/C90Parser.y"
                                                                                     { (yyval.expr) = (yyvsp[0].expr); }
 #line 1380 "src/C90Parser.tab.cpp"
     break;
 
   case 31: /* LOR_EXPR: LAND_EXPR  */
-#line 92 "src/C90Parser.y"
+#line 93 "src/C90Parser.y"
                                                                                     { (yyval.expr) = (yyvsp[0].expr)                 ; }
 #line 1386 "src/C90Parser.tab.cpp"
     break;
 
   case 32: /* LOR_EXPR: LOR_EXPR T_LOR LAND_EXPR  */
-#line 93 "src/C90Parser.y"
+#line 94 "src/C90Parser.y"
                                                                                     { (yyval.expr) = new LogicOr((yyvsp[-2].expr), (yyvsp[0].expr)); }
 #line 1392 "src/C90Parser.tab.cpp"
     break;
 
   case 33: /* LAND_EXPR: BOR_EXPR  */
-#line 95 "src/C90Parser.y"
-                                                                                  { (yyval.expr) = (yyvsp[0].expr)                  ; }
+#line 96 "src/C90Parser.y"
+                                                                                    { (yyval.expr) = (yyvsp[0].expr)                  ; }
 #line 1398 "src/C90Parser.tab.cpp"
     break;
 
   case 34: /* LAND_EXPR: LAND_EXPR T_LAND EQUAL_EXPR  */
-#line 96 "src/C90Parser.y"
+#line 97 "src/C90Parser.y"
                                                                                     { (yyval.expr) = new LogicAnd((yyvsp[-2].expr), (yyvsp[0].expr)); }
 #line 1404 "src/C90Parser.tab.cpp"
     break;
 
   case 35: /* BOR_EXPR: BXOR_EXPR  */
-#line 98 "src/C90Parser.y"
+#line 99 "src/C90Parser.y"
                                                                                     { (yyval.expr) = (yyvsp[0].expr); }
 #line 1410 "src/C90Parser.tab.cpp"
     break;
 
   case 36: /* BOR_EXPR: BOR_EXPR T_BOR BXOR_EXPR  */
-#line 99 "src/C90Parser.y"
+#line 100 "src/C90Parser.y"
                                                                                     { (yyval.expr) = new BitOr((yyvsp[-2].expr), (yyvsp[0].expr)); }
 #line 1416 "src/C90Parser.tab.cpp"
     break;
 
   case 37: /* BAND_EXPR: EQUAL_EXPR  */
-#line 101 "src/C90Parser.y"
+#line 102 "src/C90Parser.y"
                                                                                     { (yyval.expr) = (yyvsp[0].expr)                ; }
 #line 1422 "src/C90Parser.tab.cpp"
     break;
 
   case 38: /* BAND_EXPR: BAND_EXPR T_BAND EQUAL_EXPR  */
-#line 102 "src/C90Parser.y"
+#line 103 "src/C90Parser.y"
                                                                                     { (yyval.expr) = new BitAnd((yyvsp[-2].expr), (yyvsp[0].expr)); }
 #line 1428 "src/C90Parser.tab.cpp"
     break;
 
   case 39: /* BXOR_EXPR: BAND_EXPR  */
-#line 104 "src/C90Parser.y"
+#line 105 "src/C90Parser.y"
                                                                                     { (yyval.expr) = (yyvsp[0].expr); }
 #line 1434 "src/C90Parser.tab.cpp"
     break;
 
   case 40: /* BXOR_EXPR: BXOR_EXPR T_BXOR BAND_EXPR  */
-#line 105 "src/C90Parser.y"
+#line 106 "src/C90Parser.y"
                                                                                     { (yyval.expr) = new BitXOr((yyvsp[-2].expr), (yyvsp[0].expr)); }
 #line 1440 "src/C90Parser.tab.cpp"
     break;
 
   case 41: /* EQUAL_EXPR: RELATION_EXPR  */
-#line 107 "src/C90Parser.y"
+#line 108 "src/C90Parser.y"
                                                                                     { (yyval.expr) = (yyvsp[0].expr)                          ; }
 #line 1446 "src/C90Parser.tab.cpp"
     break;
 
   case 42: /* EQUAL_EXPR: EQUAL_EXPR T_EQUAL RELATION_EXPR  */
-#line 108 "src/C90Parser.y"
+#line 109 "src/C90Parser.y"
                                                                                     { (yyval.expr) = new EqualOperator((yyvsp[-2].expr), (yyvsp[0].expr))   ; }
 #line 1452 "src/C90Parser.tab.cpp"
     break;
 
   case 43: /* EQUAL_EXPR: EQUAL_EXPR T_NEQUAL RELATION_EXPR  */
-#line 109 "src/C90Parser.y"
+#line 110 "src/C90Parser.y"
                                                                                     { (yyval.expr) = new NotEqualOperator((yyvsp[-2].expr), (yyvsp[0].expr)); }
 #line 1458 "src/C90Parser.tab.cpp"
     break;
 
   case 44: /* RELATION_EXPR: ARITHMETIC_EXPR  */
-#line 111 "src/C90Parser.y"
+#line 112 "src/C90Parser.y"
                                                                                     { (yyval.expr) = (yyvsp[0].expr)                                    ; }
 #line 1464 "src/C90Parser.tab.cpp"
     break;
 
   case 45: /* RELATION_EXPR: RELATION_EXPR T_GT ARITHMETIC_EXPR  */
-#line 112 "src/C90Parser.y"
+#line 113 "src/C90Parser.y"
                                                                                     { (yyval.expr) = new GreaterThanOperator((yyvsp[-2].expr), (yyvsp[0].expr))       ; }
 #line 1470 "src/C90Parser.tab.cpp"
     break;
 
   case 46: /* RELATION_EXPR: RELATION_EXPR T_LT ARITHMETIC_EXPR  */
-#line 113 "src/C90Parser.y"
+#line 114 "src/C90Parser.y"
                                                                                     { (yyval.expr) = new LessThanOperator((yyvsp[-2].expr), (yyvsp[0].expr))          ; }
 #line 1476 "src/C90Parser.tab.cpp"
     break;
 
   case 47: /* RELATION_EXPR: RELATION_EXPR T_GTE ARITHMETIC_EXPR  */
-#line 114 "src/C90Parser.y"
+#line 115 "src/C90Parser.y"
                                                                                     { (yyval.expr) = new GreaterOrEqualThanOperator((yyvsp[-2].expr), (yyvsp[0].expr)); }
 #line 1482 "src/C90Parser.tab.cpp"
     break;
 
   case 48: /* RELATION_EXPR: RELATION_EXPR T_LTE ARITHMETIC_EXPR  */
-#line 115 "src/C90Parser.y"
+#line 116 "src/C90Parser.y"
                                                                                     { (yyval.expr) = new LessOrEqualThanOperator((yyvsp[-2].expr), (yyvsp[0].expr))   ; }
 #line 1488 "src/C90Parser.tab.cpp"
     break;
 
   case 49: /* ARITHMETIC_EXPR: TERM_EXPR  */
-#line 117 "src/C90Parser.y"
+#line 118 "src/C90Parser.y"
                                                                                     { (yyval.expr) = (yyvsp[0].expr)                     ; }
 #line 1494 "src/C90Parser.tab.cpp"
     break;
 
   case 50: /* ARITHMETIC_EXPR: ARITHMETIC_EXPR T_ADD TERM_EXPR  */
-#line 118 "src/C90Parser.y"
+#line 119 "src/C90Parser.y"
                                                                                     { (yyval.expr) = new AddOperator((yyvsp[-2].expr), (yyvsp[0].expr)); }
 #line 1500 "src/C90Parser.tab.cpp"
     break;
 
   case 51: /* ARITHMETIC_EXPR: ARITHMETIC_EXPR T_SUB TERM_EXPR  */
-#line 119 "src/C90Parser.y"
+#line 120 "src/C90Parser.y"
                                                                                     { (yyval.expr) = new SubOperator((yyvsp[-2].expr), (yyvsp[0].expr)); }
 #line 1506 "src/C90Parser.tab.cpp"
     break;
 
   case 52: /* TERM_EXPR: UNARY_EXPR  */
-#line 121 "src/C90Parser.y"
+#line 122 "src/C90Parser.y"
                                                                                     { (yyval.expr) = (yyvsp[0].expr)                     ; }
 #line 1512 "src/C90Parser.tab.cpp"
     break;
 
   case 53: /* TERM_EXPR: TERM_EXPR T_MULT UNARY_EXPR  */
-#line 122 "src/C90Parser.y"
+#line 123 "src/C90Parser.y"
                                                                                     { (yyval.expr) = new MulOperator((yyvsp[-2].expr), (yyvsp[0].expr)); }
 #line 1518 "src/C90Parser.tab.cpp"
     break;
 
   case 54: /* TERM_EXPR: TERM_EXPR T_DIV UNARY_EXPR  */
-#line 123 "src/C90Parser.y"
+#line 124 "src/C90Parser.y"
                                                                                     { (yyval.expr) = new DivOperator((yyvsp[-2].expr), (yyvsp[0].expr)); }
 #line 1524 "src/C90Parser.tab.cpp"
     break;
 
   case 55: /* TERM_EXPR: TERM_EXPR T_MOD UNARY_EXPR  */
-#line 124 "src/C90Parser.y"
+#line 125 "src/C90Parser.y"
                                                                                     { (yyval.expr) = new ModOperator((yyvsp[-2].expr), (yyvsp[0].expr)); }
 #line 1530 "src/C90Parser.tab.cpp"
     break;
 
   case 56: /* UNARY_EXPR: FACTOR_EXPR  */
-#line 126 "src/C90Parser.y"
+#line 127 "src/C90Parser.y"
                                                                                     { (yyval.expr) = (yyvsp[0].expr)                 ; }
 #line 1536 "src/C90Parser.tab.cpp"
     break;
 
   case 57: /* UNARY_EXPR: T_SUB FACTOR_EXPR  */
-#line 127 "src/C90Parser.y"
+#line 128 "src/C90Parser.y"
                                                                                     { (yyval.expr) = new NegOperator((yyvsp[0].expr)); }
 #line 1542 "src/C90Parser.tab.cpp"
     break;
 
   case 58: /* UNARY_EXPR: T_NOT FACTOR_EXPR  */
-#line 128 "src/C90Parser.y"
+#line 129 "src/C90Parser.y"
                                                                                     { (yyval.expr) = new NotOperator((yyvsp[0].expr))   ; }
 #line 1548 "src/C90Parser.tab.cpp"
     break;
 
   case 59: /* FACTOR_EXPR: T_NUMBER  */
-#line 130 "src/C90Parser.y"
+#line 131 "src/C90Parser.y"
                                                                                     { (yyval.expr) = new Number((yyvsp[0].number))  ; }
 #line 1554 "src/C90Parser.tab.cpp"
     break;
 
   case 60: /* FACTOR_EXPR: T_VARIABLE  */
-#line 131 "src/C90Parser.y"
+#line 132 "src/C90Parser.y"
                                                                                     { (yyval.expr) = new Variable((yyvsp[0].str)); }
 #line 1560 "src/C90Parser.tab.cpp"
     break;
 
   case 61: /* FACTOR_EXPR: T_LPAREN EXPR T_RPAREN  */
-#line 132 "src/C90Parser.y"
+#line 133 "src/C90Parser.y"
                                                                                     { (yyval.expr) = (yyvsp[-1].expr)              ; }
 #line 1566 "src/C90Parser.tab.cpp"
     break;
 
   case 62: /* TYPE_DEF: T_INT_TYPE  */
-#line 134 "src/C90Parser.y"
+#line 135 "src/C90Parser.y"
                                                                                     { (yyval.T_type) = TypeDef::INT; }
 #line 1572 "src/C90Parser.tab.cpp"
     break;
@@ -1766,14 +1766,15 @@ yyreturn:
   return yyresult;
 }
 
-#line 136 "src/C90Parser.y"
+#line 137 "src/C90Parser.y"
 
 
 const Function *g_root;
 
-const Function *parseAST()
+const Function *parseAST(FILE *fileInput)
 {
   g_root=0;
+  yyin = fileInput;
   yyparse();
   return g_root;
 }

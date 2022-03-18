@@ -51,6 +51,7 @@ extern int yydebug;
   #include <cassert>
 
   extern const Function *g_root; // A way of getting the AST out
+  extern FILE* yyin; // File input
 
   //! This is to fix problems when generating C++
   // We are declaring the functions provided by Flex, so
@@ -58,7 +59,7 @@ extern int yydebug;
   int yylex(void);
   void yyerror(const char *);
 
-#line 62 "src/C90Parser.tab.hpp"
+#line 63 "src/C90Parser.tab.hpp"
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE
@@ -109,7 +110,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 16 "src/C90Parser.y"
+#line 17 "src/C90Parser.y"
 
   const Function *func;
   const Stat *stat;
@@ -121,7 +122,7 @@ union YYSTYPE
   std::string *str;
   TypeDef T_type;
 
-#line 125 "src/C90Parser.tab.hpp"
+#line 126 "src/C90Parser.tab.hpp"
 
 };
 typedef union YYSTYPE YYSTYPE;

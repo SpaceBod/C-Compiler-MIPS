@@ -2,7 +2,7 @@
 
 %{
 extern "C" int fileno(FILE *stream);
-include "C90Parser.tab.hpp"
+#include "C90Parser.tab.hpp"
 %}
 
 %%
@@ -43,10 +43,10 @@ include "C90Parser.tab.hpp"
 "for"               { return T_FOR              ; }
 "int"               { return T_INT_TYPE         ; }
 
-[0-9]+([.][0-9]*)?            { yylval.number=strtod(yytext, 0); return T_NUMBER; }
-[a-zA-Z_][0-9a-zA-Z_]*         { yylval.string=new std::string(yytext); return T_VARIABLE; }
-[ \t\r\n]+		                {;}
-.                             { fprintf(stderr, "Invalid token\n"); exit(1); }
+[0-9]+([.][0-9]*)?              { yylval.number=strtod(yytext, 0); return T_NUMBER; }
+[a-zA-Z_][0-9a-zA-Z_]*          { yylval.str=new std::string(yytext); return T_VARIABLE; }
+[ \t\r\n]+		                  {;}
+.                               { fprintf(stderr, "Invalid token\n"); exit(1); }
 
 %%
 
