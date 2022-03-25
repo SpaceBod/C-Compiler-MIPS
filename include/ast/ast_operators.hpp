@@ -74,6 +74,14 @@ public:
         double vr = getRight()->evaluate(bindings);
         return vl + vr;
     }
+
+    virtual void Translate2MIPS(std::string destReg) const override {
+        std::string srcRegA = makeName("srcRegA");
+        std::string srcRegB = makeName("srcRegB");
+        getLeft()->Translate2MIPS(srcRegA);
+        getRight()->Translate2MIPS(srcRegB);
+        std::cout << "add " << destReg << " " << srcRegA << " " << srcRegB << std::endl;
+    }
 };
 
 class SubOperator
@@ -98,6 +106,14 @@ public:
         double vr = getRight()->evaluate(bindings);
         return vl - vr;
     }
+
+    virtual void Translate2MIPS(std::string destReg) const override {
+        std::string srcRegA = makeName("srcRegA");
+        std::string srcRegB = makeName("srcRegB");
+        getLeft()->Translate2MIPS(srcRegA);
+        getRight()->Translate2MIPS(srcRegB);
+        std::cout << "sub " << destReg << " " << srcRegA << " " << srcRegB << std::endl;
+    }
 };
 
 class MulOperator
@@ -121,6 +137,14 @@ public:
         double vl = getLeft()->evaluate(bindings);
         double vr = getRight()->evaluate(bindings);
         return vl * vr;
+    }
+
+    virtual void Translate2MIPS(std::string destReg) const override {
+        std::string srcRegA = makeName("srcRegA");
+        std::string srcRegB = makeName("srcRegB");
+        getLeft()->Translate2MIPS(srcRegA);
+        getRight()->Translate2MIPS(srcRegB);
+        std::cout << "mul " << destReg << " " << srcRegA << " " << srcRegB << std::endl;
     }
 };
 
@@ -169,6 +193,15 @@ public:
         int vl = getLeft()->evaluate(bindings);
         int vr = getRight()->evaluate(bindings);
         return vl % vr;
+    }
+
+    virtual void Translate2MIPS(std::string destReg) const override {
+        std::string srcRegA = makeName("srcRegA");
+        std::string srcRegB = makeName("srcRegB");
+        getLeft()->Translate2MIPS(srcRegA);
+        getRight()->Translate2MIPS(srcRegB);
+        std::cout << "div " << srcRegA << " " << srcRegB << std::endl; // quotient stored in hi, remainder stored in lo
+        std::cout << "mflo " << destReg << std::endl;
     }
 };
 

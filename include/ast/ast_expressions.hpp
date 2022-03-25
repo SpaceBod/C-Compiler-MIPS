@@ -18,6 +18,7 @@ public:
     {
     }
     virtual void pretty_print(std::ostream &dst) const = 0;
+    virtual void Translate2MIPS(std::string destReg) const = 0;
 
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const

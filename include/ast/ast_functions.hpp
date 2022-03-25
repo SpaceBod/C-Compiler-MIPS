@@ -5,10 +5,7 @@
 #include "ast_primitives.hpp"
 #include "ast_statements.hpp"
 
-#include <cmath>
-
 class Function
-    : public Expression
 {
 private:
     ExpressionPtr arg;
@@ -47,71 +44,10 @@ public:
         dst << "\n";
         stat->pretty_print(dst);
     }
-};
 
-class LogFunction
-    : public Function
-{
-public:
-    LogFunction(Variable *_name, StatPtr _stat = nullptr)
-        : Function(_name, _stat)
-    {
-    }
-
-    virtual const char *getFunction() const
-    {
-        return "log";
-    }
-
-    virtual double evaluate(
-        const std::map<std::string, double> &bindings) const override
-    {
-        double v = getArg()->evaluate(bindings);
-        return log(v);
-    }
-};
-
-class ExpFunction
-    : public Function
-{
-public:
-    ExpFunction(Variable *_name, StatPtr _stat = nullptr)
-        : Function(_name, _stat)
-    {
-    }
-
-    virtual const char *getFunction() const
-    {
-        return "exp";
-    }
-
-    virtual double evaluate(
-        const std::map<std::string, double> &bindings) const override
-    {
-        double v = getArg()->evaluate(bindings);
-        return exp(v);
-    }
-};
-
-class SqrtFunction
-    : public Function
-{
-public:
-    SqrtFunction(Variable *_name, StatPtr _stat = nullptr)
-        : Function(_name, _stat)
-    {
-    }
-
-    virtual const char *getFunction() const
-    {
-        return "sqrt";
-    }
-
-    virtual double evaluate(
-        const std::map<std::string, double> &bindings) const override
-    {
-        double v = getArg()->evaluate(bindings);
-        return sqrt(v);
+    void Translate2MIPS(std::string destReg) const {
+        std::cout << ":" << name->getId() << std::endl;
+        stat->Translate2MIPS(destReg);
     }
 };
 
