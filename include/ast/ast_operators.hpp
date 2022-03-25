@@ -229,7 +229,14 @@ public:
         double vr = getRight()->evaluate(bindings);
         return vl > vr;
     }
-};
+    
+    virtual void Translate2MIPS(std::string destReg) const override {
+        std::string srcRegA = makeName("srcRegA");
+        std::string srcRegB = makeName("srcRegB");
+        getLeft()->Translate2MIPS(srcRegA);
+        getRight()->Translate2MIPS(srcRegB);
+        std::cout << "slt " << destReg << " " << srcRegB << " " << srcRegA << std::endl;
+    }
 
 class LessThanOperator
     : public Operator
@@ -252,6 +259,14 @@ public:
         double vl = getLeft()->evaluate(bindings);
         double vr = getRight()->evaluate(bindings);
         return vl < vr;
+    }
+
+    virtual void Translate2MIPS(std::string destReg) const override {
+        std::string srcRegA = makeName("srcRegA");
+        std::string srcRegB = makeName("srcRegB");
+        getLeft()->Translate2MIPS(srcRegA);
+        getRight()->Translate2MIPS(srcRegB);
+        std::cout << "slt " << destReg << " " << srcRegA << " " << srcRegB << std::endl;
     }
 };
 
@@ -277,6 +292,23 @@ public:
         double vr = getRight()->evaluate(bindings);
         return vl >= vr;
     }
+
+    virtual void Translate2MIPS(std::string destReg) const override {
+        std::string srcRegA = makeName("srcRegA");
+        std::string srcRegB = makeName("srcRegB");
+        getLeft()->Translate2MIPS(srcRegA);
+        getRight()->Translate2MIPS(srcRegB);
+
+        std::cout << "sge " << destReg << " " << srcRegA << " " << srcRegB << std::endl;
+        // std::string set_one = makeName("set_one");
+        // std::cout << "beq " << srcRegA << " " << srcRegB << " " << set_one << std::endl;
+        // std::cout << "slt " << destReg << " " << srcRegB << " " << srcRegA << std::endl;
+        // std::string exit = makeName("exit");
+        // std::cout << "jump " << exit << std::endl;
+        // std::cout << ":" << set_one << std::endl;
+        // std::cout << "addi " << destReg << " $0 1" << std::endl;
+        // std::cout << ":" << exit << std::endl;
+    }
 };
 
 class LessOrEqualThanOperator
@@ -301,6 +333,14 @@ public:
         double vr = getRight()->evaluate(bindings);
         return vl <= vr;
     }
+
+    virtual void Translate2MIPS(std::string destReg) const override {
+        std::string srcRegA = makeName("srcRegA");
+        std::string srcRegB = makeName("srcRegB");
+        getLeft()->Translate2MIPS(srcRegA);
+        getRight()->Translate2MIPS(srcRegB);
+
+        std::cout << "sge " << destReg << " " << srcRegA << " " << srcRegB << std::endl;
 };
 
 class EqualOperator
