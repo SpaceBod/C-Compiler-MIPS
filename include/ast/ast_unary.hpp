@@ -59,6 +59,13 @@ public:
         double neg = getExpr()->evaluate(bindings);
         return -neg;
     }
+
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
+        std::string srcRegA = makeName("srcRegA");
+        getExpr()->Translate2MIPS(srcRegA);
+        std::cout << "subu " << destReg << " $0 " << srcRegA << std::endl;
+    }
 };
 
 class NotOperator
@@ -80,6 +87,17 @@ public:
     {
         double val = getExpr()->evaluate(bindings);
         return (!val);
+    }
+
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
+        std::string srcRegA = makeName("srcRegA");
+        getExpr()->Translate2MIPS(srcRegA);
+        std::string setZero = makeName("setZero");
+        std::cout << "beq " << srcRegA << " $0 " << setZero << std::endl;
+        std::cout << "addi " << destReg << " $0 1" << std::endl;
+        std::cout << setZero << ":" << std::endl;
+        std::cout << "add " << destReg << " $0 $0" << std::endl;
     }
 };
 

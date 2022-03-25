@@ -20,11 +20,11 @@ private:
     ExpressionPtr Expr;
 
 public:
-
-    Variable() {
+    Variable()
+    {
     }
 
-    Variable(const std::string *_id) 
+    Variable(const std::string *_id)
     {
         id = *_id;
     }
@@ -87,6 +87,18 @@ public:
     {
         return bindings.at(id);
     }
+
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
+        if (getType() == "int")
+        {
+            std::string var = makeName("var");
+            if (Expr != nullptr)
+            {
+                getExpr()->Translate2MIPS(var);
+            }
+        }
+    }
 };
 
 class Number
@@ -116,6 +128,11 @@ public:
     {
         return value;
     }
+
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
+        std::cout << "addi " << destReg << " $0 " << value << std::endl;
+    }
 };
 
 class Decl_list;
@@ -131,8 +148,7 @@ private:
 
 public:
     Decl_list(Variable *_variable, Decl_listPtr _declarationList = nullptr)
-        : variable(_variable)
-        , decl_List(_declarationList)
+        : variable(_variable), decl_List(_declarationList)
     {
     }
 
@@ -156,6 +172,15 @@ public:
         if (decl_List != nullptr)
         {
             decl_List->pretty_print(dst);
+        }
+    }
+
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
+        getVar()->Translate2MIPS(destReg);
+        if (decl_List != nullptr)
+        {
+            getdecllist()->Translate2MIPS(destReg);
         }
     }
 };

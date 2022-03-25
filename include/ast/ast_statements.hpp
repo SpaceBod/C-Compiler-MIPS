@@ -13,6 +13,7 @@ class Stat
 public:
     virtual ~Stat() {}
     virtual void pretty_print(std::ostream &dst) const = 0;
+    virtual void Translate2MIPS(std::string destReg) const = 0;
 };
 
 class Stat_list;
@@ -50,6 +51,15 @@ public:
         if (stat_list != nullptr)
         {
             stat_list->pretty_print(dst);
+        }
+    }
+
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
+        return_Stat()->Translate2MIPS(destReg);
+        if (stat_list != nullptr)
+        {
+            return_Stat_list()->Translate2MIPS(destReg);
         }
     }
 };
@@ -114,6 +124,31 @@ public:
         }
         dst << '\n';
     }
+
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
+        std::string c = makeName("c");
+        getCond()->Translate2MIPS(c);
+        std::string exit = makeName("exit");
+        if (else_branch != nullptr)
+        {
+            std::string else_stat = makeName("else_stat");
+            std::cout << "beq " << c << " $0 " << else_stat << std::endl;
+            return_Stat()->Translate2MIPS(destReg);
+            std::string exit = makeName("exit");
+            std::cout << "jump " << exit << std::endl;
+            std::cout << else_stat << ":" << std::endl;
+            getElse()->Translate2MIPS(destReg);
+            std::cout << exit << ":" << std::endl;
+        }
+        else
+        {
+            std::string exit = makeName("exit");
+            std::cout << "beq " << c << " $0 " << exit << std::endl;
+            return_Stat()->Translate2MIPS(destReg);
+            std::cout << exit << ":" << std::endl;
+        }
+    }
 };
 
 class Loop_Stat
@@ -160,6 +195,11 @@ public:
         dst << " ) ";
         return_Stat()->pretty_print(dst);
         dst << '\n';
+    }
+
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
+        // todo
     }
 };
 
@@ -208,6 +248,21 @@ public:
         dst << " ) \n";
         return_Stat()->pretty_print(dst);
     }
+
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
+        std::string c = makeName("while_condition");
+        getCond()->Translate2MIPS(c);
+        std::string unique_exit = makeName("exit");
+        std::cout << "beq " << c << " $0 " << unique_exit << std::endl;
+        std::string unique_start = makeName("start");
+        std::cout << unique_start << ":" << std::endl;
+        return_Stat()->Translate2MIPS(destReg);
+        getCond()->Translate2MIPS(c);
+        std::cout << "bne " << c << " $0 " << unique_start << std::endl;
+        std::cout << unique_exit << ":" << std::endl;
+        std::cout << "add " << destReg << " $0 $0" << std::endl;
+    }
 };
 
 class Expression_Stat
@@ -237,6 +292,11 @@ public:
         }
         dst << ";";
         dst << '\n';
+    }
+
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
+        getExp()->Translate2MIPS(destReg);
     }
 };
 
@@ -269,6 +329,11 @@ public:
 
         dst << ";";
         dst << '\n';
+    }
+
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
+        // todo
     }
 };
 
@@ -323,6 +388,18 @@ public:
         }
         dst << "}";
         dst << '\n';
+    }
+
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
+        if (decl_List != nullptr)
+        {
+            decl_List->Translate2MIPS(destReg);
+        }
+        if (stat_List != nullptr)
+        {
+            stat_List->Translate2MIPS(destReg);
+        }
     }
 };
 

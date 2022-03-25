@@ -1,0 +1,1840 @@
+Terminals unused in grammar
+
+    T_COMMA
+
+
+State 110 conflicts: 1 shift/reduce
+
+
+Grammar
+
+    0 $accept: PROGRAM $end
+
+    1 PROGRAM: FUNCTION
+
+    2 FUNCTION: TYPE_DEF T_VARIABLE T_LPAREN T_RPAREN COMPOUND_STAT
+
+    3 DECLARATION_LIST: DECLARATION
+    4                 | DECLARATION DECLARATION_LIST
+
+    5 STAT_LIST: STAT
+    6          | STAT STAT_LIST
+
+    7 DECLARATION: TYPE_DEF T_VARIABLE T_SEMI
+    8            | TYPE_DEF T_VARIABLE T_ASSIGN EXPR T_SEMI
+
+    9 STAT: COMPOUND_STAT
+   10     | EXPRESSION_STAT
+   11     | SELECTION_STAT
+   12     | ITERATION_STAT
+   13     | JUMP_STAT
+
+   14 COMPOUND_STAT: T_LBRACE T_RBRACE
+   15              | T_LBRACE STAT_LIST T_RBRACE
+   16              | T_LBRACE DECLARATION_LIST T_RBRACE
+   17              | T_LBRACE DECLARATION_LIST STAT_LIST T_RBRACE
+
+   18 EXPRESSION_STAT: T_SEMI
+   19                | EXPR T_SEMI
+
+   20 SELECTION_STAT: T_IF T_LPAREN EXPR T_RPAREN STAT
+   21               | T_IF T_LPAREN EXPR T_RPAREN STAT T_ELSE STAT
+
+   22 ITERATION_STAT: T_WHILE T_LPAREN EXPR T_RPAREN STAT
+   23               | T_FOR T_LPAREN EXPR T_SEMI EXPR T_SEMI EXPR T_RPAREN STAT
+   24               | T_FOR T_LPAREN DECLARATION EXPR T_SEMI EXPR T_RPAREN STAT
+
+   25 JUMP_STAT: T_RETURN T_SEMI
+   26          | T_RETURN EXPR T_SEMI
+
+   27 EXPR: CONDITIONAL_EXPR
+   28     | T_VARIABLE T_ASSIGN EXPR
+
+   29 CONDITIONAL_EXPR: LOR_EXPR
+
+   30 LOR_EXPR: LAND_EXPR
+   31         | LOR_EXPR T_LOR LAND_EXPR
+
+   32 LAND_EXPR: BOR_EXPR
+   33          | LAND_EXPR T_LAND EQUAL_EXPR
+
+   34 BOR_EXPR: BXOR_EXPR
+   35         | BOR_EXPR T_BOR BXOR_EXPR
+
+   36 BAND_EXPR: EQUAL_EXPR
+   37          | BAND_EXPR T_BAND EQUAL_EXPR
+
+   38 BXOR_EXPR: BAND_EXPR
+   39          | BXOR_EXPR T_BXOR BAND_EXPR
+
+   40 EQUAL_EXPR: RELATION_EXPR
+   41           | EQUAL_EXPR T_EQUAL RELATION_EXPR
+   42           | EQUAL_EXPR T_NEQUAL RELATION_EXPR
+
+   43 RELATION_EXPR: ARITHMETIC_EXPR
+   44              | RELATION_EXPR T_GT ARITHMETIC_EXPR
+   45              | RELATION_EXPR T_LT ARITHMETIC_EXPR
+   46              | RELATION_EXPR T_GTE ARITHMETIC_EXPR
+   47              | RELATION_EXPR T_LTE ARITHMETIC_EXPR
+
+   48 ARITHMETIC_EXPR: TERM_EXPR
+   49                | ARITHMETIC_EXPR T_ADD TERM_EXPR
+   50                | ARITHMETIC_EXPR T_SUB TERM_EXPR
+
+   51 TERM_EXPR: UNARY_EXPR
+   52          | TERM_EXPR T_MULT UNARY_EXPR
+   53          | TERM_EXPR T_DIV UNARY_EXPR
+   54          | TERM_EXPR T_MOD UNARY_EXPR
+
+   55 UNARY_EXPR: FACTOR_EXPR
+   56           | T_SUB FACTOR_EXPR
+   57           | T_NOT FACTOR_EXPR
+
+   58 FACTOR_EXPR: T_NUMBER
+   59            | T_VARIABLE
+   60            | T_LPAREN EXPR T_RPAREN
+
+   61 TYPE_DEF: T_INT_TYPE
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    error (256)
+    T_VARIABLE <str> (258) 2 7 8 28 59
+    T_NUMBER <number> (259) 58
+    T_GT (260) 44
+    T_LT (261) 45
+    T_GTE (262) 46
+    T_LTE (263) 47
+    T_EQUAL (264) 41
+    T_NEQUAL (265) 42
+    T_LOR (266) 31
+    T_BOR (267) 35
+    T_LAND (268) 33
+    T_BAND (269) 37
+    T_BXOR (270) 39
+    T_SUB (271) 50 56
+    T_ADD (272) 49
+    T_MULT (273) 52
+    T_DIV (274) 53
+    T_MOD (275) 54
+    T_NOT (276) 57
+    T_ASSIGN (277) 8 28
+    T_SEMI (278) 7 8 18 19 23 24 25 26
+    T_COMMA (279)
+    T_LBRACE (280) 14 15 16 17
+    T_RBRACE (281) 14 15 16 17
+    T_LPAREN (282) 2 20 21 22 23 24 60
+    T_RPAREN (283) 2 20 21 22 23 24 60
+    T_INT_TYPE <str> (284) 61
+    T_RETURN (285) 25 26
+    T_WHILE (286) 22
+    T_IF (287) 20 21
+    T_ELSE (288) 21
+    T_FOR (289) 23 24
+
+
+Nonterminals, with rules where they appear
+
+    $accept (35)
+        on left: 0
+    PROGRAM (36)
+        on left: 1
+        on right: 0
+    FUNCTION <func> (37)
+        on left: 2
+        on right: 1
+    DECLARATION_LIST <decllist> (38)
+        on left: 3 4
+        on right: 4 16 17
+    STAT_LIST <statlist> (39)
+        on left: 5 6
+        on right: 6 15 17
+    DECLARATION <var> (40)
+        on left: 7 8
+        on right: 3 4 24
+    STAT <stat> (41)
+        on left: 9 10 11 12 13
+        on right: 5 6 20 21 22 23 24
+    COMPOUND_STAT <stat> (42)
+        on left: 14 15 16 17
+        on right: 2 9
+    EXPRESSION_STAT <stat> (43)
+        on left: 18 19
+        on right: 10
+    SELECTION_STAT <stat> (44)
+        on left: 20 21
+        on right: 11
+    ITERATION_STAT <stat> (45)
+        on left: 22 23 24
+        on right: 12
+    JUMP_STAT <stat> (46)
+        on left: 25 26
+        on right: 13
+    EXPR <expr> (47)
+        on left: 27 28
+        on right: 8 19 20 21 22 23 24 26 28 60
+    CONDITIONAL_EXPR <expr> (48)
+        on left: 29
+        on right: 27
+    LOR_EXPR <expr> (49)
+        on left: 30 31
+        on right: 29 31
+    LAND_EXPR <expr> (50)
+        on left: 32 33
+        on right: 30 31 33
+    BOR_EXPR <expr> (51)
+        on left: 34 35
+        on right: 32 35
+    BAND_EXPR <expr> (52)
+        on left: 36 37
+        on right: 37 38 39
+    BXOR_EXPR <expr> (53)
+        on left: 38 39
+        on right: 34 35 39
+    EQUAL_EXPR <expr> (54)
+        on left: 40 41 42
+        on right: 33 36 37 41 42
+    RELATION_EXPR <expr> (55)
+        on left: 43 44 45 46 47
+        on right: 40 41 42 44 45 46 47
+    ARITHMETIC_EXPR <expr> (56)
+        on left: 48 49 50
+        on right: 43 44 45 46 47 49 50
+    TERM_EXPR <expr> (57)
+        on left: 51 52 53 54
+        on right: 48 49 50 52 53 54
+    UNARY_EXPR <expr> (58)
+        on left: 55 56 57
+        on right: 51 52 53 54
+    FACTOR_EXPR <expr> (59)
+        on left: 58 59 60
+        on right: 55 56 57
+    TYPE_DEF <T_type> (60)
+        on left: 61
+        on right: 2 7 8
+
+
+State 0
+
+    0 $accept: . PROGRAM $end
+
+    T_INT_TYPE  shift, and go to state 1
+
+    PROGRAM   go to state 2
+    FUNCTION  go to state 3
+    TYPE_DEF  go to state 4
+
+
+State 1
+
+   61 TYPE_DEF: T_INT_TYPE .
+
+    $default  reduce using rule 61 (TYPE_DEF)
+
+
+State 2
+
+    0 $accept: PROGRAM . $end
+
+    $end  shift, and go to state 5
+
+
+State 3
+
+    1 PROGRAM: FUNCTION .
+
+    $default  reduce using rule 1 (PROGRAM)
+
+
+State 4
+
+    2 FUNCTION: TYPE_DEF . T_VARIABLE T_LPAREN T_RPAREN COMPOUND_STAT
+
+    T_VARIABLE  shift, and go to state 6
+
+
+State 5
+
+    0 $accept: PROGRAM $end .
+
+    $default  accept
+
+
+State 6
+
+    2 FUNCTION: TYPE_DEF T_VARIABLE . T_LPAREN T_RPAREN COMPOUND_STAT
+
+    T_LPAREN  shift, and go to state 7
+
+
+State 7
+
+    2 FUNCTION: TYPE_DEF T_VARIABLE T_LPAREN . T_RPAREN COMPOUND_STAT
+
+    T_RPAREN  shift, and go to state 8
+
+
+State 8
+
+    2 FUNCTION: TYPE_DEF T_VARIABLE T_LPAREN T_RPAREN . COMPOUND_STAT
+
+    T_LBRACE  shift, and go to state 9
+
+    COMPOUND_STAT  go to state 10
+
+
+State 9
+
+   14 COMPOUND_STAT: T_LBRACE . T_RBRACE
+   15              | T_LBRACE . STAT_LIST T_RBRACE
+   16              | T_LBRACE . DECLARATION_LIST T_RBRACE
+   17              | T_LBRACE . DECLARATION_LIST STAT_LIST T_RBRACE
+
+    T_VARIABLE  shift, and go to state 11
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_SEMI      shift, and go to state 15
+    T_LBRACE    shift, and go to state 9
+    T_RBRACE    shift, and go to state 16
+    T_LPAREN    shift, and go to state 17
+    T_INT_TYPE  shift, and go to state 1
+    T_RETURN    shift, and go to state 18
+    T_WHILE     shift, and go to state 19
+    T_IF        shift, and go to state 20
+    T_FOR       shift, and go to state 21
+
+    DECLARATION_LIST  go to state 22
+    STAT_LIST         go to state 23
+    DECLARATION       go to state 24
+    STAT              go to state 25
+    COMPOUND_STAT     go to state 26
+    EXPRESSION_STAT   go to state 27
+    SELECTION_STAT    go to state 28
+    ITERATION_STAT    go to state 29
+    JUMP_STAT         go to state 30
+    EXPR              go to state 31
+    CONDITIONAL_EXPR  go to state 32
+    LOR_EXPR          go to state 33
+    LAND_EXPR         go to state 34
+    BOR_EXPR          go to state 35
+    BAND_EXPR         go to state 36
+    BXOR_EXPR         go to state 37
+    EQUAL_EXPR        go to state 38
+    RELATION_EXPR     go to state 39
+    ARITHMETIC_EXPR   go to state 40
+    TERM_EXPR         go to state 41
+    UNARY_EXPR        go to state 42
+    FACTOR_EXPR       go to state 43
+    TYPE_DEF          go to state 44
+
+
+State 10
+
+    2 FUNCTION: TYPE_DEF T_VARIABLE T_LPAREN T_RPAREN COMPOUND_STAT .
+
+    $default  reduce using rule 2 (FUNCTION)
+
+
+State 11
+
+   28 EXPR: T_VARIABLE . T_ASSIGN EXPR
+   59 FACTOR_EXPR: T_VARIABLE .
+
+    T_ASSIGN  shift, and go to state 45
+
+    $default  reduce using rule 59 (FACTOR_EXPR)
+
+
+State 12
+
+   58 FACTOR_EXPR: T_NUMBER .
+
+    $default  reduce using rule 58 (FACTOR_EXPR)
+
+
+State 13
+
+   56 UNARY_EXPR: T_SUB . FACTOR_EXPR
+
+    T_VARIABLE  shift, and go to state 46
+    T_NUMBER    shift, and go to state 12
+    T_LPAREN    shift, and go to state 17
+
+    FACTOR_EXPR  go to state 47
+
+
+State 14
+
+   57 UNARY_EXPR: T_NOT . FACTOR_EXPR
+
+    T_VARIABLE  shift, and go to state 46
+    T_NUMBER    shift, and go to state 12
+    T_LPAREN    shift, and go to state 17
+
+    FACTOR_EXPR  go to state 48
+
+
+State 15
+
+   18 EXPRESSION_STAT: T_SEMI .
+
+    $default  reduce using rule 18 (EXPRESSION_STAT)
+
+
+State 16
+
+   14 COMPOUND_STAT: T_LBRACE T_RBRACE .
+
+    $default  reduce using rule 14 (COMPOUND_STAT)
+
+
+State 17
+
+   60 FACTOR_EXPR: T_LPAREN . EXPR T_RPAREN
+
+    T_VARIABLE  shift, and go to state 11
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+
+    EXPR              go to state 49
+    CONDITIONAL_EXPR  go to state 32
+    LOR_EXPR          go to state 33
+    LAND_EXPR         go to state 34
+    BOR_EXPR          go to state 35
+    BAND_EXPR         go to state 36
+    BXOR_EXPR         go to state 37
+    EQUAL_EXPR        go to state 38
+    RELATION_EXPR     go to state 39
+    ARITHMETIC_EXPR   go to state 40
+    TERM_EXPR         go to state 41
+    UNARY_EXPR        go to state 42
+    FACTOR_EXPR       go to state 43
+
+
+State 18
+
+   25 JUMP_STAT: T_RETURN . T_SEMI
+   26          | T_RETURN . EXPR T_SEMI
+
+    T_VARIABLE  shift, and go to state 11
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_SEMI      shift, and go to state 50
+    T_LPAREN    shift, and go to state 17
+
+    EXPR              go to state 51
+    CONDITIONAL_EXPR  go to state 32
+    LOR_EXPR          go to state 33
+    LAND_EXPR         go to state 34
+    BOR_EXPR          go to state 35
+    BAND_EXPR         go to state 36
+    BXOR_EXPR         go to state 37
+    EQUAL_EXPR        go to state 38
+    RELATION_EXPR     go to state 39
+    ARITHMETIC_EXPR   go to state 40
+    TERM_EXPR         go to state 41
+    UNARY_EXPR        go to state 42
+    FACTOR_EXPR       go to state 43
+
+
+State 19
+
+   22 ITERATION_STAT: T_WHILE . T_LPAREN EXPR T_RPAREN STAT
+
+    T_LPAREN  shift, and go to state 52
+
+
+State 20
+
+   20 SELECTION_STAT: T_IF . T_LPAREN EXPR T_RPAREN STAT
+   21               | T_IF . T_LPAREN EXPR T_RPAREN STAT T_ELSE STAT
+
+    T_LPAREN  shift, and go to state 53
+
+
+State 21
+
+   23 ITERATION_STAT: T_FOR . T_LPAREN EXPR T_SEMI EXPR T_SEMI EXPR T_RPAREN STAT
+   24               | T_FOR . T_LPAREN DECLARATION EXPR T_SEMI EXPR T_RPAREN STAT
+
+    T_LPAREN  shift, and go to state 54
+
+
+State 22
+
+   16 COMPOUND_STAT: T_LBRACE DECLARATION_LIST . T_RBRACE
+   17              | T_LBRACE DECLARATION_LIST . STAT_LIST T_RBRACE
+
+    T_VARIABLE  shift, and go to state 11
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_SEMI      shift, and go to state 15
+    T_LBRACE    shift, and go to state 9
+    T_RBRACE    shift, and go to state 55
+    T_LPAREN    shift, and go to state 17
+    T_RETURN    shift, and go to state 18
+    T_WHILE     shift, and go to state 19
+    T_IF        shift, and go to state 20
+    T_FOR       shift, and go to state 21
+
+    STAT_LIST         go to state 56
+    STAT              go to state 25
+    COMPOUND_STAT     go to state 26
+    EXPRESSION_STAT   go to state 27
+    SELECTION_STAT    go to state 28
+    ITERATION_STAT    go to state 29
+    JUMP_STAT         go to state 30
+    EXPR              go to state 31
+    CONDITIONAL_EXPR  go to state 32
+    LOR_EXPR          go to state 33
+    LAND_EXPR         go to state 34
+    BOR_EXPR          go to state 35
+    BAND_EXPR         go to state 36
+    BXOR_EXPR         go to state 37
+    EQUAL_EXPR        go to state 38
+    RELATION_EXPR     go to state 39
+    ARITHMETIC_EXPR   go to state 40
+    TERM_EXPR         go to state 41
+    UNARY_EXPR        go to state 42
+    FACTOR_EXPR       go to state 43
+
+
+State 23
+
+   15 COMPOUND_STAT: T_LBRACE STAT_LIST . T_RBRACE
+
+    T_RBRACE  shift, and go to state 57
+
+
+State 24
+
+    3 DECLARATION_LIST: DECLARATION .
+    4                 | DECLARATION . DECLARATION_LIST
+
+    T_INT_TYPE  shift, and go to state 1
+
+    $default  reduce using rule 3 (DECLARATION_LIST)
+
+    DECLARATION_LIST  go to state 58
+    DECLARATION       go to state 24
+    TYPE_DEF          go to state 44
+
+
+State 25
+
+    5 STAT_LIST: STAT .
+    6          | STAT . STAT_LIST
+
+    T_VARIABLE  shift, and go to state 11
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_SEMI      shift, and go to state 15
+    T_LBRACE    shift, and go to state 9
+    T_LPAREN    shift, and go to state 17
+    T_RETURN    shift, and go to state 18
+    T_WHILE     shift, and go to state 19
+    T_IF        shift, and go to state 20
+    T_FOR       shift, and go to state 21
+
+    $default  reduce using rule 5 (STAT_LIST)
+
+    STAT_LIST         go to state 59
+    STAT              go to state 25
+    COMPOUND_STAT     go to state 26
+    EXPRESSION_STAT   go to state 27
+    SELECTION_STAT    go to state 28
+    ITERATION_STAT    go to state 29
+    JUMP_STAT         go to state 30
+    EXPR              go to state 31
+    CONDITIONAL_EXPR  go to state 32
+    LOR_EXPR          go to state 33
+    LAND_EXPR         go to state 34
+    BOR_EXPR          go to state 35
+    BAND_EXPR         go to state 36
+    BXOR_EXPR         go to state 37
+    EQUAL_EXPR        go to state 38
+    RELATION_EXPR     go to state 39
+    ARITHMETIC_EXPR   go to state 40
+    TERM_EXPR         go to state 41
+    UNARY_EXPR        go to state 42
+    FACTOR_EXPR       go to state 43
+
+
+State 26
+
+    9 STAT: COMPOUND_STAT .
+
+    $default  reduce using rule 9 (STAT)
+
+
+State 27
+
+   10 STAT: EXPRESSION_STAT .
+
+    $default  reduce using rule 10 (STAT)
+
+
+State 28
+
+   11 STAT: SELECTION_STAT .
+
+    $default  reduce using rule 11 (STAT)
+
+
+State 29
+
+   12 STAT: ITERATION_STAT .
+
+    $default  reduce using rule 12 (STAT)
+
+
+State 30
+
+   13 STAT: JUMP_STAT .
+
+    $default  reduce using rule 13 (STAT)
+
+
+State 31
+
+   19 EXPRESSION_STAT: EXPR . T_SEMI
+
+    T_SEMI  shift, and go to state 60
+
+
+State 32
+
+   27 EXPR: CONDITIONAL_EXPR .
+
+    $default  reduce using rule 27 (EXPR)
+
+
+State 33
+
+   29 CONDITIONAL_EXPR: LOR_EXPR .
+   31 LOR_EXPR: LOR_EXPR . T_LOR LAND_EXPR
+
+    T_LOR  shift, and go to state 61
+
+    $default  reduce using rule 29 (CONDITIONAL_EXPR)
+
+
+State 34
+
+   30 LOR_EXPR: LAND_EXPR .
+   33 LAND_EXPR: LAND_EXPR . T_LAND EQUAL_EXPR
+
+    T_LAND  shift, and go to state 62
+
+    $default  reduce using rule 30 (LOR_EXPR)
+
+
+State 35
+
+   32 LAND_EXPR: BOR_EXPR .
+   35 BOR_EXPR: BOR_EXPR . T_BOR BXOR_EXPR
+
+    T_BOR  shift, and go to state 63
+
+    $default  reduce using rule 32 (LAND_EXPR)
+
+
+State 36
+
+   37 BAND_EXPR: BAND_EXPR . T_BAND EQUAL_EXPR
+   38 BXOR_EXPR: BAND_EXPR .
+
+    T_BAND  shift, and go to state 64
+
+    $default  reduce using rule 38 (BXOR_EXPR)
+
+
+State 37
+
+   34 BOR_EXPR: BXOR_EXPR .
+   39 BXOR_EXPR: BXOR_EXPR . T_BXOR BAND_EXPR
+
+    T_BXOR  shift, and go to state 65
+
+    $default  reduce using rule 34 (BOR_EXPR)
+
+
+State 38
+
+   36 BAND_EXPR: EQUAL_EXPR .
+   41 EQUAL_EXPR: EQUAL_EXPR . T_EQUAL RELATION_EXPR
+   42           | EQUAL_EXPR . T_NEQUAL RELATION_EXPR
+
+    T_EQUAL   shift, and go to state 66
+    T_NEQUAL  shift, and go to state 67
+
+    $default  reduce using rule 36 (BAND_EXPR)
+
+
+State 39
+
+   40 EQUAL_EXPR: RELATION_EXPR .
+   44 RELATION_EXPR: RELATION_EXPR . T_GT ARITHMETIC_EXPR
+   45              | RELATION_EXPR . T_LT ARITHMETIC_EXPR
+   46              | RELATION_EXPR . T_GTE ARITHMETIC_EXPR
+   47              | RELATION_EXPR . T_LTE ARITHMETIC_EXPR
+
+    T_GT   shift, and go to state 68
+    T_LT   shift, and go to state 69
+    T_GTE  shift, and go to state 70
+    T_LTE  shift, and go to state 71
+
+    $default  reduce using rule 40 (EQUAL_EXPR)
+
+
+State 40
+
+   43 RELATION_EXPR: ARITHMETIC_EXPR .
+   49 ARITHMETIC_EXPR: ARITHMETIC_EXPR . T_ADD TERM_EXPR
+   50                | ARITHMETIC_EXPR . T_SUB TERM_EXPR
+
+    T_SUB  shift, and go to state 72
+    T_ADD  shift, and go to state 73
+
+    $default  reduce using rule 43 (RELATION_EXPR)
+
+
+State 41
+
+   48 ARITHMETIC_EXPR: TERM_EXPR .
+   52 TERM_EXPR: TERM_EXPR . T_MULT UNARY_EXPR
+   53          | TERM_EXPR . T_DIV UNARY_EXPR
+   54          | TERM_EXPR . T_MOD UNARY_EXPR
+
+    T_MULT  shift, and go to state 74
+    T_DIV   shift, and go to state 75
+    T_MOD   shift, and go to state 76
+
+    $default  reduce using rule 48 (ARITHMETIC_EXPR)
+
+
+State 42
+
+   51 TERM_EXPR: UNARY_EXPR .
+
+    $default  reduce using rule 51 (TERM_EXPR)
+
+
+State 43
+
+   55 UNARY_EXPR: FACTOR_EXPR .
+
+    $default  reduce using rule 55 (UNARY_EXPR)
+
+
+State 44
+
+    7 DECLARATION: TYPE_DEF . T_VARIABLE T_SEMI
+    8            | TYPE_DEF . T_VARIABLE T_ASSIGN EXPR T_SEMI
+
+    T_VARIABLE  shift, and go to state 77
+
+
+State 45
+
+   28 EXPR: T_VARIABLE T_ASSIGN . EXPR
+
+    T_VARIABLE  shift, and go to state 11
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+
+    EXPR              go to state 78
+    CONDITIONAL_EXPR  go to state 32
+    LOR_EXPR          go to state 33
+    LAND_EXPR         go to state 34
+    BOR_EXPR          go to state 35
+    BAND_EXPR         go to state 36
+    BXOR_EXPR         go to state 37
+    EQUAL_EXPR        go to state 38
+    RELATION_EXPR     go to state 39
+    ARITHMETIC_EXPR   go to state 40
+    TERM_EXPR         go to state 41
+    UNARY_EXPR        go to state 42
+    FACTOR_EXPR       go to state 43
+
+
+State 46
+
+   59 FACTOR_EXPR: T_VARIABLE .
+
+    $default  reduce using rule 59 (FACTOR_EXPR)
+
+
+State 47
+
+   56 UNARY_EXPR: T_SUB FACTOR_EXPR .
+
+    $default  reduce using rule 56 (UNARY_EXPR)
+
+
+State 48
+
+   57 UNARY_EXPR: T_NOT FACTOR_EXPR .
+
+    $default  reduce using rule 57 (UNARY_EXPR)
+
+
+State 49
+
+   60 FACTOR_EXPR: T_LPAREN EXPR . T_RPAREN
+
+    T_RPAREN  shift, and go to state 79
+
+
+State 50
+
+   25 JUMP_STAT: T_RETURN T_SEMI .
+
+    $default  reduce using rule 25 (JUMP_STAT)
+
+
+State 51
+
+   26 JUMP_STAT: T_RETURN EXPR . T_SEMI
+
+    T_SEMI  shift, and go to state 80
+
+
+State 52
+
+   22 ITERATION_STAT: T_WHILE T_LPAREN . EXPR T_RPAREN STAT
+
+    T_VARIABLE  shift, and go to state 11
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+
+    EXPR              go to state 81
+    CONDITIONAL_EXPR  go to state 32
+    LOR_EXPR          go to state 33
+    LAND_EXPR         go to state 34
+    BOR_EXPR          go to state 35
+    BAND_EXPR         go to state 36
+    BXOR_EXPR         go to state 37
+    EQUAL_EXPR        go to state 38
+    RELATION_EXPR     go to state 39
+    ARITHMETIC_EXPR   go to state 40
+    TERM_EXPR         go to state 41
+    UNARY_EXPR        go to state 42
+    FACTOR_EXPR       go to state 43
+
+
+State 53
+
+   20 SELECTION_STAT: T_IF T_LPAREN . EXPR T_RPAREN STAT
+   21               | T_IF T_LPAREN . EXPR T_RPAREN STAT T_ELSE STAT
+
+    T_VARIABLE  shift, and go to state 11
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+
+    EXPR              go to state 82
+    CONDITIONAL_EXPR  go to state 32
+    LOR_EXPR          go to state 33
+    LAND_EXPR         go to state 34
+    BOR_EXPR          go to state 35
+    BAND_EXPR         go to state 36
+    BXOR_EXPR         go to state 37
+    EQUAL_EXPR        go to state 38
+    RELATION_EXPR     go to state 39
+    ARITHMETIC_EXPR   go to state 40
+    TERM_EXPR         go to state 41
+    UNARY_EXPR        go to state 42
+    FACTOR_EXPR       go to state 43
+
+
+State 54
+
+   23 ITERATION_STAT: T_FOR T_LPAREN . EXPR T_SEMI EXPR T_SEMI EXPR T_RPAREN STAT
+   24               | T_FOR T_LPAREN . DECLARATION EXPR T_SEMI EXPR T_RPAREN STAT
+
+    T_VARIABLE  shift, and go to state 11
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+    T_INT_TYPE  shift, and go to state 1
+
+    DECLARATION       go to state 83
+    EXPR              go to state 84
+    CONDITIONAL_EXPR  go to state 32
+    LOR_EXPR          go to state 33
+    LAND_EXPR         go to state 34
+    BOR_EXPR          go to state 35
+    BAND_EXPR         go to state 36
+    BXOR_EXPR         go to state 37
+    EQUAL_EXPR        go to state 38
+    RELATION_EXPR     go to state 39
+    ARITHMETIC_EXPR   go to state 40
+    TERM_EXPR         go to state 41
+    UNARY_EXPR        go to state 42
+    FACTOR_EXPR       go to state 43
+    TYPE_DEF          go to state 44
+
+
+State 55
+
+   16 COMPOUND_STAT: T_LBRACE DECLARATION_LIST T_RBRACE .
+
+    $default  reduce using rule 16 (COMPOUND_STAT)
+
+
+State 56
+
+   17 COMPOUND_STAT: T_LBRACE DECLARATION_LIST STAT_LIST . T_RBRACE
+
+    T_RBRACE  shift, and go to state 85
+
+
+State 57
+
+   15 COMPOUND_STAT: T_LBRACE STAT_LIST T_RBRACE .
+
+    $default  reduce using rule 15 (COMPOUND_STAT)
+
+
+State 58
+
+    4 DECLARATION_LIST: DECLARATION DECLARATION_LIST .
+
+    $default  reduce using rule 4 (DECLARATION_LIST)
+
+
+State 59
+
+    6 STAT_LIST: STAT STAT_LIST .
+
+    $default  reduce using rule 6 (STAT_LIST)
+
+
+State 60
+
+   19 EXPRESSION_STAT: EXPR T_SEMI .
+
+    $default  reduce using rule 19 (EXPRESSION_STAT)
+
+
+State 61
+
+   31 LOR_EXPR: LOR_EXPR T_LOR . LAND_EXPR
+
+    T_VARIABLE  shift, and go to state 46
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+
+    LAND_EXPR        go to state 86
+    BOR_EXPR         go to state 35
+    BAND_EXPR        go to state 36
+    BXOR_EXPR        go to state 37
+    EQUAL_EXPR       go to state 38
+    RELATION_EXPR    go to state 39
+    ARITHMETIC_EXPR  go to state 40
+    TERM_EXPR        go to state 41
+    UNARY_EXPR       go to state 42
+    FACTOR_EXPR      go to state 43
+
+
+State 62
+
+   33 LAND_EXPR: LAND_EXPR T_LAND . EQUAL_EXPR
+
+    T_VARIABLE  shift, and go to state 46
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+
+    EQUAL_EXPR       go to state 87
+    RELATION_EXPR    go to state 39
+    ARITHMETIC_EXPR  go to state 40
+    TERM_EXPR        go to state 41
+    UNARY_EXPR       go to state 42
+    FACTOR_EXPR      go to state 43
+
+
+State 63
+
+   35 BOR_EXPR: BOR_EXPR T_BOR . BXOR_EXPR
+
+    T_VARIABLE  shift, and go to state 46
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+
+    BAND_EXPR        go to state 36
+    BXOR_EXPR        go to state 88
+    EQUAL_EXPR       go to state 38
+    RELATION_EXPR    go to state 39
+    ARITHMETIC_EXPR  go to state 40
+    TERM_EXPR        go to state 41
+    UNARY_EXPR       go to state 42
+    FACTOR_EXPR      go to state 43
+
+
+State 64
+
+   37 BAND_EXPR: BAND_EXPR T_BAND . EQUAL_EXPR
+
+    T_VARIABLE  shift, and go to state 46
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+
+    EQUAL_EXPR       go to state 89
+    RELATION_EXPR    go to state 39
+    ARITHMETIC_EXPR  go to state 40
+    TERM_EXPR        go to state 41
+    UNARY_EXPR       go to state 42
+    FACTOR_EXPR      go to state 43
+
+
+State 65
+
+   39 BXOR_EXPR: BXOR_EXPR T_BXOR . BAND_EXPR
+
+    T_VARIABLE  shift, and go to state 46
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+
+    BAND_EXPR        go to state 90
+    EQUAL_EXPR       go to state 38
+    RELATION_EXPR    go to state 39
+    ARITHMETIC_EXPR  go to state 40
+    TERM_EXPR        go to state 41
+    UNARY_EXPR       go to state 42
+    FACTOR_EXPR      go to state 43
+
+
+State 66
+
+   41 EQUAL_EXPR: EQUAL_EXPR T_EQUAL . RELATION_EXPR
+
+    T_VARIABLE  shift, and go to state 46
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+
+    RELATION_EXPR    go to state 91
+    ARITHMETIC_EXPR  go to state 40
+    TERM_EXPR        go to state 41
+    UNARY_EXPR       go to state 42
+    FACTOR_EXPR      go to state 43
+
+
+State 67
+
+   42 EQUAL_EXPR: EQUAL_EXPR T_NEQUAL . RELATION_EXPR
+
+    T_VARIABLE  shift, and go to state 46
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+
+    RELATION_EXPR    go to state 92
+    ARITHMETIC_EXPR  go to state 40
+    TERM_EXPR        go to state 41
+    UNARY_EXPR       go to state 42
+    FACTOR_EXPR      go to state 43
+
+
+State 68
+
+   44 RELATION_EXPR: RELATION_EXPR T_GT . ARITHMETIC_EXPR
+
+    T_VARIABLE  shift, and go to state 46
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+
+    ARITHMETIC_EXPR  go to state 93
+    TERM_EXPR        go to state 41
+    UNARY_EXPR       go to state 42
+    FACTOR_EXPR      go to state 43
+
+
+State 69
+
+   45 RELATION_EXPR: RELATION_EXPR T_LT . ARITHMETIC_EXPR
+
+    T_VARIABLE  shift, and go to state 46
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+
+    ARITHMETIC_EXPR  go to state 94
+    TERM_EXPR        go to state 41
+    UNARY_EXPR       go to state 42
+    FACTOR_EXPR      go to state 43
+
+
+State 70
+
+   46 RELATION_EXPR: RELATION_EXPR T_GTE . ARITHMETIC_EXPR
+
+    T_VARIABLE  shift, and go to state 46
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+
+    ARITHMETIC_EXPR  go to state 95
+    TERM_EXPR        go to state 41
+    UNARY_EXPR       go to state 42
+    FACTOR_EXPR      go to state 43
+
+
+State 71
+
+   47 RELATION_EXPR: RELATION_EXPR T_LTE . ARITHMETIC_EXPR
+
+    T_VARIABLE  shift, and go to state 46
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+
+    ARITHMETIC_EXPR  go to state 96
+    TERM_EXPR        go to state 41
+    UNARY_EXPR       go to state 42
+    FACTOR_EXPR      go to state 43
+
+
+State 72
+
+   50 ARITHMETIC_EXPR: ARITHMETIC_EXPR T_SUB . TERM_EXPR
+
+    T_VARIABLE  shift, and go to state 46
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+
+    TERM_EXPR    go to state 97
+    UNARY_EXPR   go to state 42
+    FACTOR_EXPR  go to state 43
+
+
+State 73
+
+   49 ARITHMETIC_EXPR: ARITHMETIC_EXPR T_ADD . TERM_EXPR
+
+    T_VARIABLE  shift, and go to state 46
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+
+    TERM_EXPR    go to state 98
+    UNARY_EXPR   go to state 42
+    FACTOR_EXPR  go to state 43
+
+
+State 74
+
+   52 TERM_EXPR: TERM_EXPR T_MULT . UNARY_EXPR
+
+    T_VARIABLE  shift, and go to state 46
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+
+    UNARY_EXPR   go to state 99
+    FACTOR_EXPR  go to state 43
+
+
+State 75
+
+   53 TERM_EXPR: TERM_EXPR T_DIV . UNARY_EXPR
+
+    T_VARIABLE  shift, and go to state 46
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+
+    UNARY_EXPR   go to state 100
+    FACTOR_EXPR  go to state 43
+
+
+State 76
+
+   54 TERM_EXPR: TERM_EXPR T_MOD . UNARY_EXPR
+
+    T_VARIABLE  shift, and go to state 46
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+
+    UNARY_EXPR   go to state 101
+    FACTOR_EXPR  go to state 43
+
+
+State 77
+
+    7 DECLARATION: TYPE_DEF T_VARIABLE . T_SEMI
+    8            | TYPE_DEF T_VARIABLE . T_ASSIGN EXPR T_SEMI
+
+    T_ASSIGN  shift, and go to state 102
+    T_SEMI    shift, and go to state 103
+
+
+State 78
+
+   28 EXPR: T_VARIABLE T_ASSIGN EXPR .
+
+    $default  reduce using rule 28 (EXPR)
+
+
+State 79
+
+   60 FACTOR_EXPR: T_LPAREN EXPR T_RPAREN .
+
+    $default  reduce using rule 60 (FACTOR_EXPR)
+
+
+State 80
+
+   26 JUMP_STAT: T_RETURN EXPR T_SEMI .
+
+    $default  reduce using rule 26 (JUMP_STAT)
+
+
+State 81
+
+   22 ITERATION_STAT: T_WHILE T_LPAREN EXPR . T_RPAREN STAT
+
+    T_RPAREN  shift, and go to state 104
+
+
+State 82
+
+   20 SELECTION_STAT: T_IF T_LPAREN EXPR . T_RPAREN STAT
+   21               | T_IF T_LPAREN EXPR . T_RPAREN STAT T_ELSE STAT
+
+    T_RPAREN  shift, and go to state 105
+
+
+State 83
+
+   24 ITERATION_STAT: T_FOR T_LPAREN DECLARATION . EXPR T_SEMI EXPR T_RPAREN STAT
+
+    T_VARIABLE  shift, and go to state 11
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+
+    EXPR              go to state 106
+    CONDITIONAL_EXPR  go to state 32
+    LOR_EXPR          go to state 33
+    LAND_EXPR         go to state 34
+    BOR_EXPR          go to state 35
+    BAND_EXPR         go to state 36
+    BXOR_EXPR         go to state 37
+    EQUAL_EXPR        go to state 38
+    RELATION_EXPR     go to state 39
+    ARITHMETIC_EXPR   go to state 40
+    TERM_EXPR         go to state 41
+    UNARY_EXPR        go to state 42
+    FACTOR_EXPR       go to state 43
+
+
+State 84
+
+   23 ITERATION_STAT: T_FOR T_LPAREN EXPR . T_SEMI EXPR T_SEMI EXPR T_RPAREN STAT
+
+    T_SEMI  shift, and go to state 107
+
+
+State 85
+
+   17 COMPOUND_STAT: T_LBRACE DECLARATION_LIST STAT_LIST T_RBRACE .
+
+    $default  reduce using rule 17 (COMPOUND_STAT)
+
+
+State 86
+
+   31 LOR_EXPR: LOR_EXPR T_LOR LAND_EXPR .
+   33 LAND_EXPR: LAND_EXPR . T_LAND EQUAL_EXPR
+
+    T_LAND  shift, and go to state 62
+
+    $default  reduce using rule 31 (LOR_EXPR)
+
+
+State 87
+
+   33 LAND_EXPR: LAND_EXPR T_LAND EQUAL_EXPR .
+   41 EQUAL_EXPR: EQUAL_EXPR . T_EQUAL RELATION_EXPR
+   42           | EQUAL_EXPR . T_NEQUAL RELATION_EXPR
+
+    T_EQUAL   shift, and go to state 66
+    T_NEQUAL  shift, and go to state 67
+
+    $default  reduce using rule 33 (LAND_EXPR)
+
+
+State 88
+
+   35 BOR_EXPR: BOR_EXPR T_BOR BXOR_EXPR .
+   39 BXOR_EXPR: BXOR_EXPR . T_BXOR BAND_EXPR
+
+    T_BXOR  shift, and go to state 65
+
+    $default  reduce using rule 35 (BOR_EXPR)
+
+
+State 89
+
+   37 BAND_EXPR: BAND_EXPR T_BAND EQUAL_EXPR .
+   41 EQUAL_EXPR: EQUAL_EXPR . T_EQUAL RELATION_EXPR
+   42           | EQUAL_EXPR . T_NEQUAL RELATION_EXPR
+
+    T_EQUAL   shift, and go to state 66
+    T_NEQUAL  shift, and go to state 67
+
+    $default  reduce using rule 37 (BAND_EXPR)
+
+
+State 90
+
+   37 BAND_EXPR: BAND_EXPR . T_BAND EQUAL_EXPR
+   39 BXOR_EXPR: BXOR_EXPR T_BXOR BAND_EXPR .
+
+    T_BAND  shift, and go to state 64
+
+    $default  reduce using rule 39 (BXOR_EXPR)
+
+
+State 91
+
+   41 EQUAL_EXPR: EQUAL_EXPR T_EQUAL RELATION_EXPR .
+   44 RELATION_EXPR: RELATION_EXPR . T_GT ARITHMETIC_EXPR
+   45              | RELATION_EXPR . T_LT ARITHMETIC_EXPR
+   46              | RELATION_EXPR . T_GTE ARITHMETIC_EXPR
+   47              | RELATION_EXPR . T_LTE ARITHMETIC_EXPR
+
+    T_GT   shift, and go to state 68
+    T_LT   shift, and go to state 69
+    T_GTE  shift, and go to state 70
+    T_LTE  shift, and go to state 71
+
+    $default  reduce using rule 41 (EQUAL_EXPR)
+
+
+State 92
+
+   42 EQUAL_EXPR: EQUAL_EXPR T_NEQUAL RELATION_EXPR .
+   44 RELATION_EXPR: RELATION_EXPR . T_GT ARITHMETIC_EXPR
+   45              | RELATION_EXPR . T_LT ARITHMETIC_EXPR
+   46              | RELATION_EXPR . T_GTE ARITHMETIC_EXPR
+   47              | RELATION_EXPR . T_LTE ARITHMETIC_EXPR
+
+    T_GT   shift, and go to state 68
+    T_LT   shift, and go to state 69
+    T_GTE  shift, and go to state 70
+    T_LTE  shift, and go to state 71
+
+    $default  reduce using rule 42 (EQUAL_EXPR)
+
+
+State 93
+
+   44 RELATION_EXPR: RELATION_EXPR T_GT ARITHMETIC_EXPR .
+   49 ARITHMETIC_EXPR: ARITHMETIC_EXPR . T_ADD TERM_EXPR
+   50                | ARITHMETIC_EXPR . T_SUB TERM_EXPR
+
+    T_SUB  shift, and go to state 72
+    T_ADD  shift, and go to state 73
+
+    $default  reduce using rule 44 (RELATION_EXPR)
+
+
+State 94
+
+   45 RELATION_EXPR: RELATION_EXPR T_LT ARITHMETIC_EXPR .
+   49 ARITHMETIC_EXPR: ARITHMETIC_EXPR . T_ADD TERM_EXPR
+   50                | ARITHMETIC_EXPR . T_SUB TERM_EXPR
+
+    T_SUB  shift, and go to state 72
+    T_ADD  shift, and go to state 73
+
+    $default  reduce using rule 45 (RELATION_EXPR)
+
+
+State 95
+
+   46 RELATION_EXPR: RELATION_EXPR T_GTE ARITHMETIC_EXPR .
+   49 ARITHMETIC_EXPR: ARITHMETIC_EXPR . T_ADD TERM_EXPR
+   50                | ARITHMETIC_EXPR . T_SUB TERM_EXPR
+
+    T_SUB  shift, and go to state 72
+    T_ADD  shift, and go to state 73
+
+    $default  reduce using rule 46 (RELATION_EXPR)
+
+
+State 96
+
+   47 RELATION_EXPR: RELATION_EXPR T_LTE ARITHMETIC_EXPR .
+   49 ARITHMETIC_EXPR: ARITHMETIC_EXPR . T_ADD TERM_EXPR
+   50                | ARITHMETIC_EXPR . T_SUB TERM_EXPR
+
+    T_SUB  shift, and go to state 72
+    T_ADD  shift, and go to state 73
+
+    $default  reduce using rule 47 (RELATION_EXPR)
+
+
+State 97
+
+   50 ARITHMETIC_EXPR: ARITHMETIC_EXPR T_SUB TERM_EXPR .
+   52 TERM_EXPR: TERM_EXPR . T_MULT UNARY_EXPR
+   53          | TERM_EXPR . T_DIV UNARY_EXPR
+   54          | TERM_EXPR . T_MOD UNARY_EXPR
+
+    T_MULT  shift, and go to state 74
+    T_DIV   shift, and go to state 75
+    T_MOD   shift, and go to state 76
+
+    $default  reduce using rule 50 (ARITHMETIC_EXPR)
+
+
+State 98
+
+   49 ARITHMETIC_EXPR: ARITHMETIC_EXPR T_ADD TERM_EXPR .
+   52 TERM_EXPR: TERM_EXPR . T_MULT UNARY_EXPR
+   53          | TERM_EXPR . T_DIV UNARY_EXPR
+   54          | TERM_EXPR . T_MOD UNARY_EXPR
+
+    T_MULT  shift, and go to state 74
+    T_DIV   shift, and go to state 75
+    T_MOD   shift, and go to state 76
+
+    $default  reduce using rule 49 (ARITHMETIC_EXPR)
+
+
+State 99
+
+   52 TERM_EXPR: TERM_EXPR T_MULT UNARY_EXPR .
+
+    $default  reduce using rule 52 (TERM_EXPR)
+
+
+State 100
+
+   53 TERM_EXPR: TERM_EXPR T_DIV UNARY_EXPR .
+
+    $default  reduce using rule 53 (TERM_EXPR)
+
+
+State 101
+
+   54 TERM_EXPR: TERM_EXPR T_MOD UNARY_EXPR .
+
+    $default  reduce using rule 54 (TERM_EXPR)
+
+
+State 102
+
+    8 DECLARATION: TYPE_DEF T_VARIABLE T_ASSIGN . EXPR T_SEMI
+
+    T_VARIABLE  shift, and go to state 11
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+
+    EXPR              go to state 108
+    CONDITIONAL_EXPR  go to state 32
+    LOR_EXPR          go to state 33
+    LAND_EXPR         go to state 34
+    BOR_EXPR          go to state 35
+    BAND_EXPR         go to state 36
+    BXOR_EXPR         go to state 37
+    EQUAL_EXPR        go to state 38
+    RELATION_EXPR     go to state 39
+    ARITHMETIC_EXPR   go to state 40
+    TERM_EXPR         go to state 41
+    UNARY_EXPR        go to state 42
+    FACTOR_EXPR       go to state 43
+
+
+State 103
+
+    7 DECLARATION: TYPE_DEF T_VARIABLE T_SEMI .
+
+    $default  reduce using rule 7 (DECLARATION)
+
+
+State 104
+
+   22 ITERATION_STAT: T_WHILE T_LPAREN EXPR T_RPAREN . STAT
+
+    T_VARIABLE  shift, and go to state 11
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_SEMI      shift, and go to state 15
+    T_LBRACE    shift, and go to state 9
+    T_LPAREN    shift, and go to state 17
+    T_RETURN    shift, and go to state 18
+    T_WHILE     shift, and go to state 19
+    T_IF        shift, and go to state 20
+    T_FOR       shift, and go to state 21
+
+    STAT              go to state 109
+    COMPOUND_STAT     go to state 26
+    EXPRESSION_STAT   go to state 27
+    SELECTION_STAT    go to state 28
+    ITERATION_STAT    go to state 29
+    JUMP_STAT         go to state 30
+    EXPR              go to state 31
+    CONDITIONAL_EXPR  go to state 32
+    LOR_EXPR          go to state 33
+    LAND_EXPR         go to state 34
+    BOR_EXPR          go to state 35
+    BAND_EXPR         go to state 36
+    BXOR_EXPR         go to state 37
+    EQUAL_EXPR        go to state 38
+    RELATION_EXPR     go to state 39
+    ARITHMETIC_EXPR   go to state 40
+    TERM_EXPR         go to state 41
+    UNARY_EXPR        go to state 42
+    FACTOR_EXPR       go to state 43
+
+
+State 105
+
+   20 SELECTION_STAT: T_IF T_LPAREN EXPR T_RPAREN . STAT
+   21               | T_IF T_LPAREN EXPR T_RPAREN . STAT T_ELSE STAT
+
+    T_VARIABLE  shift, and go to state 11
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_SEMI      shift, and go to state 15
+    T_LBRACE    shift, and go to state 9
+    T_LPAREN    shift, and go to state 17
+    T_RETURN    shift, and go to state 18
+    T_WHILE     shift, and go to state 19
+    T_IF        shift, and go to state 20
+    T_FOR       shift, and go to state 21
+
+    STAT              go to state 110
+    COMPOUND_STAT     go to state 26
+    EXPRESSION_STAT   go to state 27
+    SELECTION_STAT    go to state 28
+    ITERATION_STAT    go to state 29
+    JUMP_STAT         go to state 30
+    EXPR              go to state 31
+    CONDITIONAL_EXPR  go to state 32
+    LOR_EXPR          go to state 33
+    LAND_EXPR         go to state 34
+    BOR_EXPR          go to state 35
+    BAND_EXPR         go to state 36
+    BXOR_EXPR         go to state 37
+    EQUAL_EXPR        go to state 38
+    RELATION_EXPR     go to state 39
+    ARITHMETIC_EXPR   go to state 40
+    TERM_EXPR         go to state 41
+    UNARY_EXPR        go to state 42
+    FACTOR_EXPR       go to state 43
+
+
+State 106
+
+   24 ITERATION_STAT: T_FOR T_LPAREN DECLARATION EXPR . T_SEMI EXPR T_RPAREN STAT
+
+    T_SEMI  shift, and go to state 111
+
+
+State 107
+
+   23 ITERATION_STAT: T_FOR T_LPAREN EXPR T_SEMI . EXPR T_SEMI EXPR T_RPAREN STAT
+
+    T_VARIABLE  shift, and go to state 11
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+
+    EXPR              go to state 112
+    CONDITIONAL_EXPR  go to state 32
+    LOR_EXPR          go to state 33
+    LAND_EXPR         go to state 34
+    BOR_EXPR          go to state 35
+    BAND_EXPR         go to state 36
+    BXOR_EXPR         go to state 37
+    EQUAL_EXPR        go to state 38
+    RELATION_EXPR     go to state 39
+    ARITHMETIC_EXPR   go to state 40
+    TERM_EXPR         go to state 41
+    UNARY_EXPR        go to state 42
+    FACTOR_EXPR       go to state 43
+
+
+State 108
+
+    8 DECLARATION: TYPE_DEF T_VARIABLE T_ASSIGN EXPR . T_SEMI
+
+    T_SEMI  shift, and go to state 113
+
+
+State 109
+
+   22 ITERATION_STAT: T_WHILE T_LPAREN EXPR T_RPAREN STAT .
+
+    $default  reduce using rule 22 (ITERATION_STAT)
+
+
+State 110
+
+   20 SELECTION_STAT: T_IF T_LPAREN EXPR T_RPAREN STAT .
+   21               | T_IF T_LPAREN EXPR T_RPAREN STAT . T_ELSE STAT
+
+    T_ELSE  shift, and go to state 114
+
+    T_ELSE    [reduce using rule 20 (SELECTION_STAT)]
+    $default  reduce using rule 20 (SELECTION_STAT)
+
+
+State 111
+
+   24 ITERATION_STAT: T_FOR T_LPAREN DECLARATION EXPR T_SEMI . EXPR T_RPAREN STAT
+
+    T_VARIABLE  shift, and go to state 11
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+
+    EXPR              go to state 115
+    CONDITIONAL_EXPR  go to state 32
+    LOR_EXPR          go to state 33
+    LAND_EXPR         go to state 34
+    BOR_EXPR          go to state 35
+    BAND_EXPR         go to state 36
+    BXOR_EXPR         go to state 37
+    EQUAL_EXPR        go to state 38
+    RELATION_EXPR     go to state 39
+    ARITHMETIC_EXPR   go to state 40
+    TERM_EXPR         go to state 41
+    UNARY_EXPR        go to state 42
+    FACTOR_EXPR       go to state 43
+
+
+State 112
+
+   23 ITERATION_STAT: T_FOR T_LPAREN EXPR T_SEMI EXPR . T_SEMI EXPR T_RPAREN STAT
+
+    T_SEMI  shift, and go to state 116
+
+
+State 113
+
+    8 DECLARATION: TYPE_DEF T_VARIABLE T_ASSIGN EXPR T_SEMI .
+
+    $default  reduce using rule 8 (DECLARATION)
+
+
+State 114
+
+   21 SELECTION_STAT: T_IF T_LPAREN EXPR T_RPAREN STAT T_ELSE . STAT
+
+    T_VARIABLE  shift, and go to state 11
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_SEMI      shift, and go to state 15
+    T_LBRACE    shift, and go to state 9
+    T_LPAREN    shift, and go to state 17
+    T_RETURN    shift, and go to state 18
+    T_WHILE     shift, and go to state 19
+    T_IF        shift, and go to state 20
+    T_FOR       shift, and go to state 21
+
+    STAT              go to state 117
+    COMPOUND_STAT     go to state 26
+    EXPRESSION_STAT   go to state 27
+    SELECTION_STAT    go to state 28
+    ITERATION_STAT    go to state 29
+    JUMP_STAT         go to state 30
+    EXPR              go to state 31
+    CONDITIONAL_EXPR  go to state 32
+    LOR_EXPR          go to state 33
+    LAND_EXPR         go to state 34
+    BOR_EXPR          go to state 35
+    BAND_EXPR         go to state 36
+    BXOR_EXPR         go to state 37
+    EQUAL_EXPR        go to state 38
+    RELATION_EXPR     go to state 39
+    ARITHMETIC_EXPR   go to state 40
+    TERM_EXPR         go to state 41
+    UNARY_EXPR        go to state 42
+    FACTOR_EXPR       go to state 43
+
+
+State 115
+
+   24 ITERATION_STAT: T_FOR T_LPAREN DECLARATION EXPR T_SEMI EXPR . T_RPAREN STAT
+
+    T_RPAREN  shift, and go to state 118
+
+
+State 116
+
+   23 ITERATION_STAT: T_FOR T_LPAREN EXPR T_SEMI EXPR T_SEMI . EXPR T_RPAREN STAT
+
+    T_VARIABLE  shift, and go to state 11
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_LPAREN    shift, and go to state 17
+
+    EXPR              go to state 119
+    CONDITIONAL_EXPR  go to state 32
+    LOR_EXPR          go to state 33
+    LAND_EXPR         go to state 34
+    BOR_EXPR          go to state 35
+    BAND_EXPR         go to state 36
+    BXOR_EXPR         go to state 37
+    EQUAL_EXPR        go to state 38
+    RELATION_EXPR     go to state 39
+    ARITHMETIC_EXPR   go to state 40
+    TERM_EXPR         go to state 41
+    UNARY_EXPR        go to state 42
+    FACTOR_EXPR       go to state 43
+
+
+State 117
+
+   21 SELECTION_STAT: T_IF T_LPAREN EXPR T_RPAREN STAT T_ELSE STAT .
+
+    $default  reduce using rule 21 (SELECTION_STAT)
+
+
+State 118
+
+   24 ITERATION_STAT: T_FOR T_LPAREN DECLARATION EXPR T_SEMI EXPR T_RPAREN . STAT
+
+    T_VARIABLE  shift, and go to state 11
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_SEMI      shift, and go to state 15
+    T_LBRACE    shift, and go to state 9
+    T_LPAREN    shift, and go to state 17
+    T_RETURN    shift, and go to state 18
+    T_WHILE     shift, and go to state 19
+    T_IF        shift, and go to state 20
+    T_FOR       shift, and go to state 21
+
+    STAT              go to state 120
+    COMPOUND_STAT     go to state 26
+    EXPRESSION_STAT   go to state 27
+    SELECTION_STAT    go to state 28
+    ITERATION_STAT    go to state 29
+    JUMP_STAT         go to state 30
+    EXPR              go to state 31
+    CONDITIONAL_EXPR  go to state 32
+    LOR_EXPR          go to state 33
+    LAND_EXPR         go to state 34
+    BOR_EXPR          go to state 35
+    BAND_EXPR         go to state 36
+    BXOR_EXPR         go to state 37
+    EQUAL_EXPR        go to state 38
+    RELATION_EXPR     go to state 39
+    ARITHMETIC_EXPR   go to state 40
+    TERM_EXPR         go to state 41
+    UNARY_EXPR        go to state 42
+    FACTOR_EXPR       go to state 43
+
+
+State 119
+
+   23 ITERATION_STAT: T_FOR T_LPAREN EXPR T_SEMI EXPR T_SEMI EXPR . T_RPAREN STAT
+
+    T_RPAREN  shift, and go to state 121
+
+
+State 120
+
+   24 ITERATION_STAT: T_FOR T_LPAREN DECLARATION EXPR T_SEMI EXPR T_RPAREN STAT .
+
+    $default  reduce using rule 24 (ITERATION_STAT)
+
+
+State 121
+
+   23 ITERATION_STAT: T_FOR T_LPAREN EXPR T_SEMI EXPR T_SEMI EXPR T_RPAREN . STAT
+
+    T_VARIABLE  shift, and go to state 11
+    T_NUMBER    shift, and go to state 12
+    T_SUB       shift, and go to state 13
+    T_NOT       shift, and go to state 14
+    T_SEMI      shift, and go to state 15
+    T_LBRACE    shift, and go to state 9
+    T_LPAREN    shift, and go to state 17
+    T_RETURN    shift, and go to state 18
+    T_WHILE     shift, and go to state 19
+    T_IF        shift, and go to state 20
+    T_FOR       shift, and go to state 21
+
+    STAT              go to state 122
+    COMPOUND_STAT     go to state 26
+    EXPRESSION_STAT   go to state 27
+    SELECTION_STAT    go to state 28
+    ITERATION_STAT    go to state 29
+    JUMP_STAT         go to state 30
+    EXPR              go to state 31
+    CONDITIONAL_EXPR  go to state 32
+    LOR_EXPR          go to state 33
+    LAND_EXPR         go to state 34
+    BOR_EXPR          go to state 35
+    BAND_EXPR         go to state 36
+    BXOR_EXPR         go to state 37
+    EQUAL_EXPR        go to state 38
+    RELATION_EXPR     go to state 39
+    ARITHMETIC_EXPR   go to state 40
+    TERM_EXPR         go to state 41
+    UNARY_EXPR        go to state 42
+    FACTOR_EXPR       go to state 43
+
+
+State 122
+
+   23 ITERATION_STAT: T_FOR T_LPAREN EXPR T_SEMI EXPR T_SEMI EXPR T_RPAREN STAT .
+
+    $default  reduce using rule 23 (ITERATION_STAT)

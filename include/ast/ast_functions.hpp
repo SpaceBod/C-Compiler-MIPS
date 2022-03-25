@@ -5,7 +5,7 @@
 #include "ast_primitives.hpp"
 #include "ast_statements.hpp"
 
-class Function
+class Function : public Expression
 {
 private:
     ExpressionPtr arg;
@@ -14,11 +14,10 @@ private:
 
 public:
     Function(Variable *_name, StatPtr _stat = nullptr)
-        : name(_name)
-        , stat(_stat)
+        : name(_name), stat(_stat)
     {
     }
-    
+
     virtual ~Function()
     {
         delete arg;
@@ -45,8 +44,9 @@ public:
         stat->pretty_print(dst);
     }
 
-    void Translate2MIPS(std::string destReg) const {
-        std::cout << ":" << name->getId() << std::endl;
+    void Translate2MIPS(std::string destReg) const
+    {
+        std::cout << name->getId() << ":" << std::endl;
         stat->Translate2MIPS(destReg);
     }
 };
