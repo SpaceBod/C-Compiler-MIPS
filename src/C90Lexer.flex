@@ -43,6 +43,11 @@ extern "C" int fileno(FILE *stream);
 "for"               { return T_FOR              ; }
 "int"               { return T_INT_TYPE         ; }
 
+"switch"            { return T_SWITCH           ; }
+"case"              { return T_CASE             ; }
+"continue"          { return T_CONTINUE         ; }
+"break"             { return T_BREAK            ; }
+
 [0-9]+([.][0-9]*)?              { yylval.number=strtod(yytext, 0); return T_NUMBER; }
 [a-zA-Z_][0-9a-zA-Z_]*          { yylval.str=new std::string(yytext); return T_VARIABLE; }
 [ \t\r\n]+		                  {;}
@@ -53,5 +58,6 @@ extern "C" int fileno(FILE *stream);
 void yyerror (char const *s)
 {
   fprintf (stderr, "Token Error -> %s\n", s);
+  fprintf(stderr, "line %d: %s\n", yylineno, s);
   exit(1);
 }

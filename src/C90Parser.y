@@ -32,10 +32,10 @@
 %token T_SUB T_ADD T_MULT T_DIV T_MOD T_NOT
 %token T_ASSIGN T_SEMI T_COMMA
 %token T_LBRACE T_RBRACE T_LPAREN T_RPAREN
-%token T_INT_TYPE T_RETURN T_WHILE T_IF T_ELSE T_FOR
+%token T_INT_TYPE T_RETURN T_WHILE T_IF T_ELSE T_FOR T_SWITCH T_CASE T_CONTINUE T_BREAK
 
 %type <func> FUNCTION
-%type <stat> STAT COMPOUND_STAT EXPRESSION_STAT SELECTION_STAT ITERATION_STAT JUMP_STAT
+%type <stat> STAT COMPOUND_STAT EXPRESSION_STAT SELECTION_STAT ITERATION_STAT JUMP_STAT LABEL_STAT
 %type <expr> EXPR CONDITIONAL_EXPR LOR_EXPR LAND_EXPR BOR_EXPR BAND_EXPR BXOR_EXPR EQUAL_EXPR RELATION_EXPR ARITHMETIC_EXPR TERM_EXPR UNARY_EXPR FACTOR_EXPR
 %type <statlist> STAT_LIST
 %type <number> T_NUMBER
@@ -66,6 +66,7 @@ STAT                : COMPOUND_STAT                                             
                     | SELECTION_STAT                                                { $$ = $1; }
                     | ITERATION_STAT                                                { $$ = $1; }
                     | JUMP_STAT                                                     { $$ = $1; }
+                    | LABEL_STAT                                                    { $$ = $1; }
 
 COMPOUND_STAT       : T_LBRACE T_RBRACE                                             { $$ = new Comp_Stat()      ; }
                     | T_LBRACE STAT_LIST T_RBRACE                                   { $$ = new Comp_Stat($2)    ; }
@@ -77,13 +78,18 @@ EXPRESSION_STAT     : T_SEMI                                                    
 
 SELECTION_STAT      : T_IF T_LPAREN EXPR T_RPAREN STAT                              { $$ = new If_Stat($3, $5)    ; }
                     | T_IF T_LPAREN EXPR T_RPAREN STAT T_ELSE STAT                  { $$ = new If_Stat($3, $5, $7); }
+                    | T_SWITCH T_LPAREN EXPR T_RPAREN STAT                          { $$ = new Switch_Stat($3, $5); }
 
 ITERATION_STAT      : T_WHILE T_LPAREN EXPR T_RPAREN STAT                           { $$ = new While_Stat($3, $5)      ; }
                     | T_FOR T_LPAREN EXPR T_SEMI EXPR T_SEMI EXPR T_RPAREN STAT     { $$ = new For_Stat($3, $5, $7, $9); }
                     | T_FOR T_LPAREN DECLARATION EXPR T_SEMI EXPR T_RPAREN STAT     { $$ = new For_Stat($3, $4, $6, $8); }
 
-JUMP_STAT           : T_RETURN T_SEMI                                               { $$ = new Jump_Stat()  ; }
-                    | T_RETURN EXPR T_SEMI                                          { $$ = new Jump_Stat($2); }
+JUMP_STAT           : T_RETURN T_SEMI                                               { $$ = new Jump_Stat()    ; }
+                    | T_RETURN EXPR T_SEMI                                          { $$ = new Jump_Stat($2)  ; }
+                    | T_CONTINUE T_SEMI                                             { $$ = new Continue_Stat(); }
+                    | T_BREAK T_SEMI                                                { $$ = new Break_Stat()   ; }
+
+LABEL_STAT          : T_CASE CONDITIONAL_EXPR T_SEMI STAT                           { $$ = new Label_Stat($2, $4); }
 
 EXPR                : CONDITIONAL_EXPR                                              { $$ = $1; }
                     | T_VARIABLE T_ASSIGN EXPR                                      {          }

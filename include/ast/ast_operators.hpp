@@ -180,7 +180,8 @@ public:
         std::string srcRegB = makeName("srcRegB");
         getLeft()->Translate2MIPS(srcRegA);
         getRight()->Translate2MIPS(srcRegB);
-        std::cout << "div " << destReg << " " << srcRegA << " " << srcRegB << std::endl;
+        std::cout << "div " << srcRegA << " " << srcRegB << std::endl;
+        std::cout << "mfhi " << destReg << std::endl;
     }
 };
 
