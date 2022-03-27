@@ -7,6 +7,8 @@
 #include "ast/ast_unary.hpp"
 #include "ast/ast_functions.hpp"
 #include "ast/ast_statements.hpp"
+#include "ast/ast_symtab.hpp"
+
 
 extern const Function *parseAST(FILE *fileInput);
 
