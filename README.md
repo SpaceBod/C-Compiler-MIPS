@@ -1,7 +1,7 @@
 2021/2022 Compilers Coursework
 ==============================
 
-![alt text](https://c.tenor.com/fMJfs_qW9b8AAAAC/deletes-computer-old-man.gif?raw=true)  
+![alt text](https://c.tenor.com/fMJfs_qW9b8AAAAd/deletes-computer-old-man.gif?raw=true)  
 
 **Team SyntaxError**  
 **Gian-Luca Fenocchi** *(gf220@ic.ac.uk)*  
