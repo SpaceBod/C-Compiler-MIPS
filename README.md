@@ -1,6 +1,8 @@
 2021/2022 Compilers Coursework
 ==============================
 
+![alt text](https://media4.giphy.com/media/wvQIqJyNBOCjK/200.gif?raw=true)  
+
 **Team SyntaxError**  
 **Gian-Luca Fenocchi** *(gf220@ic.ac.uk)*  
 **Xuan Cai** *(xc720@ic.ac.uk)*
