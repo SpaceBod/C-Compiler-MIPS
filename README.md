@@ -8,7 +8,9 @@
 **Xuan Cai** *(xc720@ic.ac.uk)*
 
 	
-![alt text](https://www.cise.ufl.edu/~mssz/CompOrg/Table2.1-MIPSregisters.gif?raw=true)
+![alt text](https://www.cise.ufl.edu/~mssz/CompOrg/Table2.1-MIPSregisters.gif?raw=true)  
+
+![alt text](https://proftriumph.com/wp-content/uploads/2021/05/image-26.png?raw=true)
 
 
 Week 1 (Feb 28th to Mar 6th)
