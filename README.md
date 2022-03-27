@@ -6,7 +6,7 @@
 **Xuan Cai** *(xc720@ic.ac.uk)*
 
 	
-![alt text](https://www.cs.purdue.edu/homes/hosking/502/spim/img7.gif?raw=true)
+![alt text](https://www.cise.ufl.edu/~mssz/CompOrg/Table2.1-MIPSregisters.gif?raw=true)
 
 
 Week 1 (Feb 28th to Mar 6th)
