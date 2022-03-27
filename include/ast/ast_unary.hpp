@@ -22,9 +22,9 @@ public:
         delete expr;
     }
 
-    virtual const char *getOpcode() const = 0;
+    virtual const char *return_Opcode() const = 0;
 
-    ExpressionPtr getExpr() const
+    ExpressionPtr return_Expr() const
     {
         return expr;
     }
@@ -32,7 +32,7 @@ public:
     virtual void pretty_print(std::ostream &dst) const override
     {
         dst << "( ";
-        dst << getOpcode();
+        dst << return_Opcode();
         dst << " ";
         expr->pretty_print(dst);
         dst << " )";
@@ -48,7 +48,7 @@ public:
     {
     }
 
-    virtual const char *getOpcode() const override
+    virtual const char *return_Opcode() const override
     {
         return "-";
     }
@@ -56,15 +56,14 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double neg = getExpr()->evaluate(bindings);
+        double neg = return_Expr()->evaluate(bindings);
         return -neg;
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        std::string srcRegA = makeName("srcRegA");
-        getExpr()->Translate2MIPS(srcRegA);
-        std::cout << "subu " << destReg << " $0 " << srcRegA << std::endl;
+        return_Expr()->Translate2MIPS("$t0");
+        std::cout << "subu " << destReg << ", $0, $t0" << std::endl;
     }
 };
 
@@ -77,7 +76,7 @@ public:
     {
     }
 
-    virtual const char *getOpcode() const override
+    virtual const char *return_Opcode() const override
     {
         return "!";
     }
@@ -85,19 +84,18 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double val = getExpr()->evaluate(bindings);
+        double val = return_Expr()->evaluate(bindings);
         return (!val);
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        std::string srcRegA = makeName("srcRegA");
-        getExpr()->Translate2MIPS(srcRegA);
-        std::string setZero = makeName("setZero");
-        std::cout << "beq " << srcRegA << " $0 " << setZero << std::endl;
-        std::cout << "addi " << destReg << " $0 1" << std::endl;
-        std::cout << setZero << ":" << std::endl;
-        std::cout << "add " << destReg << " $0 $0" << std::endl;
+        return_Expr()->Translate2MIPS("t0");
+        std::string zero = makeName("zero");
+        std::cout << "bne $t0, $0, " << zero << std::endl;
+        std::cout << "addi " << destReg << ", $0, 1" << std::endl;
+        std::cout <<  zero << ":" << std::endl;
+        std::cout << "add " << destReg << ", $0, $0" << std::endl;
     }
 };
 
@@ -110,7 +108,7 @@ public:
     {
     }
 
-    virtual const char *getOpcode() const override
+    virtual const char *return_Opcode() const override
     {
         return "return";
     }
@@ -118,7 +116,7 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double ret = getExpr()->evaluate(bindings);
+        double ret = return_Expr()->evaluate(bindings);
         return ret;
     }
 };
