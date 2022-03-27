@@ -5,7 +5,9 @@
 **Gian-Luca Fenocchi** *(gf220@ic.ac.uk)*  
 **Xuan Cai** *(xc720@ic.ac.uk)*
 
-![alt text](![image](https://user-images.githubusercontent.com/26677677/160262627-f223e117-29c4-467a-b0be-d31c90e4365b.png))
+	
+![alt text](https://www.cs.purdue.edu/homes/hosking/502/spim/img7.gif?raw=true)
+
 
 Week 1 (Feb 28th to Mar 6th)
 ============
