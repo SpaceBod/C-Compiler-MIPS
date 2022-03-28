@@ -314,14 +314,14 @@ public:
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        if(initVar != nullptr && initExpr == nullptr) { // int i = 0;
-            initVar->getExpr()->Translate2MIPS("$t0");
+        if(initVar != nullptr && initExpr == nullptr) {
+            initVar->return_expr()->Translate2MIPS("$t0");
         }
-        else if(initVar == nullptr && initExpr != nullptr) { // i = 0;
+        else if(initVar == nullptr && initExpr != nullptr) {
             initExpr->Translate2MIPS("$t0");
         }
         else {
-            std::cout << "ERROR: no initial value in for loop" << std::endl;
+            std::cout << "ERROR" << std::endl;
         }
         
         std::string unique_loop = makeName("loop");
@@ -331,7 +331,7 @@ public:
         SymbolTable.setStartLoop(unique_loop);
         SymbolTable.setEndLoop(unique_exit);
         return_cond()->Translate2MIPS("$t1"); // i < 3
-        std::cout << "beq $t1, $0, " << unique_exit << std::endl; // exit if condition false
+        std::cout << "beq $t1, $0, " << unique_exit << std::endl;
         return_stat()->Translate2MIPS(destReg); // loop body
         updateExpr->Translate2MIPS("$t0");
         std::cout << "j " << unique_loop << std::endl;
@@ -374,8 +374,6 @@ public:
         return_Exp()->Translate2MIPS(destReg);
     }
 };
-
-
 
 class Comp_Stat
     : public Stat

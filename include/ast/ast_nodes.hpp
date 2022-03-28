@@ -5,7 +5,6 @@
 #include <string>
 
 #include "ast_symtab.hpp"
-#include "ast_stackptr.hpp"
 
 class Node {
 private:

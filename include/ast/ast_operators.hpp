@@ -3,7 +3,6 @@
 
 #include <string>
 #include <iostream>
-#include <cmath>
 
 class Operator
     : public Expression
@@ -219,6 +218,69 @@ public:
     }
 };
 
+class LeftShift
+    : public Operator
+{
+protected:
+    virtual const char *getOpcode() const override
+    { return "<<"; }
+public:
+    LeftShift(ExpressionPtr _left, ExpressionPtr _right)
+        : Operator(_left, _right)
+    {}
+
+    virtual int evaluate() const override
+    {
+        int vl=return_left()->evaluate();
+        int vr=return_right()->evaluate();
+        return vl<<vr;
+    }
+
+    virtual void Translate2MIPS(std::string destReg) const override {
+        return_left()->Translate2MIPS("$t0");
+        std::cout << "addi $sp, $sp, -4" << std::endl;
+        std::cout << "sw $t0, 0($sp)" << std::endl;
+        return_right()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 0($sp)" << std::endl;
+        std::cout << "addi $sp, $sp, 4" << std::endl;
+        std::cout << "sllv " << destReg << ", $t0, $t1" << std::endl;
+    }
+};
+
+class RightShift
+    : public Operator
+{
+protected:
+    virtual const char *getOpcode() const override
+    { return ">>"; }
+public:
+    RightShift(ExpressionPtr _left, ExpressionPtr _right)
+        : Operator(_left, _right)
+    {}
+
+    virtual int evaluate() const override
+    {
+        int vl=return_left()->evaluate();
+        int vr=return_right()->evaluate();
+        return vl>>vr;
+    }
+
+    virtual void Translate2MIPS(std::string destReg) const override {
+        return_left()->Translate2MIPS("$t0");
+        std::cout << "addi $sp, $sp, -4" << std::endl;
+        std::cout << "sw $t0, 0($sp)" << std::endl;
+        return_right()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 0($sp)" << std::endl;
+        std::cout << "addi $sp, $sp, 4" << std::endl;
+        std::cout << "srlv " << destReg << ", $t0, $t1" << std::endl;
+    }
+};
+
+
+
+
+
+
 // Comparitive Operators
 
 class GreaterThanOperator
@@ -302,11 +364,10 @@ public:
     {
     }
 
-    virtual double evaluate(
-        const std::map<std::string, double> &bindings) const override
+    virtual int evaluate() const override
     {
-        double vl = return_left()->evaluate(bindings);
-        double vr = return_right()->evaluate(bindings);
+        int vl = return_left()->evaluate();
+        int vr = return_right()->evaluate();
         return vl >= vr;
     }
 
@@ -321,9 +382,9 @@ public:
         std::cout << "slt " << destReg << ", $t1, $t0" << std::endl;
         std::string exit = makeName("exit");
         std::cout << "jump " << exit << std::endl;
-        std::cout << ":" << set_one << std::endl;
+        std::cout <<  set_one << ":" <<std::endl;
         std::cout << "addi " << destReg << ", $0, 1" << std::endl;
-        std::cout << ":" << exit << std::endl;
+        std::cout << exit <<  ":" <<std::endl;
     }
 };
 
@@ -333,7 +394,7 @@ class LessOrEqualThanOperator
 protected:
     virtual const char *getOpcode() const override
     {
-        return "=<";
+        return "<=";
     }
 
 public:
@@ -342,28 +403,29 @@ public:
     {
     }
 
-    virtual double evaluate(
-        const std::map<std::string, double> &bindings) const override
+    virtual int evaluate() const override
     {
-        double vl = return_left()->evaluate(bindings);
-        double vr = return_right()->evaluate(bindings);
+        int vl = return_left()->evaluate();
+        int vr = return_right()->evaluate();
         return vl <= vr;
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
         return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, 4($sp)" << std::endl;
+        std::cout << "addi $sp, $sp, -4" << std::endl;
+        std::cout << "sw $t0, 0($sp)" << std::endl;
         return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, 4($sp)" << std::endl;
+        std::cout << "lw $t0, 0($sp)" << std::endl;
+        std::cout << "addi $sp, $sp, 4" << std::endl;
         std::string set_one = makeName("set_one");
         std::cout << "beq $t0, $t1, " << set_one << std::endl;
         std::cout << "slt " << destReg << ", $t0, $t1" << std::endl;
         std::string exit = makeName("exit");
-        std::cout << "jump " << exit << std::endl;
-        std::cout << ":" << set_one << std::endl;
+        std::cout << "j " << exit << std::endl;
+        std::cout << set_one << ":" << std::endl;
         std::cout << "addi " << destReg << ", $0, 1" << std::endl;
-        std::cout << ":" << exit << std::endl;
+        std::cout << exit << ":" << std::endl;
     }
 };
 

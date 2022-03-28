@@ -21,6 +21,25 @@ extern "C" int fileno(FILE *stream);
 "=="                { return T_EQUAL            ; }
 "!="                { return T_NEQUAL           ; }
 
+"<<"                { return T_LSHIFT; }
+">>"                { return T_RSHIFT; }
+
+"="                 { return T_ASSIGN; }
+"+="                { return T_ADD_ASSIGN; }
+"-="                { return T_SUB_ASSIGN; }
+"/="                { return T_DIV_ASSIGN; }
+"*="                { return T_MULT_ASSIGN; }
+"%="                { return T_MOD_ASSIGN; }
+"<<="               { return T_LSHIFT_ASSIGN; }
+">>="               { return T_RSHIFT_ASSIGN; }
+"&="                { return T_AND_ASSIGN; }
+"|="                { return T_XOR_ASSIGN; }
+"^="                { return T_OR_ASSIGN;  }
+
+":"                 { return T_COLON; }
+"+ "                { return T_INCR; }
+"- "                { return T_DECR; }
+
 "||"                { return T_LOR              ; }
 "|"                 { return T_BOR              ; }
 "&&"                { return T_LAND             ; }
@@ -35,6 +54,8 @@ extern "C" int fileno(FILE *stream);
 ")"                 { return T_RPAREN           ; }
 "{"                 { return T_LBRACE           ; }
 "}"                 { return T_RBRACE           ; }
+"["                 { return T_LSQUARE; }
+"]"                 { return T_RSQUARE; }
 
 "if"			          { return T_IF               ; }
 "else"			        { return T_ELSE             ; }
@@ -43,10 +64,12 @@ extern "C" int fileno(FILE *stream);
 "for"               { return T_FOR              ; }
 "int"               { return T_INT_TYPE         ; }
 
+
 "switch"            { return T_SWITCH           ; }
 "case"              { return T_CASE             ; }
 "continue"          { return T_CONTINUE         ; }
 "break"             { return T_BREAK            ; }
+"enum"              { return T_ENUM             ; }
 
 [0-9]+([.][0-9]*)?              { yylval.number=strtod(yytext, 0); return T_NUMBER; }
 [a-zA-Z_][0-9a-zA-Z_]*          { yylval.str=new std::string(yytext); return T_VARIABLE; }

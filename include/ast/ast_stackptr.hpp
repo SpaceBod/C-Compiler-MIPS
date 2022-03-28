@@ -6,6 +6,9 @@
 #include <map>
 #include <string>
 
+#include "ast_nodes.hpp"
+#include "ast_symtab.hpp"
+
 const int MAX = 100;
 
 // Class for the stack pointer (arguments, enumeration, scopes, functions...)

@@ -6,6 +6,11 @@
 #include <map>
 #include <memory>
 
+#include "ast_symtab.hpp"
+
+extern SymTab SymbolTable;
+extern StackPtr StackPointer;
+
 class Expression;
 
 typedef const Expression *ExpressionPtr;
@@ -19,10 +24,13 @@ public:
     virtual void pretty_print(std::ostream &dst) const = 0;
     virtual void Translate2MIPS(std::string destReg) const = 0;
 
+    virtual int evaluate() const
+    {}
+
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const
     {
-        throw std::runtime_error("Not yet implemented!");
+        throw std::runtime_error("rip");
     }
 };
 
