@@ -79,7 +79,7 @@ public:
     {
         return scopeCurrent;
     }
-    void getScopeCurrent(int newScopeCurrent)
+    void setScopeCurrent(int newScopeCurrent)
     {
         scopeCurrent = newScopeCurrent;
     }

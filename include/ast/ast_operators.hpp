@@ -5,8 +5,6 @@
 #include <iostream>
 #include <cmath>
 
-#include "ast/ast_symtab.hpp"
-
 class Operator
     : public Expression
 {

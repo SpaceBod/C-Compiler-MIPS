@@ -89,9 +89,9 @@ public:
             StackPointer.setIncrement(StackPointer.returnIncrement()+4);
             address = std::to_string(StackPointer.returnIncrement() + 2000);
             if(SymbolTable.lookup(var_name) == "Error"){
-                SymbolTable.insert((var_name, "var", type, address));
+                SymbolTable.insert(var_name, "var", type, address);
             }else{
-                SymbolTable.edit((var_name, "var", type, address));
+                SymbolTable.edit(var_name, "var", type, address);
             }
             break;
         default:

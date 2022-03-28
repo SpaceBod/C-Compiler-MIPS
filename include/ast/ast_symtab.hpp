@@ -100,7 +100,7 @@ public:
 
     // Inserting a new symbol into the table
     // Table: ID    KIND    TYPE
-    bool insert(std::string symID, std::string symKind, std::string symType, std::string symAddr, int symLen = 1)
+    bool insert(std::string symID, std::string symKind, std::string symType, std::string symAddr)
     {        
         if(head[scopeCurrent] != nullptr)
         {
@@ -111,13 +111,13 @@ public:
                 start = start->returnNext();
             }
             // Inserts new symbol
-            start->setNext(new Node(symID, symKind, symType, symAddr, symLen));
+            start->setNext(new Node(symID, symKind, symType, symAddr));
             return true;
         }
         else
         {
             // Inserts new symbol if first location is free
-            head[scopeCurrent] = new Node(symID, symKind, symType, symAddr, symLen);
+            head[scopeCurrent] = new Node(symID, symKind, symType, symAddr);
             return true;
         }
         return false;
@@ -212,7 +212,7 @@ public:
     }
 
     // Edit an existing symID's values
-    bool edit(std::string symID, std::string symKind, std::string symType, std::string symAddr, int symLen = 1)
+    bool edit(std::string symID, std::string symKind, std::string symType, std::string symAddr)
     {
         if(head[scopeCurrent] != nullptr)
         {
@@ -225,7 +225,6 @@ public:
                     start->setType(symType);
                     start->setKind(symKind);
                     start->setAddress(symAddr);
-                    start->setLen(symLen);
                     return true;
                 }
                 start = start->returnNext();

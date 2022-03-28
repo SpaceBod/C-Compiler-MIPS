@@ -3,6 +3,7 @@
 
 #include "ast_expressions.hpp"
 #include "ast_primitives.hpp"
+#include "ast_symtab.hpp"
 
 class Stat;
 
@@ -188,10 +189,10 @@ public:
     virtual void Translate2MIPS(std::string destReg) const override {
         return_cond()->Translate2MIPS("$s0");
         std::string exit = makeName("exit");
-        SymTab.setScopeLoop(SymTab.returnScopeLoop()+1);
-        SymTab.setloopend(exit);
-        StackPtr.setIncr(StackPtr.getIncr()+4);
-        StackPtr.setscopeIncr(StackPtr.getscopeIncr()+4);
+        SymbolTable.setScopeLoop(SymbolTable.returnScopeLoop()+1);
+        SymbolTable.setEndLoop(exit);
+        StackPointer.setIncrement(StackPointer.returnIncrement()+4);
+        StackPointer.setScopeIncrement(StackPointer.returnScopeIncrement()+4);
         std::cout << "addiu $sp, $sp, -4" << std::endl;
         std::cout << "sw $s1, 0($sp)" << std::endl;
         std::cout << "addiu $s1, $0, 0" << std::endl;
@@ -252,16 +253,16 @@ public:
     {
         std::string unique_exit = makeName("exit");
         std::string unique_loop = makeName("loop");
-        SymTab.setScopeLoop(SymTab.returnScopeLoop()+1);
-        SymTab.setStartLoop(unique_loop);
-        SymTab.setEndLoop(unique_exit);
+        SymbolTable.setScopeLoop(SymbolTable.returnScopeLoop()+1);
+        SymbolTable.setStartLoop(unique_loop);
+        SymbolTable.setEndLoop(unique_exit);
         std::cout << unique_loop << ":" << std::endl;
         return_cond()->Translate2MIPS("$t0");
         std::cout << "beq $t0, $0, " << unique_exit << std::endl;
         return_stat()->Translate2MIPS(destReg); // loop body
         std::cout << "j " << unique_loop << std::endl;
         std::cout << unique_exit << ":" << std::endl;
-        SymTab.setScopeLoop(SymTab.returnScopeLoop()-1);
+        SymbolTable.setScopeLoop(SymbolTable.returnScopeLoop()-1);
         }
     };
 
@@ -326,16 +327,16 @@ public:
         std::string unique_loop = makeName("loop");
         std::cout << unique_loop << ":" << std::endl;
         std::string unique_exit = makeName("exit");
-        SymTab.setScopeLoop(SymTab.returnScopeLoop()+1);
-        SymTab.setStartLoop(unique_loop);
-        SymTab.setEndLoop(unique_exit);
+        SymbolTable.setScopeLoop(SymbolTable.returnScopeLoop()+1);
+        SymbolTable.setStartLoop(unique_loop);
+        SymbolTable.setEndLoop(unique_exit);
         return_cond()->Translate2MIPS("$t1"); // i < 3
         std::cout << "beq $t1, $0, " << unique_exit << std::endl; // exit if condition false
         return_stat()->Translate2MIPS(destReg); // loop body
         updateExpr->Translate2MIPS("$t0");
         std::cout << "j " << unique_loop << std::endl;
         std::cout << unique_exit << ":" << std::endl;
-        SymTab.setScopeLoop(SymTab.returnScopeLoop()-1);
+        SymbolTable.setScopeLoop(SymbolTable.returnScopeLoop()-1);
     }
 };
 
@@ -380,8 +381,8 @@ class Comp_Stat
     : public Stat
 {
 private:
-    Stat_listPtr stat_List;
-    Decl_listPtr decl_List;
+    Stat_listPtr stat_List=nullptr;
+
 
 public:
     Comp_Stat()
@@ -391,18 +392,10 @@ public:
         : stat_List(_stat_List)
     {
     }
-    Comp_Stat(Decl_listPtr _decl_List)
-        : decl_List(_decl_List)
-    {
-    }
-    Comp_Stat(Decl_listPtr _decl_List, Stat_listPtr _stat_List)
-        : stat_List(_stat_List), decl_List(_decl_List)
-    {
-    }
+
     ~Comp_Stat()
     {
         delete stat_List;
-        delete decl_List;
     }
 
     Stat_listPtr getstatlist() const
@@ -410,17 +403,10 @@ public:
         return stat_List;
     }
 
-    Decl_listPtr getdecllist() const
-    {
-        return decl_List;
-    }
+
     virtual void pretty_print(std::ostream &dst) const override
     {
-        dst << "{\n";
-        if (decl_List != nullptr)
-        {
-            decl_List->pretty_print(dst);
-        }
+        dst << "{";
         if (stat_List != nullptr)
         {
             stat_List->pretty_print(dst);
@@ -431,14 +417,20 @@ public:
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        if (decl_List != nullptr)
-        {
-            decl_List->Translate2MIPS(destReg);
+
+        SymbolTable.scopeEnter();
+        StackPointer.setScopeCurrent(StackPointer.returnScopeCurrent()+1);
+        StackPointer.setScopeCurrent(0);
+        if(getstatlist()!=nullptr){
+            getstatlist()->Translate2MIPS(destReg);
         }
-        if (stat_List != nullptr)
-        {
-            stat_List->Translate2MIPS(destReg);
+        std::cout << "addiu $sp, $sp, " << StackPointer.returnScopeIncrement() << std::endl;
+        StackPointer.setIncrement(StackPointer.returnIncrement() - StackPointer.returnScopeIncrement());
+        if(StackPointer.returnFunctionReturn()!=1){
+            StackPointer.setScopeIncrement(0);
         }
+        StackPointer.setScopeCurrent(StackPointer.returnScopeCurrent()-1);
+        SymbolTable.scopeExit();
     }
 };
 
