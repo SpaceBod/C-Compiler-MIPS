@@ -68,8 +68,8 @@ class Select_Stat
     : public Stat
 {
 private:
-    ExpressionPtr condition;
     StatPtr stat;
+    ExpressionPtr condition;
 
 public:
     Select_Stat(ExpressionPtr _condition, StatPtr _stat = nullptr)
@@ -106,7 +106,7 @@ public:
     {
         delete else_branch;
     }
-    StatPtr getElse() const
+    StatPtr return_else() const
     {
         return else_branch;
     }
@@ -127,24 +127,20 @@ public:
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        std::string condition = makeName("condition");
-        return_cond()->Translate2MIPS(condition);
+        return_cond()->Translate2MIPS("$t0");
         std::string exit = makeName("exit");
-        if (else_branch != nullptr)
-        {
+        if(else_branch!=nullptr){
             std::string else_stat = makeName("else_stat");
-            std::cout << "beq " << condition << " $0 " << else_stat << std::endl;
+            std::cout << "beq $t0, $0, " << else_stat << std::endl;
             return_stat()->Translate2MIPS(destReg);
             std::string exit = makeName("exit");
             std::cout << "j " << exit << std::endl;
             std::cout << else_stat << ":" << std::endl;
-            getElse()->Translate2MIPS(destReg);
+            return_else()->Translate2MIPS(destReg);
             std::cout << exit << ":" << std::endl;
-        }
-        else
-        {
+        }else{
             std::string exit = makeName("exit");
-            std::cout << "beq " << condition << " $0 " << exit << std::endl;
+            std::cout << "beq $t0, $0, " << exit << std::endl;
             return_stat()->Translate2MIPS(destReg);
             std::cout << exit << ":" << std::endl;
         }
@@ -199,17 +195,18 @@ public:
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-         std::string condition = makeName("while_condition");
-        return_cond()->Translate2MIPS(condition);
-        std::string exit = makeName("exit");
-        std::cout << "beq " << condition << " $0 " << exit << std::endl;
-        std::string start = makeName("start");
-        std::cout << start <<  ":" << std::endl;
-        return_stat()->Translate2MIPS(destReg);
-        return_cond()->Translate2MIPS(condition);
-        std::cout << "bne " << condition << " $0 " << start << std::endl;
-        std::cout << exit << ":" << std::endl;
-        std::cout << "add " << destReg << " $0 $0" << std::endl;
+        std::string unique_exit = makeName("exit");
+        std::string unique_loop = makeName("loop");
+        SymTab.setScopeLoop(SymTab.returnScopeLoop()+1);
+        SymTab.setStartLoop(unique_loop);
+        SymTab.setEndLoop(unique_exit);
+        std::cout << unique_loop << ":" << std::endl;
+        return_cond()->Translate2MIPS("$t0");
+        std::cout << "beq $t0, $0, " << unique_exit << std::endl;
+        return_stat()->Translate2MIPS(destReg); // loop body
+        std::cout << "j " << unique_loop << std::endl;
+        std::cout << unique_exit << ":" << std::endl;
+        SymTab.setScopeLoop(SymTab.returnScopeLoop()-1);
         }
     };
 
@@ -261,17 +258,29 @@ public:
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        std::string condition = makeName("while_condition");
-        return_cond()->Translate2MIPS(condition);
+        if(initVar != nullptr && initExpr == nullptr) { // int i = 0;
+            initVar->getExpr()->Translate2MIPS("$t0");
+        }
+        else if(initVar == nullptr && initExpr != nullptr) { // i = 0;
+            initExpr->Translate2MIPS("$t0");
+        }
+        else {
+            std::cout << "ERROR: no initial value in for loop" << std::endl;
+        }
+        
+        std::string unique_loop = makeName("loop");
+        std::cout << unique_loop << ":" << std::endl;
         std::string unique_exit = makeName("exit");
-        std::cout << "beq " << condition << " $0 " << unique_exit << std::endl;
-        std::string unique_start = makeName("start");
-        std::cout << unique_start << ":" << std::endl;
-        return_stat()->Translate2MIPS(destReg);
-        return_cond()->Translate2MIPS(condition);
-        std::cout << "bne " << condition << " $0 " << unique_start << std::endl;
+        SymTab.setScopeLoop(SymTab.returnScopeLoop()+1);
+        SymTab.setStartLoop(unique_loop);
+        SymTab.setEndLoop(unique_exit);
+        return_cond()->Translate2MIPS("$t1"); // i < 3
+        std::cout << "beq $t1, $0, " << unique_exit << std::endl; // exit if condition false
+        return_stat()->Translate2MIPS(destReg); // loop body
+        updateExpr->Translate2MIPS("$t0");
+        std::cout << "j " << unique_loop << std::endl;
         std::cout << unique_exit << ":" << std::endl;
-        std::cout << "add " << destReg << " $0 $0" << std::endl;
+        SymTab.setScopeLoop(SymTab.returnScopeLoop()-1);
     }
 };
 
@@ -472,7 +481,7 @@ public:
     }
     ExpressionPtr return_Exp() const
     { return expression; }
-    StatPtr getStat() const
+    StatPtr return_stat() const
     { return statement; }
     virtual void pretty_print(std::ostream &dst) const override
     {

@@ -99,6 +99,31 @@ public:
     }
 };
 
+class PosOperator
+    : public Unary
+{
+public:
+    PosOperator(const ExpressionPtr _expr)
+        : Unary(_expr)
+    {}
+
+    virtual const char *return_Opcode() const override
+    { return "+"; }
+
+    virtual void Translate2MIPS(std::string destReg) const override {
+        return_Expr()->Translate2MIPS("$t0");
+        std::cout << "subu " << destReg << ", $t0, $0" << std::endl;
+    }
+
+    virtual double evaluate(
+        const std::map<std::string, double> &bindings
+    ) const override
+    {
+        double in=return_Expr()->evaluate(bindings);
+        return (+in);
+    }
+};
+
 class Return
     : public Unary
 {

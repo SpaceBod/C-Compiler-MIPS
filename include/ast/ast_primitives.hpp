@@ -212,42 +212,42 @@ public:
 
 class Decl_list;
 
-typedef const Decl_list *DeclarationListPtr;
+typedef const Decl_list *Decl_listPtr;
 
 class Decl_list
     : public Variable
 {
 private:
     Variable *variable;
-    DeclarationListPtr declarationList = nullptr;
+    Decl_listPtr decl_list = nullptr;
 public:
-    Decl_list(Variable *_variable, DeclarationListPtr _declarationList = nullptr)
+    Decl_list(Variable *_variable, Decl_listPtr _declarationList = nullptr)
         : variable(_variable)
-        , declarationList(_declarationList)
+        , decl_list(_declarationList)
     {}
 
     virtual ~Decl_list() {
         delete variable;
-        delete declarationList;
+        delete decl_list;
     }
     Variable *getVar() const
     { return variable; }
 
-    DeclarationListPtr getdecllist() const
-    { return declarationList; }
+    Decl_listPtr getdecllist() const
+    { return decl_list; }
 
     virtual void pretty_print(std::ostream &dst) const override
     {
         variable->pretty_print(dst);
-        if(declarationList!=nullptr){
+        if(decl_list!=nullptr){
             dst << ", ";
-            declarationList->pretty_print(dst);
+            decl_list->pretty_print(dst);
         }
     }
 
     virtual void Translate2MIPS(std::string destReg) const override{
         getVar()->Translate2MIPS(destReg);
-        if(declarationList!=nullptr){
+        if(decl_list!=nullptr){
             getdecllist()->Translate2MIPS(destReg);
         }
     }  
