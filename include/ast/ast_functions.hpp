@@ -15,8 +15,7 @@ private:
 public:
     Function(Variable *_name, StatPtr _stat = nullptr)
         : name(_name), stat(_stat)
-    {
-    }
+    {}
 
     virtual ~Function()
     {
@@ -27,7 +26,7 @@ public:
 
     const std::string getFunction() const
     {
-        return name->getId();
+        return name->return_var_name();
     }
 
     ExpressionPtr getArg() const

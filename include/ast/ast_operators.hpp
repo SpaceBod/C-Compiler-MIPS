@@ -484,9 +484,9 @@ public:
         std::cout << "addi " << destReg << ", $0, 1" << std::endl;
         std::string exit = makeName("exit");
         std::cout << "jump " << exit << std::endl;
-        std::cout << ":" << set_zero << std::endl;
+        std::cout <<  set_zero <<":" << std::endl;
         std::cout << "add " << destReg << ", $0, $0" << std::endl;
-        std::cout << ":" << exit << std::endl;
+        std::cout <<  exit <<":" << std::endl;
     }
 };
 
@@ -558,9 +558,9 @@ public:
         std::cout << "add " << destReg << ", $0, $0" << std::endl;
         std::string exit = makeName("exit");
         std::cout << "jump " << exit << std::endl;
-        std::cout << ":" << set_one << std::endl;
+        std::cout << set_one <<":" <<  std::endl;
         std::cout << "addi " << destReg << ", $0, 1" << std::endl;
-        std::cout << ":" << exit << std::endl;
+        std::cout <<exit << ":" <<  std::endl;
     }
 };
 
