@@ -124,26 +124,6 @@ public:
     }
 };
 
-class Return
-    : public Unary
-{
-public:
-    Return(const ExpressionPtr _expr)
-        : Unary(_expr)
-    {
-    }
 
-    virtual const char *return_Opcode() const override
-    {
-        return "return";
-    }
-
-    virtual double evaluate(
-        const std::map<std::string, double> &bindings) const override
-    {
-        double ret = return_Expr()->evaluate(bindings);
-        return ret;
-    }
-};
 
 #endif

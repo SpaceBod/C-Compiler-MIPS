@@ -374,44 +374,7 @@ public:
     }
 };
 
-class Jump_Stat
-    : public Stat
-{
-private:
-    ExpressionPtr expression;
 
-public:
-    Jump_Stat(ExpressionPtr _expression = nullptr)
-        : expression(_expression)
-    {
-    }
-    ~Jump_Stat()
-    {
-        delete expression;
-    }
-    ExpressionPtr return_Exp() const
-    {
-        return expression;
-    }
-    virtual void pretty_print(std::ostream &dst) const override
-    {
-        dst << "return ";
-        if (expression != nullptr)
-        {
-            expression->pretty_print(dst);
-        }
-
-        dst << ";";
-        dst << '\n';
-    }
-
-    virtual void Translate2MIPS(std::string destReg) const override
-    {
-    std::string exp = makeName("exp");
-    return_Exp()->Translate2MIPS(exp);
-    std::cout << "add $2 $0 " << exp << std::endl;
-    }
-};
 
 class Comp_Stat
     : public Stat
@@ -479,6 +442,44 @@ public:
     }
 };
 
+class Jump_Stat
+    : public Stat
+{
+private:
+    ExpressionPtr expression;
+
+public:
+    Jump_Stat(ExpressionPtr _expression = nullptr)
+        : expression(_expression)
+    {
+    }
+    ~Jump_Stat()
+    {
+        delete expression;
+    }
+    ExpressionPtr return_Exp() const
+    {
+        return expression;
+    }
+    virtual void pretty_print(std::ostream &dst) const override
+    {
+        dst << "return ";
+        if (expression != nullptr)
+        {
+            expression->pretty_print(dst);
+        }
+        dst << ";";
+        dst << '\n';
+    }
+
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
+    std::string exp = makeName("exp");
+    return_Exp()->Translate2MIPS(exp);
+    std::cout << "add $2 $0 " << exp << std::endl;
+    }
+};
+
 class Continue_Stat
     : public Jump_Stat
 {
@@ -519,6 +520,37 @@ public:
     }
 };
 
+class Return_Stat
+    : public Jump_Stat
+{
+private:
+    ExpressionPtr expression = nullptr;
+public:
+    Return_Stat(ExpressionPtr _expression = nullptr)
+        : expression(_expression)
+    {}
+    ~Return_Stat() {
+        delete expression;
+    }
+    ExpressionPtr return_Expr() const
+    { return expression; }
+    virtual void pretty_print(std::ostream &dst) const override
+    {
+        dst<<"return ";
+        if(expression!=nullptr){
+            expression-> pretty_print(dst);
+        }
+        dst<<";";
+        dst<<'\n';
+    }
+    virtual void Translate2MIPS(std::string destReg) const override{
+        return_Expr()->Translate2MIPS("$t0");
+        std::cout << "add $v0, $0, $t0" << std::endl;
+    }
+};
+
+
+
 class Label_Stat
     : public Stat
 {
@@ -556,28 +588,6 @@ public:
     }
 };
 
-class Switch_Stat
-    : public Select_Stat
-{
-public:
-    Switch_Stat(ExpressionPtr _condition, StatPtr _stat)
-        : Select_Stat(_condition, _stat)
-    {}
-    ~Switch_Stat() {
-    }
 
-    virtual void pretty_print(std::ostream &dst) const override
-    {
-        dst<<"switch ( ";
-        return_cond()->pretty_print(dst);
-        dst<<" ) ";
-        return_stat()->pretty_print(dst);
-        dst<<'\n';
-    }
-
-    virtual void Translate2MIPS(std::string destReg) const override {
-
-    }
-};
 
 #endif
