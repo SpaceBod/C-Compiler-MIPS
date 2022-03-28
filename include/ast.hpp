@@ -8,7 +8,8 @@
 #include "ast/ast_functions.hpp"
 #include "ast/ast_statements.hpp"
 #include "ast/ast_symtab.hpp"
-
+#include "ast/ast_nodes.hpp"
+#include "ast/ast_stackptr.hpp"
 
 extern const Function *parseAST(FILE *fileInput);
 
