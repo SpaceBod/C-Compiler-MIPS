@@ -24,18 +24,22 @@ class Stat_list
     : public Stat
 {
 private:
-    StatPtr stat;
-    Stat_listPtr stat_list;
+    StatPtr stat=nullptr;
+    Stat_listPtr stat_list=nullptr;
+    Variable *var= nullptr;
 
 public:
     Stat_list(StatPtr _stat, Stat_listPtr _stat_list = nullptr)
         : stat(_stat), stat_list(_stat_list)
-    {
-    }
+    {}
+    Stat_list(Variable *_var , Stat_listPtr _stat_list = nullptr)
+        : var(_var), stat_list(_stat_list)
+    {}
     virtual ~Stat_list()
     {
         delete stat;
         delete stat_list;
+        delete var;
     }
     StatPtr return_stat() const
     {
@@ -45,23 +49,37 @@ public:
     {
         return stat_list;
     }
+    Variable *return_var() const
+    {
+        return var;
+    }
+
     virtual void pretty_print(std::ostream &dst) const override
     {
         stat->pretty_print(dst);
-        if (stat_list != nullptr)
-        {
+        if(stat != nullptr){
+            stat->pretty_print(dst);
+        }
+        else if(var != nullptr){
+            var->pretty_print(dst);
+        }
+        if(stat_list!=nullptr){
             stat_list->pretty_print(dst);
         }
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        return_stat()->Translate2MIPS(destReg);
-        if (stat_list != nullptr)
-        {
+        if(return_stat() != nullptr){
+            return_stat()->Translate2MIPS(destReg);
+        }else if(return_var() != nullptr){
+            return_var()->Translate2MIPS(destReg);
+        }
+        if(return_stat_list()!=nullptr){
             return_stat_list()->Translate2MIPS(destReg);
         }
     }
+
 };
 
 class Select_Stat
@@ -116,6 +134,7 @@ public:
         dst << "if ( ";
         return_cond()->pretty_print(dst);
         dst << " ) ";
+        dst<<'\n';
         return_stat()->pretty_print(dst);
         if (else_branch != nullptr)
         {
@@ -130,12 +149,12 @@ public:
         return_cond()->Translate2MIPS("$t0");
         std::string exit = makeName("exit");
         if(else_branch!=nullptr){
-            std::string else_stat = makeName("else_stat");
-            std::cout << "beq $t0, $0, " << else_stat << std::endl;
+            std::string else_branch= makeName("else_stat");
+            std::cout << "beq $t0, $0, " << else_branch<< std::endl;
             return_stat()->Translate2MIPS(destReg);
             std::string exit = makeName("exit");
             std::cout << "j " << exit << std::endl;
-            std::cout << else_stat << ":" << std::endl;
+            std::cout << else_branch<< ":" << std::endl;
             return_else()->Translate2MIPS(destReg);
             std::cout << exit << ":" << std::endl;
         }else{
@@ -144,6 +163,42 @@ public:
             return_stat()->Translate2MIPS(destReg);
             std::cout << exit << ":" << std::endl;
         }
+    }
+};
+
+class Switch_Stat
+    : public Select_Stat
+{
+public:
+    Switch_Stat(ExpressionPtr _condition, StatPtr _stat)
+        : Select_Stat(_condition, _stat)
+    {}
+    ~Switch_Stat() {
+    }
+
+    virtual void pretty_print(std::ostream &dst) const override
+    {
+        dst<<"switch ( ";
+        return_cond()->pretty_print(dst);
+        dst<<" ) ";
+        return_stat()->pretty_print(dst);
+        dst<<'\n';
+    }
+
+    virtual void Translate2MIPS(std::string destReg) const override {
+        return_cond()->Translate2MIPS("$s0");
+        std::string exit = makeName("exit");
+        SymTab.setScopeLoop(SymTab.returnScopeLoop()+1);
+        SymTab.setloopend(exit);
+        StackPtr.setIncr(StackPtr.getIncr()+4);
+        StackPtr.setscopeIncr(StackPtr.getscopeIncr()+4);
+        std::cout << "addiu $sp, $sp, -4" << std::endl;
+        std::cout << "sw $s1, 0($sp)" << std::endl;
+        std::cout << "addiu $s1, $0, 0" << std::endl;
+        return_stat()->Translate2MIPS(destReg);
+        std::cout << exit << ":" << std::endl;
+        std::string case_start = makeName("case");
+        std::cout << case_start << ":" << std::endl;
     }
 };
 
