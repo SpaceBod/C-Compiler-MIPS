@@ -7,8 +7,7 @@
 #include "ast_symtab.hpp"
 #include "ast_stackptr.hpp"
 
-
-extern SymTab Symbol;
+extern SymTab SymbolTable;
 extern StackPtr StackPointer;
 
 enum VarType
@@ -33,7 +32,7 @@ private:
     ExpressionPtr Expr;
     DecType Dec_type;
     std::string assign_type;
-    std::string address;
+    std::string address;    
 
 public:
     Variable()
@@ -44,14 +43,14 @@ public:
     { 
         Dec_type = CALL;
         var_name = *_var_name;
-        address= SymTab.lookup(var_name);
+        address= SymbolTable.lookup(var_name);
     }
 
     Variable(const std::string *_var_name, std::string *_assign_type, ExpressionPtr _Expr) {
     Dec_type = ASSIGN;
     var_name = *_var_name;
     assign_type= *_assign_type;
-    address = SymTab.lookup(var_name);
+    address = SymbolTable.lookup(var_name);
     Expr = _Expr;
     }
 
@@ -63,36 +62,36 @@ public:
             type = "INT";
             Expr = _Expr;
             var_name = *_var_name;
-            StackPtr.setIncrement(StackPtr.returnIncrement()+4);
-            address = std::to_string(StackPtr.returnIncrement() + 2000);
-            if(SymTab.lookup(var_name) == "Error: undefined reference"){
-                SymTab.insert(type, "var", var_name, address);
+            StackPointer.setIncrement(StackPointer.returnIncrement()+4);
+            address = std::to_string(StackPointer.returnIncrement() + 2000);
+            if(SymbolTable.lookup(var_name) == "Error: undefined reference"){
+                SymbolTable.insert(type, "var", var_name, address);
             }else{
-                SymTab.edit(type, "var", var_name, address);
+                SymbolTable.edit(type, "var", var_name, address);
             }
             break;
         case DOUBLE:
             type = "DOUBLE";
             Expr = _Expr;
             var_name = *_var_name;
-            StackPtr.setIncrement(StackPtr.returnIncrement()+4);
-            address = std::to_string(StackPtr.returnIncrement() + 2000);
-            if(SymTab.lookup(var_name) == "Error"){
-                SymTab.insert(var_name, "var", type, address);
+            StackPointer.setIncrement(StackPointer.returnIncrement()+4);
+            address = std::to_string(StackPointer.returnIncrement() + 2000);
+            if(SymbolTable.lookup(var_name) == "Error"){
+                SymbolTable.insert(var_name, "var", type, address);
             }else{
-                SymTab.edit(var_name, "var", type, address);
+                SymbolTable.edit(var_name, "var", type, address);
             }
             break;
         case FLOAT:
             type = "FLOAT";
             Expr = _Expr;
             var_name = *_var_name;
-            StackPtr.setIncrement(StackPtr.returnIncrement()+4);
-            address = std::to_string(StackPtr.returnIncrement() + 2000);
-            if(SymTab.lookup(var_name) == "Error"){
-                SymTab.insert((var_name, "var", type, address));
+            StackPointer.setIncrement(StackPointer.returnIncrement()+4);
+            address = std::to_string(StackPointer.returnIncrement() + 2000);
+            if(SymbolTable.lookup(var_name) == "Error"){
+                SymbolTable.insert((var_name, "var", type, address));
             }else{
-                SymTab.edit((var_name, "var", type, address));
+                SymbolTable.edit((var_name, "var", type, address));
             }
             break;
         default:
