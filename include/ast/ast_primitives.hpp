@@ -27,7 +27,6 @@ private:
     DecType Dec_type;
     std::string assign_type;
     std::string address;
-    //to do address 
 
 public:
     Variable()
@@ -35,8 +34,18 @@ public:
     }
 
     Variable(const std::string *_var_name)
-    {
+    { 
+        Dec_type = CALL;
         var_name = *_var_name;
+        address= SymTab.lookup(var_name);
+    }
+
+    Variable(const std::string *_var_name, std::string *_assign_type, ExpressionPtr _Expr) {
+    Dec_type = ASSIGN;
+    var_name = *_var_name;
+    assign_type= *_assign_type;
+    address = SymTab.lookup(var_name);
+    Expr = _Expr;
     }
 
     Variable(VarType _type, const std::string *_var_name, ExpressionPtr _Expr = nullptr)
@@ -44,19 +53,40 @@ public:
         switch (_type)
         {
         case INT:
-            type = "int";
+            type = "INT";
             Expr = _Expr;
             var_name = *_var_name;
+            StackPtr.setIncrement(StackPtr.returnIncrement()+4);
+            address = std::to_string(StackPtr.returnIncrement() + 2000);
+            if(SymTab.lookup(var_name) == "Error: undefined reference"){
+                SymTab.insert(type, "var", var_name, address);
+            }else{
+                SymTab.edit(type, "var", var_name, address);
+            }
             break;
         case DOUBLE:
-            type = "double";
+            type = "DOUBLE";
             Expr = _Expr;
             var_name = *_var_name;
+            StackPtr.setIncrement(StackPtr.returnIncrement()+4);
+            address = std::to_string(StackPtr.returnIncrement() + 2000);
+            if(SymTab.lookup(var_name) == "Error: undefined reference"){
+                SymTab.insert(type, "var", var_name, address);
+            }else{
+                SymTab.edit(type, "var", var_name, address);
+            }
             break;
         case FLOAT:
-            type = "float";
+            type = "FLOAT";
             Expr = _Expr;
             var_name = *_var_name;
+            StackPtr.setIncrement(StackPtr.returnIncrement()+4);
+            address = std::to_string(StackPtr.returnIncrement() + 2000);
+            if(SymTab.lookup(var_name) == "Error: undefined reference"){
+                SymTab.insert(type, "var", var_name, address);
+            }else{
+                SymTab.edit(type, "var", var_name, address);
+            }
             break;
         default:
             type = "UNDEFINED";
@@ -73,10 +103,17 @@ public:
         return type;
     }
 
+    const std::string getAddr() const
+    {
+        return address;
+    }
+
     ExpressionPtr getExpr() const
     {
         return Expr;
     }
+
+
 
     virtual void pretty_print(std::ostream &dst) const override
     {
@@ -84,14 +121,15 @@ public:
         case CALL:
             dst<<var_name;
             break;
+
         case ASSIGN:
             dst<<var_name;
             dst<<" ";
             dst<<assign_type;
             dst<<" ";
             Expr ->pretty_print(dst);
-
-            break;        
+            break;      
+              
         case DECLARATION:
             dst << type;
             dst << " ";
@@ -210,48 +248,6 @@ public:
     }
 };
 
-class Decl_list;
 
-typedef const Decl_list *Decl_listPtr;
-
-class Decl_list
-    : public Variable
-{
-private:
-    Variable *variable;
-    Decl_listPtr decl_list = nullptr;
-public:
-    Decl_list(Variable *_variable, Decl_listPtr _declarationList = nullptr)
-        : variable(_variable)
-        , decl_list(_declarationList)
-    {}
-
-    virtual ~Decl_list() {
-        delete variable;
-        delete decl_list;
-    }
-    Variable *getVar() const
-    { return variable; }
-
-    Decl_listPtr getdecllist() const
-    { return decl_list; }
-
-    virtual void pretty_print(std::ostream &dst) const override
-    {
-        variable->pretty_print(dst);
-        if(decl_list!=nullptr){
-            dst << ", ";
-            decl_list->pretty_print(dst);
-        }
-    }
-
-    virtual void Translate2MIPS(std::string destReg) const override{
-        getVar()->Translate2MIPS(destReg);
-        if(decl_list!=nullptr){
-            getdecllist()->Translate2MIPS(destReg);
-        }
-    }  
-  
-};
 
 #endif
