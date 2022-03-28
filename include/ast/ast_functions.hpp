@@ -67,7 +67,7 @@ public:
 
         stat->Translate2MIPS(destReg);
 
-        StackPointer.setIncrement(0);
+        StackPtr.setIncrement(0);
         std::cout << "lw $s0, 4($sp)" << std::endl;
         std::cout << "lw $s1, 8($sp)" << std::endl;
         std::cout << "lw $s2, 12($sp)" << std::endl;

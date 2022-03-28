@@ -7,9 +7,6 @@
 #include "ast_nodes.hpp"
 #include "ast_stackptr.hpp"
 
-const int MAX = 100;
-
-
 // +--------+-------+--------+
 // |   ID   | KIND  |  TYPE  |
 // +--------+-------+--------+
@@ -17,7 +14,6 @@ const int MAX = 100;
 // | _var_2 | var   | bool   |  
 // | _var_3 | var   | double |
 // +--------+-------+--------+
-
 
 // Class for the symbol table - accesses NODES 
 class SymTab
@@ -110,9 +106,9 @@ public:
         {
             Node *start = head[scopeCurrent];
             // Finds free location
-            while(start->getNext() != nullptr)
+            while(start->returnNext() != nullptr)
             {
-                start = start->getNext();
+                start = start->returnNext();
             }
             // Inserts new symbol
             start->setNext(new Node(symID, symKind, symType, symAddr, symLen));
@@ -133,13 +129,13 @@ public:
         Node *start = head[scopeCurrent];
         while(start != nullptr)
         {
-            if(start->getSymID() == symID)
+            if(start->returnSymID() == symID)
             {
-                return start->getLen();
+                return start->returnLen();
             }
             else
             {
-                start = start->getNext();
+                start = start->returnNext();
             }
         }
         return 0;
@@ -151,31 +147,31 @@ public:
         Node *start = head[scopeCurrent];
         while(start != nullptr)
         {
-            if(start->getSymID() == symID)
+            if(start->returnSymID() == symID)
             {
-                return start->getAddress();
+                return start->returnAddress();
             }
             else
             {
-                start = start->getNext();
+                start = start->returnNext();
             }
         }
         return ("Symbol ID: " + symID + " not found");
     }
 
     // Looks up the symID and return the type
-    std::string getType(std::string symID)
+    std::string returnType(std::string symID)
     {
         Node *start = head[scopeCurrent];
         while(start != nullptr)
         {
-            if(start->getSymID() == symID)
+            if(start->returnSymID() == symID)
             {
-                return start->getType();
+                return start->returnType();
             }
             else
             {
-                start = start->getNext();
+                start = start->returnNext();
             }
         }
         return ("Symbol ID: " + symID + " not found");
@@ -188,28 +184,28 @@ public:
         Node *start = head[scopeCurrent];
         while(start != nullptr)
         {
-            if(start->getKind() == symKind)
+            if(start->returnKind() == symKind)
             {
-                vectorSymIDs.push_back(start->getSymID());
+                vectorSymIDs.push_back(start->returnSymID());
             }
-            start = start->getNext();
+            start = start->returnNext();
         }
         return vectorSymIDs;
     }
 
     // Looks up the symID and return the kind
-    std::string getKind(std::string symID)
+    std::string returnKind(std::string symID)
     {
         Node *start = head[scopeCurrent];
         while(start != nullptr)
         {
-            if(start->getSymID() == symID)
+            if(start->returnSymID() == symID)
             {
-                return start->getKind();
+                return start->returnKind();
             }
             else
             {
-                start = start->getNext();
+                start = start->returnNext();
             }
         }
         return ("Symbol ID: " + symID + " not found");
@@ -224,7 +220,7 @@ public:
             while(start != nullptr)
             {
                 // if symID matches -> edit properties
-                if(start->getSymID() == symID)
+                if(start->returnSymID() == symID)
                 {
                     start->setType(symType);
                     start->setKind(symKind);
@@ -232,7 +228,7 @@ public:
                     start->setLen(symLen);
                     return true;
                 }
-                start = start->getNext();
+                start = start->returnNext();
             }
         }
         else
@@ -248,12 +244,12 @@ public:
         Node *plist = head[scopeCurrent-1];
         if (plist != nullptr)
         {
-            head[scopeCurrent] = new Node(plist->getSymID(), plist->getKind(), plist->getType(), plist->getAddress());
+            head[scopeCurrent] = new Node(plist->returnSymID(), plist->returnKind(), plist->returnType(), plist->returnAddress());
             Node *start = head[scopeCurrent];
             while(plist->next != nullptr)
             {
                 plist = plist->next;
-                head[scopeCurrent]->next = new Node(plist->getSymID(), plist->getKind(), plist->getType(), plist->getAddress());
+                head[scopeCurrent]->next = new Node(plist->returnSymID(), plist->returnKind(), plist->returnType(), plist->returnAddress());
                 head[scopeCurrent] = head[scopeCurrent]->next;
             }
             head[scopeCurrent] = start;
@@ -278,7 +274,7 @@ public:
         Node *next = nullptr;
         if (current != nullptr)
         {
-            next = current->getNext();
+            next = current->returnNext();
             delete(current);
             current = next;
         }

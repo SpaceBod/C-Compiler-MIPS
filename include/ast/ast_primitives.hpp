@@ -4,6 +4,13 @@
 #include <string>
 #include <iostream>
 
+#include "ast_symtab.hpp"
+#include "ast_stackptr.hpp"
+
+
+extern SymTab Symbol;
+extern StackPtr StackPointer;
+
 enum VarType
 {
     INT,
@@ -70,10 +77,10 @@ public:
             var_name = *_var_name;
             StackPtr.setIncrement(StackPtr.returnIncrement()+4);
             address = std::to_string(StackPtr.returnIncrement() + 2000);
-            if(SymTab.lookup(var_name) == "Error: undefined reference"){
-                SymTab.insert(type, "var", var_name, address);
+            if(SymTab.lookup(var_name) == "Error"){
+                SymTab.insert(var_name, "var", type, address);
             }else{
-                SymTab.edit(type, "var", var_name, address);
+                SymTab.edit(var_name, "var", type, address);
             }
             break;
         case FLOAT:
@@ -82,10 +89,10 @@ public:
             var_name = *_var_name;
             StackPtr.setIncrement(StackPtr.returnIncrement()+4);
             address = std::to_string(StackPtr.returnIncrement() + 2000);
-            if(SymTab.lookup(var_name) == "Error: undefined reference"){
-                SymTab.insert(type, "var", var_name, address);
+            if(SymTab.lookup(var_name) == "Error"){
+                SymTab.insert((var_name, "var", type, address));
             }else{
-                SymTab.edit(type, "var", var_name, address);
+                SymTab.edit((var_name, "var", type, address));
             }
             break;
         default:

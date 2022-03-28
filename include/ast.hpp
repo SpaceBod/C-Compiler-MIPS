@@ -12,5 +12,7 @@
 #include "ast/ast_stackptr.hpp"
 
 extern const Function *parseAST(FILE *fileInput);
+extern SymTab Symbol;
+extern StackPtr StackPointer;
 
 #endif

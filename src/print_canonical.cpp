@@ -1,5 +1,8 @@
 #include "ast.hpp"
 
+SymTab Symbol;
+StackPtr StackPointer;
+
 int main(int argc, char *argv[])
 {
     FILE *fileInput = fopen(argv[1], "r");

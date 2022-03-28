@@ -4,10 +4,9 @@
 #include <vector>
 #include <cassert>
 #include <map>
-#include<string>
+#include <string>
 
-#include "ast_symtab.hpp"
-#include "ast_nodes.hpp"
+const int MAX = 100;
 
 // Class for the stack pointer (arguments, enumeration, scopes, functions...)
 class StackPtr

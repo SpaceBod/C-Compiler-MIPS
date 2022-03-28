@@ -2,7 +2,6 @@
 #define nodes_hpp
 
 #include <cassert>
-#include <vector>
 #include <string>
 
 #include "ast_symtab.hpp"
@@ -10,77 +9,79 @@
 
 class Node {
 private:
-    std::string type, format ,name, address;
-    int length;
-    Node* next;
     friend class SymTab;
+    int len;
+    std::string symID, kind , type, address;
+    Node* next;
 public:
-    Node() {
+    Node() 
+    {
         next = nullptr;
     }
 
-    Node(std::string _type, std::string _format, std::string _name, std::string _address, int _length = 1) {
-        type = _type;
-        format = _format;
-        name = _name;
-        address = _address;
-        length = _length;
+    Node(std::string newSymID, std::string newKind, std::string newType, std::string newAddress, int newLen = 1)
+    {
+        symID = newSymID;
+        kind = newKind;
+        type = newType;
+        address = newAddress;
+        len = newLen;
         next = nullptr;
     }
 
-    ~Node() {
+    ~Node()
+    {
         delete next;
     }
 
-    void print() {
-        std::cout << "Type: " << type << std::endl;
-        std::cout << "Format: " << format << std::endl;
-        std::cout << "Name: " << name << std::endl;
-        std::cout << "Address: " << address << std::endl;
-        std::cout << '\n';
+    std::string returnSymID()
+    {
+        return symID;
     }
 
-    std::string getType() {
+    std::string returnKind()
+    {
+        return kind;
+    }
+    void setKind(std::string _kind)
+    {
+        kind = _kind;
+    }
+
+    std::string returnType()
+    {
         return type;
     }
 
-    void setType(std::string _type) {
+    void setType(std::string _type)
+    {
         type = _type;
     }
 
-    void setLength(int _length) {
-        length = _length;
-    }
-
-    int getLength() {
-        return length;
-    }
-
-    std::string getFormat() {
-        return format;
-    }
-
-    void setFormat(std::string _format) {
-        format = _format;
-    }
-
-    std::string getName() {
-        return name;
-    }
-
-    std::string getAddress() {
+    std::string returnAddress()
+    {
         return address;
     }
-
-    void setAddress(std::string _address) {
+    void setAddress(std::string _address)
+    {
         address = _address;
     }
 
-    Node *getNext() {
-        return next;
+    int returnLen()
+    {
+        return len;
+    }
+    void setLen(int _len)
+    {
+        len = _len;
     }
 
-    void setNext(Node *element) {
+    Node *returnNext()
+    {
+        return next;
+    }
+    void setNext(Node *element)
+    {
         next = element;
     }
 };
