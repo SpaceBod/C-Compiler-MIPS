@@ -27,12 +27,12 @@ public:
 
     virtual const char *getOpcode() const = 0;
 
-    ExpressionPtr getLeft() const
+    ExpressionPtr return_left() const
     {
         return left;
     }
 
-    ExpressionPtr getRight() const
+    ExpressionPtr return_right() const
     {
         return right;
     }
@@ -70,18 +70,18 @@ public:
         const std::map<std::string, double> &bindings) const override
     {
 
-        double vl = getLeft()->evaluate(bindings);
-        double vr = getRight()->evaluate(bindings);
+        double vl = return_left()->evaluate(bindings);
+        double vr = return_right()->evaluate(bindings);
         return vl + vr;
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        std::string srcRegA = makeName("srcRegA");
-        std::string srcRegB = makeName("srcRegB");
-        getLeft()->Translate2MIPS(srcRegA);
-        getRight()->Translate2MIPS(srcRegB);
-        std::cout << "add " << destReg << " " << srcRegA << " " << srcRegB << std::endl;
+        return_left()->Translate2MIPS("$t0");
+        std::cout << "sw $t0, 4($sp)" << std::endl;
+        return_right()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 4($sp)" << std::endl;
+        std::cout << "add " << destReg << ", $t0, $t1" << std::endl;
     }
 };
 
@@ -103,19 +103,19 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double vl = getLeft()->evaluate(bindings);
-        double vr = getRight()->evaluate(bindings);
+        double vl = return_left()->evaluate(bindings);
+        double vr = return_right()->evaluate(bindings);
         return vl - vr;
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        std::string srcRegA = makeName("srcRegA");
-        std::string srcRegB = makeName("srcRegB");
-        getLeft()->Translate2MIPS(srcRegA);
-        getRight()->Translate2MIPS(srcRegB);
-        std::cout << "sub " << destReg << " " << srcRegA << " " << srcRegB << std::endl;
-    }
+        return_left()->Translate2MIPS("$t0");
+        std::cout << "sw $t0, 4($sp)" << std::endl;
+        return_right()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 4($sp)" << std::endl;
+        std::cout << "sub " << destReg << ", $t0, $t1" << std::endl;
+        }
 };
 
 class MulOperator
@@ -136,18 +136,18 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double vl = getLeft()->evaluate(bindings);
-        double vr = getRight()->evaluate(bindings);
+        double vl = return_left()->evaluate(bindings);
+        double vr = return_right()->evaluate(bindings);
         return vl * vr;
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        std::string srcRegA = makeName("srcRegA");
-        std::string srcRegB = makeName("srcRegB");
-        getLeft()->Translate2MIPS(srcRegA);
-        getRight()->Translate2MIPS(srcRegB);
-        std::cout << "mul " << destReg << " " << srcRegA << " " << srcRegB << std::endl;
+        return_left()->Translate2MIPS("$t0");
+        std::cout << "sw $t0, 4($sp)" << std::endl;
+        return_right()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 4($sp)" << std::endl;
+        std::cout << "mul " << destReg << ", $t0, $t1" << std::endl;
     }
 };
 
@@ -169,18 +169,18 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double vl = getLeft()->evaluate(bindings);
-        double vr = getRight()->evaluate(bindings);
+        double vl = return_left()->evaluate(bindings);
+        double vr = return_right()->evaluate(bindings);
         return vl / vr;
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        std::string srcRegA = makeName("srcRegA");
-        std::string srcRegB = makeName("srcRegB");
-        getLeft()->Translate2MIPS(srcRegA);
-        getRight()->Translate2MIPS(srcRegB);
-        std::cout << "div " << srcRegA << " " << srcRegB << std::endl;
+        return_left()->Translate2MIPS("$t0");
+        std::cout << "sw $t0, 4($sp)" << std::endl;
+        return_right()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 4($sp)" << std::endl;
+        std::cout << "div $t0, $t1" << std::endl;
         std::cout << "mfhi " << destReg << std::endl;
     }
 };
@@ -203,18 +203,18 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        int vl = getLeft()->evaluate(bindings);
-        int vr = getRight()->evaluate(bindings);
+        int vl = return_left()->evaluate(bindings);
+        int vr = return_right()->evaluate(bindings);
         return vl % vr;
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        std::string srcRegA = makeName("srcRegA");
-        std::string srcRegB = makeName("srcRegB");
-        getLeft()->Translate2MIPS(srcRegA);
-        getRight()->Translate2MIPS(srcRegB);
-        std::cout << "div " << srcRegA << " " << srcRegB << std::endl; // quotient stored in hi, remainder stored in lo
+        return_left()->Translate2MIPS("$t0");
+        std::cout << "sw $t0, 4($sp)" << std::endl;
+        return_right()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 4($sp)" << std::endl;
+        std::cout << "div $t0, $t1" << std::endl;
         std::cout << "mflo " << destReg << std::endl;
     }
 };
@@ -239,18 +239,18 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double vl = getLeft()->evaluate(bindings);
-        double vr = getRight()->evaluate(bindings);
+        double vl = return_left()->evaluate(bindings);
+        double vr = return_right()->evaluate(bindings);
         return vl > vr;
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        std::string srcRegA = makeName("srcRegA");
-        std::string srcRegB = makeName("srcRegB");
-        getLeft()->Translate2MIPS(srcRegA);
-        getRight()->Translate2MIPS(srcRegB);
-        std::cout << "slt " << destReg << " " << srcRegB << " " << srcRegA << std::endl;
+        return_left()->Translate2MIPS("$t0");
+        std::cout << "sw $t0, 4($sp)" << std::endl;
+        return_right()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 4($sp)" << std::endl;
+        std::cout << "slt " << destReg << ", $t1, $t0" << std::endl;
     }
 };
 
@@ -272,18 +272,18 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double vl = getLeft()->evaluate(bindings);
-        double vr = getRight()->evaluate(bindings);
+        double vl = return_left()->evaluate(bindings);
+        double vr = return_right()->evaluate(bindings);
         return vl < vr;
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        std::string srcRegA = makeName("srcRegA");
-        std::string srcRegB = makeName("srcRegB");
-        getLeft()->Translate2MIPS(srcRegA);
-        getRight()->Translate2MIPS(srcRegB);
-        std::cout << "slt " << destReg << " " << srcRegA << " " << srcRegB << std::endl;
+       return_left()->Translate2MIPS("$t0");
+        std::cout << "sw $t0, 4($sp)" << std::endl;
+        return_right()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 4($sp)" << std::endl;
+        std::cout << "slt " << destReg << ", $t0, $t1" << std::endl;
     }
 };
 
@@ -305,26 +305,25 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double vl = getLeft()->evaluate(bindings);
-        double vr = getRight()->evaluate(bindings);
+        double vl = return_left()->evaluate(bindings);
+        double vr = return_right()->evaluate(bindings);
         return vl >= vr;
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        std::string srcRegA = makeName("srcRegA");
-        std::string srcRegB = makeName("srcRegB");
-        getLeft()->Translate2MIPS(srcRegA);
-        getRight()->Translate2MIPS(srcRegB);
-
-        std::string setOne = makeName("setOne");
-        std::cout << "beq " << srcRegA << " " << srcRegB << " " << setOne << std::endl;
-        std::cout << "slt " << destReg << " " << srcRegB << " " << srcRegA << std::endl;
+        return_left()->Translate2MIPS("$t0");
+        std::cout << "sw $t0, 4($sp)" << std::endl;
+        return_right()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 4($sp)" << std::endl;
+        std::string set_one = makeName("set_one");
+        std::cout << "beq $t0, $t1, " << set_one << std::endl;
+        std::cout << "slt " << destReg << ", $t1, $t0" << std::endl;
         std::string exit = makeName("exit");
         std::cout << "jump " << exit << std::endl;
-        std::cout << setOne << ":" << std::endl;
-        std::cout << "addi " << destReg << " $0 1" << std::endl;
-        std::cout << exit << ":" << std::endl;
+        std::cout << ":" << set_one << std::endl;
+        std::cout << "addi " << destReg << ", $0, 1" << std::endl;
+        std::cout << ":" << exit << std::endl;
     }
 };
 
@@ -346,25 +345,25 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double vl = getLeft()->evaluate(bindings);
-        double vr = getRight()->evaluate(bindings);
+        double vl = return_left()->evaluate(bindings);
+        double vr = return_right()->evaluate(bindings);
         return vl <= vr;
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        std::string srcRegA = makeName("srcRegA");
-        std::string srcRegB = makeName("srcRegB");
-        getLeft()->Translate2MIPS(srcRegA);
-        getRight()->Translate2MIPS(srcRegB);
-        std::string setOne = makeName("setOne");
-        std::cout << "beq " << srcRegA << " " << srcRegB << " " << setOne << std::endl;
-        std::cout << "slt " << destReg << " " << srcRegA << " " << srcRegB << std::endl;
+        return_left()->Translate2MIPS("$t0");
+        std::cout << "sw $t0, 4($sp)" << std::endl;
+        return_right()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 4($sp)" << std::endl;
+        std::string set_one = makeName("set_one");
+        std::cout << "beq $t0, $t1, " << set_one << std::endl;
+        std::cout << "slt " << destReg << ", $t0, $t1" << std::endl;
         std::string exit = makeName("exit");
         std::cout << "jump " << exit << std::endl;
-        std::cout << setOne << ":" << std::endl;
-        std::cout << "addi " << destReg << " $0 1" << std::endl;
-        std::cout << exit << ":" << std::endl;
+        std::cout << ":" << set_one << std::endl;
+        std::cout << "addi " << destReg << ", $0, 1" << std::endl;
+        std::cout << ":" << exit << std::endl;
     }
 };
 
@@ -386,25 +385,25 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double vl = getLeft()->evaluate(bindings);
-        double vr = getRight()->evaluate(bindings);
+        double vl = return_left()->evaluate(bindings);
+        double vr = return_right()->evaluate(bindings);
         return vl == vr;
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        std::string srcRegA = makeName("srcRegA");
-        std::string srcRegB = makeName("srcRegB");
-        getLeft()->Translate2MIPS(srcRegA);
-        getRight()->Translate2MIPS(srcRegB);
-        std::string setOne = makeName("setOne");
-        std::cout << "beq " << srcRegA << " " << srcRegB << " " << setOne << std::endl;
-        std::cout << "add " << destReg << " $0 $0" << std::endl;
+         return_left()->Translate2MIPS("$t0");
+        std::cout << "sw $t0, 4($sp)" << std::endl;
+        return_right()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 4($sp)" << std::endl;
+        std::string set_one = makeName("set_one");
+        std::cout << "beq $t0, $t1, " << set_one << std::endl;
+        std::cout << "add " << destReg << ", $0, $0" << std::endl;
         std::string exit = makeName("exit");
         std::cout << "jump " << exit << std::endl;
-        std::cout << setOne << ":" << std::endl;
-        std::cout << "addi " << destReg << " $0 1" << std::endl;
-        std::cout << exit << ":" << std::endl;
+        std::cout << ":" << set_one << std::endl;
+        std::cout << "addi " << destReg << ", $0, 1" << std::endl;
+        std::cout << ":" << exit << std::endl;
     }
 };
 
@@ -426,25 +425,25 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double vl = getLeft()->evaluate(bindings);
-        double vr = getRight()->evaluate(bindings);
+        double vl = return_left()->evaluate(bindings);
+        double vr = return_right()->evaluate(bindings);
         return vl != vr;
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        std::string srcRegA = makeName("srcRegA");
-        std::string srcRegB = makeName("srcRegB");
-        getLeft()->Translate2MIPS(srcRegA);
-        getRight()->Translate2MIPS(srcRegB);
-        std::string setOne = makeName("setOne");
-        std::cout << "bne " << srcRegA << " " << srcRegB << " " << setOne << std::endl;
-        std::cout << "add " << destReg << " $0 $0" << std::endl;
+        return_left()->Translate2MIPS("$t0");
+        std::cout << "sw $t0, 4($sp)" << std::endl;
+        return_right()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 4($sp)" << std::endl;
+        std::string set_one = makeName("set_one");
+        std::cout << "bne $t0, $t1, " << set_one << std::endl;
+        std::cout << "add " << destReg << ", $0, $0" << std::endl;
         std::string exit = makeName("exit");
         std::cout << "jump " << exit << std::endl;
-        std::cout << setOne << ":" << std::endl;
-        std::cout << "addi " << destReg << " $0 1" << std::endl;
-        std::cout << exit << ":" << std::endl;
+        std::cout << ":" << set_one << std::endl;
+        std::cout << "addi " << destReg << ", $0, 1" << std::endl;
+        std::cout << ":" << exit << std::endl;
     }
 };
 
@@ -468,26 +467,26 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double vl = getLeft()->evaluate(bindings);
-        double vr = getRight()->evaluate(bindings);
+        double vl = return_left()->evaluate(bindings);
+        double vr = return_right()->evaluate(bindings);
         return vl && vr;
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        std::string srcRegA = makeName("srcRegA");
-        std::string srcRegB = makeName("srcRegB");
-        getLeft()->Translate2MIPS(srcRegA);
-        getRight()->Translate2MIPS(srcRegB);
-        std::string setZero = makeName("setZero");
-        std::cout << "beq " << srcRegA << " $0 " << setZero << std::endl;
-        std::cout << "beq " << srcRegB << " $0 " << setZero << std::endl;
-        std::cout << "addi " << destReg << " $0 1" << std::endl;
+        return_left()->Translate2MIPS("$t0");
+        std::cout << "sw $t0, 4($sp)" << std::endl;
+        return_right()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 4($sp)" << std::endl;
+        std::string set_zero = makeName("set_zero");
+        std::cout << "beq $t0, $0, " << set_zero << std::endl;
+        std::cout << "beq $t1, $0, " << set_zero << std::endl;
+        std::cout << "addi " << destReg << ", $0, 1" << std::endl;
         std::string exit = makeName("exit");
         std::cout << "jump " << exit << std::endl;
-        std::cout << setZero << ":" << std::endl;
-        std::cout << "add " << destReg << " $0 $0" << std::endl;
-        std::cout << exit << ":" << std::endl;
+        std::cout <<  set_zero <<":" << std::endl;
+        std::cout << "add " << destReg << ", $0, $0" << std::endl;
+        std::cout <<  exit <<":" << std::endl;
     }
 };
 
@@ -509,16 +508,16 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        int vl = getLeft()->evaluate(bindings);
-        int vr = getRight()->evaluate(bindings);
+        int vl = return_left()->evaluate(bindings);
+        int vr = return_right()->evaluate(bindings);
         return vl & vr;
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        getLeft()->Translate2MIPS("$t0");
+        return_left()->Translate2MIPS("$t0");
         std::cout << "sw $t0, 4($sp)" << std::endl;
-        getRight()->Translate2MIPS("$t1");
+        return_right()->Translate2MIPS("$t1");
         std::cout << "lw $t0, 4($sp)" << std::endl;
         std::cout << "and " << destReg << ", $t0, $t1" << std::endl;
     }
@@ -542,26 +541,26 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double vl = getLeft()->evaluate(bindings);
-        double vr = getRight()->evaluate(bindings);
+        double vl = return_left()->evaluate(bindings);
+        double vr = return_right()->evaluate(bindings);
         return vl || vr;
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        std::string srcRegA = makeName("srcRegA");
-        std::string srcRegB = makeName("srcRegB");
-        getLeft()->Translate2MIPS(srcRegA);
-        getRight()->Translate2MIPS(srcRegB);
-        std::string setOne = makeName("setOne");
-        std::cout << "bne " << srcRegA << " $0 " << setOne << std::endl;
-        std::cout << "bne " << srcRegB << " $0 " << setOne << std::endl;
-        std::cout << "add " << destReg << " $0 $0" << std::endl;
+        return_left()->Translate2MIPS("$t0");
+        std::cout << "sw $t0, 4($sp)" << std::endl;
+        return_right()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 4($sp)" << std::endl;
+        std::string set_one = makeName("set_one");
+        std::cout << "bne $t0, $0, " << set_one << std::endl;
+        std::cout << "bne $t1, $0, " << set_one << std::endl;
+        std::cout << "add " << destReg << ", $0, $0" << std::endl;
         std::string exit = makeName("exit");
         std::cout << "jump " << exit << std::endl;
-        std::cout << setOne << ":" << std::endl;
-        std::cout << "addi " << destReg << " $0 1" << std::endl;
-        std::cout << exit << ":" << std::endl;
+        std::cout << set_one <<":" <<  std::endl;
+        std::cout << "addi " << destReg << ", $0, 1" << std::endl;
+        std::cout <<exit << ":" <<  std::endl;
     }
 };
 
@@ -583,16 +582,16 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        int vl = getLeft()->evaluate(bindings);
-        int vr = getRight()->evaluate(bindings);
+        int vl = return_left()->evaluate(bindings);
+        int vr = return_right()->evaluate(bindings);
         return vl | vr;
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        getLeft()->Translate2MIPS("$t0");
+        return_left()->Translate2MIPS("$t0");
         std::cout << "sw $t0, 4($sp)" << std::endl;
-        getRight()->Translate2MIPS("$t1");
+        return_right()->Translate2MIPS("$t1");
         std::cout << "lw $t0, 4($sp)" << std::endl;
         std::cout << "or " << destReg << ", $t0, $t1" << std::endl;
     }
@@ -616,16 +615,16 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        int vl = getLeft()->evaluate(bindings);
-        int vr = getRight()->evaluate(bindings);
+        int vl = return_left()->evaluate(bindings);
+        int vr = return_right()->evaluate(bindings);
         return vl ^ vr;
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        getLeft()->Translate2MIPS("$t0");
+        return_left()->Translate2MIPS("$t0");
         std::cout << "sw $t0, 4($sp)" << std::endl;
-        getRight()->Translate2MIPS("$t1");
+        return_right()->Translate2MIPS("$t1");
         std::cout << "lw $t0, 4($sp)" << std::endl;
         std::cout << "xor " << destReg << ", $t0, $t1" << std::endl;
     }
