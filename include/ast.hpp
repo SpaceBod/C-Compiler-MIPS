@@ -16,6 +16,14 @@
 #include "ast/ast_prim_storefunc.hpp"
 #include "ast/ast_prim_number.hpp"
 
+#include "ast/ast_stat_iteration.hpp"
+#include "ast/ast_stat_if.hpp"
+
+#include "ast/ast_op_add.hpp"
+#include "ast/ast_op_sub.hpp"
+#include "ast/ast_op_mult.hpp"
+#include "ast/ast_op_div.hpp"
+
 extern const Main *parseAST(FILE *fileInput);
 // extern const Main *parseAST();
 extern SymTabADT SymTab;

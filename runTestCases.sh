@@ -47,7 +47,10 @@ for i in compiler_tests/*; do
 			
 			# check if return code is 0
 			if [ ${RESULT} -eq 0 ]; then
+				echo "P A S S";
 				PASSED=$(( ${PASSED}+1 ));
+			else
+				echo "F A I L";
 			fi
 			CHECKED=$(( ${CHECKED}+1 ));
 		fi	
