@@ -5,9 +5,9 @@ StackPtr StkPtr;
 
 int main()
 {
-    const Function *ast = parseAST();
-
-    ast->pretty_print(std::cout);
+    const Main *ast = parseAST();
+    std::cout << ".text" << std::endl;
+    ast->Translate2MIPS("$v0");
     std::cout << std::endl;
 
     return 0;

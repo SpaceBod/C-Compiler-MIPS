@@ -1,18 +1,15 @@
-#ifndef nodes_hpp
-#define nodes_hpp
+#ifndef ast_nodes_hpp
+#define ast_nodes_hpp
 
 #include <cassert>
 #include <string>
 
-#include "ast_symtab.hpp"
-
 class Node
 {
 private:
-    friend class SymTab;
-    int len;
-    std::string symID, kind, type, address;
+    std::string name, kind, type, address;
     Node *next;
+    friend class SymTabADT;
 
 public:
     Node()
@@ -20,33 +17,18 @@ public:
         next = nullptr;
     }
 
-    Node(std::string newSymID, std::string newKind, std::string newType, std::string newAddress, int newLen = 1)
+    Node(std::string _type, std::string _format, std::string _name, std::string _address)
     {
-        symID = newSymID;
-        kind = newKind;
-        type = newType;
-        address = newAddress;
-        len = newLen;
+        type = _type;
+        kind = _format;
+        name = _name;
+        address = _address;
         next = nullptr;
     }
 
     ~Node()
     {
         delete next;
-    }
-
-    std::string returnSymID()
-    {
-        return symID;
-    }
-
-    std::string returnKind()
-    {
-        return kind;
-    }
-    void setKind(std::string _kind)
-    {
-        kind = _kind;
     }
 
     std::string returnType()
@@ -59,31 +41,40 @@ public:
         type = _type;
     }
 
-    std::string returnAddress()
+    std::string returnKind()
+    {
+        return kind;
+    }
+
+    void setFormat(std::string _format)
+    {
+        kind = _format;
+    }
+
+    std::string getName()
+    {
+        return name;
+    }
+
+    std::string getAddress()
     {
         return address;
     }
+
     void setAddress(std::string _address)
     {
         address = _address;
     }
 
-    int returnLen()
-    {
-        return len;
-    }
-    void setLen(int _len)
-    {
-        len = _len;
-    }
-
-    Node *returnNext()
+    Node *getNext()
     {
         return next;
     }
+
     void setNext(Node *element)
     {
         next = element;
     }
 };
+
 #endif

@@ -1,30 +1,38 @@
-CPPFLAGS += -w -g -Wno-unused-parameter -std=c++11 #17
+  
+CPPFLAGS += -std=c++11 -W -Wall -g -Wno-unused-parameter
 CPPFLAGS += -I include
 
-all : bin/print_canonical
+all : bin/print_canonical, bin/compiler, bin/compile_test
 
-src/C90Parser.tab.cpp src/C90Parser.tab.hpp : src/C90Parser.y
-	bison  -v  -d src/C90Parser.y -o src/C90Parser.tab.cpp
+src/parser.tab.cpp src/parser.tab.hpp : src/C90Parser.y
+	bison -v -d src/C90Parser.y -o src/parser.tab.cpp
 
-src/C90Lexer.yy.cpp : src/C90Lexer.flex src/C90Parser.tab.hpp
-	flex -o src/C90Lexer.yy.cpp  src/C90Lexer.flex
+src/lexer.yy.cpp : src/C90Lexer.flex src/parser.tab.hpp
+	flex -o src/lexer.yy.cpp  src/C90Lexer.flex
 
-bin/evaluate_expression : src/evaluate_expression.o src/C90Parser.tab.o src/C90Lexer.yy.o src/C90Parser.tab.o
+
+bin/c_compiler : bin/compiler src/wrapper.sh
+	cp src/wrapper.sh bin/c_compiler
+	chmod u+x bin/c_compiler
+
+bin/compiler : src/compiler.o src/parser.tab.o src/lexer.yy.o src/parser.tab.o
 	mkdir -p bin
-	g++ $(CPPFLAGS) -o bin/evaluate_expression $^
+	g++ $(CPPFLAGS) -o bin/compiler $^
 
-
-bin/print_canonical : src/print_canonical.o src/C90Parser.tab.o src/C90Lexer.yy.o src/C90Parser.tab.o
-	make src/C90Parser.tab.cpp 
-	make src/C90Parser.tab.hpp
-	make src/C90Lexer.yy.cpp
+bin/print_canonical : src/print_canonical.o src/parser.tab.o src/lexer.yy.o src/parser.tab.o
 	mkdir -p bin
 	g++ $(CPPFLAGS) -o bin/print_canonical $^
 
+bin/compile_test : src/compile_test.o src/parser.tab.o src/lexer.yy.o src/parser.tab.o
+	mkdir -p bin
+	g++ $(CPPFLAGS) -o bin/compile_test $^
+	
 clean :
+	rm -f src/*.tab.cpp
+	rm -f src/*.yy.cpp
+	rm -f src/*.tab.hpp
 	rm -f src/*.o
+	rm -f src/*.output
 	rm -f bin/*
-
-	rm -f src/C90Parser.tab.* 
-	rm -f src/C90Parser.output
-	rm -f src/C90Lexer.yy.cpp
+	rm -r testout
+	rm -r bin

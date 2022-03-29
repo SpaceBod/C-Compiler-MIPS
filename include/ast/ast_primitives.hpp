@@ -5,180 +5,152 @@
 #include <iostream>
 
 #include "ast_symtab.hpp"
+#include "ast_expressions.hpp"
 
-extern SymTab SymbolTable;
-extern StackPtr StackPointer;
-
-enum VarType
+enum VarTypeDef
 {
-    INTEGER,
+    INT,
+    FLOAT,
     DOUBLE,
-    FLOAT
+    CHAR
 };
 
 enum DecType
 {
     CALL,
     ASSIGN,
-    ARGUEMENT,
-    DECLARATION
+    DECLARATION,
+    ARGUMENT
 };
 
-class Variable
-    : public Expression
+class Identifier
+    : public Expr
 {
 private:
-    std::string var_name;
-    std::string type;
-    ExpressionPtr Expr = nullptr;
-    DecType dec_type;
-    std::string assign_type;
+    mutable std::string type;
+    std::string varID;
     mutable std::string address;
+    std::string assignOp;
+    DecType VarType;
+    ExprPtr Expr = nullptr;
+    bool addressTrue;
 
 public:
-    Variable()
+    Identifier()
     {
     }
 
-    Variable(const std::string *_var_name)
+    Identifier(const std::string *_varID, bool _addressTrue = false)
     {
-        dec_type = CALL;
-        var_name = *_var_name;
+        VarType = CALL;
+        varID = *_varID;
+        addressTrue = _addressTrue;
     }
 
-    Variable(const std::string *_var_name, std::string *_assign_type, ExpressionPtr _Expr)
+    Identifier(const std::string *_varID, std::string *_assignOp, ExprPtr _Expr)
     {
-        dec_type = ASSIGN;
-        var_name = *_var_name;
-        assign_type = *_assign_type;
+        VarType = ASSIGN;
+        varID = *_varID;
+        assignOp = *_assignOp;
         Expr = _Expr;
     }
 
-    Variable(VarType _type, const std::string *_var_name, DecType _kind, ExpressionPtr _Expr = nullptr)
+    Identifier(VarTypeDef _type, const std::string *_varID, DecType _kind, ExprPtr _Expr = nullptr)
     {
-        if (_kind == ARGUEMENT)
+        if (_kind == ARGUMENT)
         {
-            dec_type = ARGUEMENT;
+            VarType = ARGUMENT;
             switch (_type)
             {
-            case INTEGER:
-                type = "int";
-                Expr = _Expr;
-                var_name = *_var_name;
-
-                // StackPointer.setIncrement(StackPointer.returnIncrement() + 4);
-                // address = std::to_string(StackPointer.returnIncrement() + 2000);
-                // if (SymbolTable.lookup(var_name) == "Error")
-                // {
-                //     SymbolTable.insert(type, "var", var_name, address);
-                // }
-                // else
-                // {
-                //     SymbolTable.edit(type, "var", var_name, address);
-                // }
-
-                break;
-            case DOUBLE:
-                type = "double";
-                var_name = *_var_name;
-
-                // StackPointer.setIncrement(StackPointer.returnIncrement() + 4);
-                // address = std::to_string(StackPointer.returnIncrement() + 2000);
-                // if (SymbolTable.lookup(var_name) == "Error")
-                // {
-                //     SymbolTable.insert(var_name, "var", type, address);
-                // }
-                // else
-                // {
-                //     SymbolTable.edit(var_name, "var", type, address);
-                // }
+            case INT:
+                type = "INT";
+                varID = *_varID;
                 break;
             case FLOAT:
-                type = "float";
-                var_name = *_var_name;
-
-                // StackPointer.setIncrement(StackPointer.returnIncrement() + 4);
-                // address = std::to_string(StackPointer.returnIncrement() + 2000);
-                // if (SymbolTable.lookup(var_name) == "Error")
-                // {
-                //     SymbolTable.insert(var_name, "var", type, address);
-                // }
-                // else
-                // {
-                //     SymbolTable.edit(var_name, "var", type, address);
-                // }
+                type = "FLOAT";
+                varID = *_varID;
+                break;
+            case DOUBLE:
+                type = "DOUBLE";
+                varID = *_varID;
+                break;
+            case CHAR:
+                type = "CHAR";
+                varID = *_varID;
                 break;
             default:
-                type = "UNDEFINED";
+                type = "ARGUMENT TYPE UNKNOWN";
             }
         }
-
         else if (_kind == DECLARATION)
         {
-            dec_type = DECLARATION;
+            VarType = DECLARATION;
             switch (_type)
             {
-            case INTEGER:
-                type = "int";
-                var_name = *_var_name;
-                Expr = _Expr;
-                break;
-            case DOUBLE:
-                type = "double";
-                var_name = *_var_name;
+            case INT:
+                type = "INT";
+                varID = *_varID;
                 Expr = _Expr;
                 break;
             case FLOAT:
-                type = "float";
-                var_name = *_var_name;
+                type = "FLOAT";
+                varID = *_varID;
+                Expr = _Expr;
+                break;
+            case DOUBLE:
+                type = "DOUBLE";
+                varID = *_varID;
+                Expr = _Expr;
+                break;
+            case CHAR:
+                type = "CHAR";
+                varID = *_varID;
                 Expr = _Expr;
                 break;
             default:
-                type = "UNDEFINED";
+                type = "DECLARATION TYPE UNKNOWN";
             }
         }
     }
 
-    const std::string return_var_name() const
-    {
-        return var_name;
-    }
-
-    const std::string return_type() const
+    const std::string returnType() const
     {
         return type;
     }
 
-    const std::string return_address() const
+    const std::string returnFuncId() const
+    {
+        return varID;
+    }
+
+    const std::string returnAddress() const
     {
         return address;
     }
 
-    ExpressionPtr return_expr() const
+    ExprPtr returnExpr() const
     {
         return Expr;
     }
 
     virtual void pretty_print(std::ostream &dst) const override
     {
-        switch (dec_type)
+        switch (VarType)
         {
         case CALL:
-            dst << var_name;
+            dst << varID;
             break;
-
         case ASSIGN:
-            dst << var_name;
+            dst << varID;
             dst << " ";
-            dst << assign_type;
+            dst << assignOp;
             dst << " ";
             Expr->pretty_print(dst);
             break;
-
         case DECLARATION:
             dst << type;
             dst << " ";
-            dst << var_name;
+            dst << varID;
             if (Expr != nullptr)
             {
                 dst << " = ";
@@ -187,246 +159,925 @@ public:
             dst << ";";
             dst << '\n';
             break;
+        default:
+            break;
         }
     }
 
-    virtual double evaluate(
-        const std::map<std::string, double> &bindings) const override
+    virtual const std::string returnData() const override
     {
-        return bindings.at(var_name);
+        type = SymTab.returnType(varID);
+        return type;
+    }
+
+    virtual const std::string returnDataKind() const override
+    {
+        std::string format = SymTab.returnKind(varID);
+        return format;
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        switch (dec_type)
+        std::string format;
+        switch (VarType)
         {
         case CALL:
-            address = SymbolTable.lookup(var_name);
-            std::cout << "addi $t0, $0, " << address << std::endl;
+            address = SymTab.lookup(varID);
+            type = SymTab.returnType(varID);
+            format = SymTab.returnKind(varID);
+            if (format == "ptr")
+            {
+                if (addressTrue)
+                {
+                    std::cout << "addi " << destReg << ", $fp, -" << address << std::endl;
+                }
+                else
+                {
+                    std::cout << "lw " << destReg << ", -" << address << "($fp)" << std::endl;
+                }
+            }
+            else if (format == "var")
+            {
+                if (addressTrue)
+                {
+                    std::cout << "addi " << destReg << ", $fp, -" << address << std::endl;
+                }
+                else
+                {
+                    if (type == "INT")
+                    {
+                        std::cout << "lw " << destReg << ", -" << address << "($fp)" << std::endl;
+                    }
+                    else if (type == "FLOAT")
+                    {
+                        std::cout << "lwc1 " << destReg << ", -" << address << "($fp)" << std::endl;
+                    }
+                    else if (type == "DOUBLE")
+                    {
+                        std::cout << "lwc1 " << destReg << ", -" << address << "($fp)" << std::endl;
+                        std::cout << "lwc1 " << destReg[0] << destReg[1] << (int)destReg[2] - 48 + 1 << ", -" << std::stoi(address) - 4 << "($fp)" << std::endl;
+                    }
+                    else if (type == "CHAR")
+                    {
+                        std::cout << "lb " << destReg << ", -" << address << "($fp)" << std::endl;
+                    }
+                }
+            }
             break;
         case ASSIGN:
-            if (assign_type == "=")
+            address = SymTab.lookup(varID);
+            type = SymTab.returnType(varID);
+            format = SymTab.returnKind(varID);
+            if (format == "ptr")
             {
-                return_expr()->Translate2MIPS("$t0");
-                std::cout << "sw $t0, -" << address << "($fp)" << std::endl;
+                if (assignOp == "=")
+                {
+                    returnExpr()->Translate2MIPS("$t0");
+                    std::cout << "sw $t0, -" << address << "($fp)" << std::endl;
+                }
+                else if (assignOp == "+=")
+                {
+                    returnExpr()->Translate2MIPS("$t0");
+                    std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                    if (type == "DOUBLE")
+                    {
+                        for (int i = 0; i < 8; i++)
+                        {
+                            std::cout << "add $t1, $t1, $t0" << std::endl;
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < 4; i++)
+                        {
+                            std::cout << "add $t1, $t1, $t0" << std::endl;
+                        }
+                    }
+                    std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+                }
+                else if (assignOp == "-=")
+                {
+                    returnExpr()->Translate2MIPS("$t0");
+                    std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                    if (type == "DOUBLE")
+                    {
+                        for (int i = 0; i < 8; i++)
+                        {
+                            std::cout << "sub $t1, $t1, $t0" << std::endl;
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < 4; i++)
+                        {
+                            std::cout << "sub $t1, $t1, $t0" << std::endl;
+                        }
+                    }
+                    std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+                }
+                else if (assignOp == "/=")
+                {
+                    returnExpr()->Translate2MIPS("$t0");
+                    std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                    std::cout << "div $t1, $t0" << std::endl;
+                    std::cout << "mflo $t1" << std::endl;
+                    std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+                }
+                else if (assignOp == "*=")
+                {
+                    returnExpr()->Translate2MIPS("$t0");
+                    std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                    std::cout << "mul $t1, $t1, $t0" << std::endl;
+                    std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+                }
+                else if (assignOp == "%=")
+                {
+                    returnExpr()->Translate2MIPS("$t0");
+                    std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                    std::cout << "div $t1, $t0" << std::endl;
+                    std::cout << "mfhi $t1" << std::endl;
+                    std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+                }
+                else if (assignOp == "<<=")
+                {
+                    returnExpr()->Translate2MIPS("$t0");
+                    std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                    std::cout << "sllv $t1, $t1, $t0" << std::endl;
+                    std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+                }
+                else if (assignOp == ">>=")
+                {
+                    returnExpr()->Translate2MIPS("$t0");
+                    std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                    std::cout << "srlv $t1, $t1, $t0" << std::endl;
+                    std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+                }
+                else if (assignOp == "^=")
+                {
+                    returnExpr()->Translate2MIPS("$t0");
+                    std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                    std::cout << "xor $t1, $t1, $t0" << std::endl;
+                    std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+                }
+                else if (assignOp == "&=")
+                {
+                    returnExpr()->Translate2MIPS("$t0");
+                    std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                    std::cout << "and $t1, $t1, $t0" << std::endl;
+                    std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+                }
+                else if (assignOp == "|=")
+                {
+                    returnExpr()->Translate2MIPS("$t0");
+                    std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                    std::cout << "or $t1, $t1, $t0" << std::endl;
+                    std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+                }
+                else if (assignOp == "++")
+                {
+                    std::cout << "lw $t0, -" << address << "($fp)" << std::endl;
+                    if (type == "DOUBLE")
+                    {
+                        std::cout << "addi $t0, $t0, 8" << std::endl;
+                    }
+                    else
+                    {
+                        std::cout << "addi $t0, $t0, 4" << std::endl;
+                    }
+                    std::cout << "sw $t0, -" << address << "($fp)" << std::endl;
+                }
+                else if (assignOp == "--")
+                {
+                    std::cout << "lw $t0, -" << address << "($fp)" << std::endl;
+                    if (type == "DOUBLE")
+                    {
+                        std::cout << "addi $t0, $t0, -8" << std::endl;
+                    }
+                    else
+                    {
+                        std::cout << "addi $t0, $t0, -4" << std::endl;
+                    }
+                    std::cout << "sw $t0, -" << address << "($fp)" << std::endl;
+                }
             }
-            else if (assign_type == "+=")
+            else if (format == "var")
             {
-                return_expr()->Translate2MIPS("$t0");
-                std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
-                std::cout << "add $t1, $t1, $t0" << std::endl;
-                std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
-            }
-            else if (assign_type == "-=")
-            {
-                return_expr()->Translate2MIPS("$t0");
-                std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
-                std::cout << "sub $t1, $t1, $t0" << std::endl;
-                std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
-            }
-            else if (assign_type == "/=")
-            {
-                return_expr()->Translate2MIPS("$t0");
-                std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
-                std::cout << "div $t1, $t0" << std::endl;
-                std::cout << "mfhi $t1" << std::endl;
-                std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
-            }
-            else if (assign_type == "*=")
-            {
-                return_expr()->Translate2MIPS("$t0");
-                std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
-                std::cout << "mul $t1, $t1, $t0" << std::endl;
-                std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
-            }
-            else if (assign_type == "%=")
-            {
-                return_expr()->Translate2MIPS("$t0");
-                std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
-                std::cout << "div $t1, $t0" << std::endl;
-                std::cout << "mflo $t1" << std::endl;
-                std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
-            }
-            else if (assign_type == "<<=")
-            {
-                return_expr()->Translate2MIPS("$t0");
-                std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
-                std::cout << "sllv $t1, $t1, $t0" << std::endl;
-                std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
-            }
-            else if (assign_type == ">>=")
-            {
-                return_expr()->Translate2MIPS("$t0");
-                std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
-                std::cout << "srlv $t1, $t1, $t0" << std::endl;
-                std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
-            }
-            else if (assign_type == "^=")
-            {
-                return_expr()->Translate2MIPS("$t0");
-                std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
-                std::cout << "xor $t1, $t1, $t0" << std::endl;
-                std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
-            }
-            else if (assign_type == "&=")
-            {
-                return_expr()->Translate2MIPS("$t0");
-                std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
-                std::cout << "and $t1, $t1, $t0" << std::endl;
-                std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
-            }
-            else if (assign_type == "|=")
-            {
-                return_expr()->Translate2MIPS("$t0");
-                std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
-                std::cout << "or $t1, $t1, $t0" << std::endl;
-                std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+                if (assignOp == "=")
+                {
+                    if (type == "INT")
+                    {
+                        returnExpr()->Translate2MIPS("$t0");
+                        std::cout << "sw $t0, -" << address << "($fp)" << std::endl;
+                    }
+                    else if (type == "FLOAT")
+                    {
+                        returnExpr()->Translate2MIPS("$f0");
+                        std::cout << "swc1 $f0, -" << address << "($fp)" << std::endl;
+                    }
+                    else if (type == "DOUBLE")
+                    {
+                        returnExpr()->Translate2MIPS("$f0");
+                        std::cout << "swc1 $f0, -" << address << "($fp)" << std::endl;
+                        std::cout << "swc1 $f1, -" << std::stoi(address) - 4 << "($fp)" << std::endl;
+                    }
+                    else if (type == "CHAR")
+                    {
+                        returnExpr()->Translate2MIPS("$t0");
+                        std::cout << "sb $t0, -" << address << "($fp)" << std::endl;
+                    }
+                    else
+                    {
+                        std::cout << returnType() << std::endl;
+                        std::cout << "ERROR: type missing" << std::endl;
+                    }
+                }
+                else if (assignOp == "+=")
+                {
+                    if (type == "INT")
+                    {
+                        returnExpr()->Translate2MIPS("$t0");
+                        std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                        std::cout << "add $t1, $t1, $t0" << std::endl;
+                        std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+                    }
+                    else if (type == "FLOAT")
+                    {
+                        returnExpr()->Translate2MIPS("$f0");
+                        std::cout << "lwc1 $f2, -" << address << "($fp)" << std::endl;
+                        std::cout << "add.s $f2, $f2, $f0" << std::endl;
+                        std::cout << "swc1 $f2, -" << address << "($fp)" << std::endl;
+                    }
+                    else if (type == "DOUBLE")
+                    {
+                        returnExpr()->Translate2MIPS("$f0");
+                        std::cout << "lwc1 $f2, -" << address << "($fp)" << std::endl;
+                        std::cout << "lwc1 $f3, -" << std::stoi(address) - 4 << "($fp)" << std::endl;
+                        std::cout << "add.d $f2, $f2, $f0" << std::endl;
+                        std::cout << "swc1 $f2, -" << address << "($fp)" << std::endl;
+                        std::cout << "swc1 #f3, -" << std::stoi(address) - 4 << "($fp)" << std::endl;
+                    }
+                    else if (type == "CHAR")
+                    {
+                        returnExpr()->Translate2MIPS("$t0");
+                        std::cout << "lbu $t1, -" << address << "($fp)" << std::endl;
+                        std::cout << "add $t1, $t1, $t0" << std::endl;
+                        std::cout << "andi $t1, $t1, 0x00ff" << std::endl;
+                        std::cout << "sb $t1, -" << address << "($fp)" << std::endl;
+                    }
+                }
+                else if (assignOp == "-=")
+                {
+                    if (type == "INT")
+                    {
+                        returnExpr()->Translate2MIPS("$t0");
+                        std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                        std::cout << "sub $t1, $t1, $t0" << std::endl;
+                        std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+                    }
+                    else if (type == "FLOAT")
+                    {
+                        returnExpr()->Translate2MIPS("$f0");
+                        std::cout << "lwc1 $f2, -" << address << "($fp)" << std::endl;
+                        std::cout << "sub.s $f2, $f2, $f0" << std::endl;
+                        std::cout << "swc1 $f2, -" << address << "($fp)" << std::endl;
+                    }
+                    else if (type == "DOUBLE")
+                    {
+                        returnExpr()->Translate2MIPS("$f0");
+                        std::cout << "lwc1 $f2, -" << address << "($fp)" << std::endl;
+                        std::cout << "lwc1 $f3, -" << std::stoi(address) - 4 << "($fp)" << std::endl;
+                        std::cout << "sub.d $f2, $f2, $f0" << std::endl;
+                        std::cout << "swc1 $f2, -" << address << "($fp)" << std::endl;
+                        std::cout << "swc1 #f3, -" << std::stoi(address) - 4 << "($fp)" << std::endl;
+                    }
+                    else if (type == "CHAR")
+                    {
+                        returnExpr()->Translate2MIPS("$t0");
+                        std::cout << "lbu $t1, -" << address << "($fp)" << std::endl;
+                        std::cout << "sub $t1, $t1, $t0" << std::endl;
+                        std::cout << "andi $t1, $t1, 0x00ff" << std::endl;
+                        std::cout << "sb $t1, -" << address << "($fp)" << std::endl;
+                    }
+                }
+                else if (assignOp == "/=")
+                {
+                    if (type == "INT")
+                    {
+                        returnExpr()->Translate2MIPS("$t0");
+                        std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                        std::cout << "div $t1, $t0" << std::endl;
+                        std::cout << "mflo $t1" << std::endl;
+                        std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+                    }
+                    else if (type == "FLOAT")
+                    {
+                        returnExpr()->Translate2MIPS("$f0");
+                        std::cout << "lwc1 $f2, -" << address << "($fp)" << std::endl;
+                        std::cout << "div.s $f2, $f2, $f0" << std::endl;
+                        std::cout << "swc1 $f2, -" << address << "($fp)" << std::endl;
+                    }
+                    else if (type == "DOUBLE")
+                    {
+                        returnExpr()->Translate2MIPS("$f0");
+                        std::cout << "lwc1 $f2, -" << address << "($fp)" << std::endl;
+                        std::cout << "lwc1 $f3, -" << std::stoi(address) - 4 << "($fp)" << std::endl;
+                        std::cout << "div.d $f2, $f2, $f0" << std::endl;
+                        std::cout << "swc1 $f2, -" << address << "($fp)" << std::endl;
+                        std::cout << "swc1 #f3, -" << std::stoi(address) - 4 << "($fp)" << std::endl;
+                    }
+                    else if (type == "CHAR")
+                    {
+                        returnExpr()->Translate2MIPS("$t0");
+                        std::cout << "lbu $t1, -" << address << "($fp)" << std::endl;
+                        std::cout << "div $t1, $t0" << std::endl;
+                        std::cout << "mflo $t1" << std::endl;
+                        std::cout << "andi $t1, $t1, 0x00ff" << std::endl;
+                        std::cout << "sb $t1, -" << address << "($fp)" << std::endl;
+                    }
+                }
+                else if (assignOp == "*=")
+                {
+                    if (type == "INT")
+                    {
+                        returnExpr()->Translate2MIPS("$t0");
+                        std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                        std::cout << "mul $t1, $t1, $t0" << std::endl;
+                        std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+                    }
+                    else if (type == "FLOAT")
+                    {
+                        returnExpr()->Translate2MIPS("$f0");
+                        std::cout << "lwc1 $f2, -" << address << "($fp)" << std::endl;
+                        std::cout << "mul.s $f2, $f2, $f0" << std::endl;
+                        std::cout << "swc1 $f2, -" << address << "($fp)" << std::endl;
+                    }
+                    else if (type == "DOUBLE")
+                    {
+                        returnExpr()->Translate2MIPS("$f0");
+                        std::cout << "lwc1 $f2, -" << address << "($fp)" << std::endl;
+                        std::cout << "lwc1 $f3, -" << std::stoi(address) - 4 << "($fp)" << std::endl;
+                        std::cout << "mul.d $f2, $f2, $f0" << std::endl;
+                        std::cout << "swc1 $f2, -" << address << "($fp)" << std::endl;
+                        std::cout << "swc1 #f3, -" << std::stoi(address) - 4 << "($fp)" << std::endl;
+                    }
+                    else if (type == "CHAR")
+                    {
+                        returnExpr()->Translate2MIPS("$t0");
+                        std::cout << "lbu $t1, -" << address << "($fp)" << std::endl;
+                        std::cout << "mul $t1, $t1, $t0" << std::endl;
+                        std::cout << "andi $t1, $t1, 0x00ff" << std::endl;
+                        std::cout << "sb $t1, -" << address << "($fp)" << std::endl;
+                    }
+                }
+                else if (assignOp == "%=")
+                {
+                    if (type == "INT")
+                    {
+                        returnExpr()->Translate2MIPS("$t0");
+                        std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                        std::cout << "div $t1, $t0" << std::endl;
+                        std::cout << "mfhi $t1" << std::endl;
+                        std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+                    }
+                    else if (type == "CHAR")
+                    {
+                        returnExpr()->Translate2MIPS("$t0");
+                        std::cout << "lbu $t1, -" << address << "($fp)" << std::endl;
+                        std::cout << "div $t1, $t0" << std::endl;
+                        std::cout << "mfhi $t1" << std::endl;
+                        std::cout << "andi $t1, $t1, 0x00ff" << std::endl;
+                        std::cout << "sb $t1, -" << address << "($fp)" << std::endl;
+                    }
+                }
+                else if (assignOp == "<<=")
+                {
+                    if (type == "INT")
+                    {
+                        returnExpr()->Translate2MIPS("$t0");
+                        std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                        std::cout << "sllv $t1, $t1, $t0" << std::endl;
+                        std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+                    }
+                    else if (type == "CHAR")
+                    {
+                        returnExpr()->Translate2MIPS("$t0");
+                        std::cout << "lbu $t1, -" << address << "($fp)" << std::endl;
+                        std::cout << "sllv $t1, $t1, $t0" << std::endl;
+                        std::cout << "andi $t1, $t1, 0x00ff" << std::endl;
+                        std::cout << "sb $t1, -" << address << "($fp)" << std::endl;
+                    }
+                }
+                else if (assignOp == ">>=")
+                {
+                    if (type == "INT")
+                    {
+                        returnExpr()->Translate2MIPS("$t0");
+                        std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                        std::cout << "srlv $t1, $t1, $t0" << std::endl;
+                        std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+                    }
+                    else if (type == "CHAR")
+                    {
+                        returnExpr()->Translate2MIPS("$t0");
+                        std::cout << "lbu $t1, -" << address << "($fp)" << std::endl;
+                        std::cout << "srlv $t1, $t1, $t0" << std::endl;
+                        std::cout << "andi $t1, $t1, 0x00ff" << std::endl;
+                        std::cout << "sb $t1, -" << address << "($fp)" << std::endl;
+                    }
+                }
+                else if (assignOp == "^=")
+                {
+                    if (type == "INT")
+                    {
+                        returnExpr()->Translate2MIPS("$t0");
+                        std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                        std::cout << "xor $t1, $t1, $t0" << std::endl;
+                        std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+                    }
+                    else if (type == "CHAR")
+                    {
+                        returnExpr()->Translate2MIPS("$t0");
+                        std::cout << "lbu $t1, -" << address << "($fp)" << std::endl;
+                        std::cout << "xor $t1, $t1, $t0" << std::endl;
+                        std::cout << "andi $t1, $t1, 0x00ff" << std::endl;
+                        std::cout << "sb $t1, -" << address << "($fp)" << std::endl;
+                    }
+                }
+                else if (assignOp == "&=")
+                {
+                    if (type == "INT")
+                    {
+                        returnExpr()->Translate2MIPS("$t0");
+                        std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                        std::cout << "and $t1, $t1, $t0" << std::endl;
+                        std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+                    }
+                    else if (type == "CHAR")
+                    {
+                        returnExpr()->Translate2MIPS("$t0");
+                        std::cout << "lbu $t1, -" << address << "($fp)" << std::endl;
+                        std::cout << "and $t1, $t1, $t0" << std::endl;
+                        std::cout << "andi $t1, $t1, 0x00ff" << std::endl;
+                        std::cout << "sb $t1, -" << address << "($fp)" << std::endl;
+                    }
+                }
+                else if (assignOp == "|=")
+                {
+                    if (type == "INT")
+                    {
+                        returnExpr()->Translate2MIPS("$t0");
+                        std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                        std::cout << "or $t1, $t1, $t0" << std::endl;
+                        std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+                    }
+                    else if (type == "CHAR")
+                    {
+                        returnExpr()->Translate2MIPS("$t0");
+                        std::cout << "lbu $t1, -" << address << "($fp)" << std::endl;
+                        std::cout << "or $t1, $t1, $t0" << std::endl;
+                        std::cout << "andi $t1, $t1, 0x00ff" << std::endl;
+                        std::cout << "sb $t1, -" << address << "($fp)" << std::endl;
+                    }
+                }
+                else if (assignOp == "++")
+                {
+                    if (type == "INT")
+                    {
+                        std::cout << "lw $t0, -" << address << "($fp)" << std::endl;
+                        std::cout << "addi $t0, $t0, 1" << std::endl;
+                        std::cout << "sw $t0, -" << address << "($fp)" << std::endl;
+                    }
+                    else if (type == "FLOAT")
+                    {
+                        std::cout << "lwc1 $f0, -" << address << "($fp)" << std::endl;
+                        std::cout << "addi.s $f0, $f0, 1" << std::endl;
+                        std::cout << "swc1 $f0, -" << address << "($fp)" << std::endl;
+                    }
+                    else if (type == "DOUBLE")
+                    {
+                        std::cout << "lwc1 $f0, -" << address << "($fp)" << std::endl;
+                        std::cout << "lwc1 $f1, -" << std::stoi(address) + 4 << "($fp)" << std::endl;
+                        std::cout << "addi.d $f0, $f0, 1" << std::endl;
+                        std::cout << "swc1 $f0, -" << address << "($fp)" << std::endl;
+                        std::cout << "swc1 $f1, -" << std::stoi(address) + 4 << "($fp)" << std::endl;
+                    }
+                    else if (type == "CHAR")
+                    {
+                        std::cout << "lbu $t0, -" << address << "($fp)" << std::endl;
+                        std::cout << "addi $t0, $t0, 1" << std::endl;
+                        std::cout << "andi $t1, $t1, 0x00ff" << std::endl;
+                        std::cout << "sb $t1, -" << address << "($fp)" << std::endl;
+                    }
+                }
+                else if (assignOp == "--")
+                {
+                    if (type == "INT")
+                    {
+                        std::cout << "lw $t0, -" << address << "($fp)" << std::endl;
+                        std::cout << "addi $t0, $t0, -1" << std::endl;
+                        std::cout << "sw $t0, -" << address << "($fp)" << std::endl;
+                    }
+                    else if (type == "FLOAT")
+                    {
+                        std::cout << "lwc1 $f0, -" << address << "($fp)" << std::endl;
+                        std::cout << "addi.s $f0, $f0, -1" << std::endl;
+                        std::cout << "swc1 $f0, -" << address << "($fp)" << std::endl;
+                    }
+                    else if (type == "DOUBLE")
+                    {
+                        std::cout << "lwc1 $f0, -" << address << "($fp)" << std::endl;
+                        std::cout << "lwc1 $f1, -" << std::stoi(address) + 4 << "($fp)" << std::endl;
+                        std::cout << "addi.d $f0, $f0, -1" << std::endl;
+                        std::cout << "swc1 $f0, -" << address << "($fp)" << std::endl;
+                        std::cout << "swc1 $f1, -" << std::stoi(address) + 4 << "($fp)" << std::endl;
+                    }
+                    else if (type == "CHAR")
+                    {
+                        std::cout << "lbu $t0, -" << address << "($fp)" << std::endl;
+                        std::cout << "addi $t0, $t0, -1" << std::endl;
+                        std::cout << "andi $t1, $t1, 0x00ff" << std::endl;
+                        std::cout << "sb $t1, -" << address << "($fp)" << std::endl;
+                    }
+                }
             }
             break;
-
         case DECLARATION:
-            if (return_type() == "INTEGER")
+            if (returnType() == "INT")
             {
                 std::cout << "addi $sp, $sp, -4" << std::endl;
-                StackPointer.setIncrement(StackPointer.returnIncrement() + 4);
-                StackPointer.setScopeIncrement(StackPointer.returnScopeIncrement() + 4);
-                address = std::to_string(StackPointer.returnIncrement());
-                if (SymbolTable.lookup(var_name) == "Error: undefined reference")
+                StkPtr.setIncrement(StkPtr.getIncrement() + 4);
+                StkPtr.setScopeIncrement(StkPtr.returnScopeIncrement() + 4);
+                address = std::to_string(StkPtr.getIncrement());
+                if (SymTab.lookup(varID) == "Unknown reference from ID")
                 {
-                    SymbolTable.insert(var_name, "var", type, address);
+                    SymTab.insert(type, "var", varID, address);
                 }
                 else
                 {
-                    SymbolTable.edit(var_name, "var", type, address);
+                    SymTab.edit(type, "var", varID, address);
                 }
                 if (Expr != nullptr)
                 {
-                    return_expr()->Translate2MIPS("$t0");
+                    returnExpr()->Translate2MIPS("$t0");
                     std::cout << "sw $t0, -" << address << "($fp)" << std::endl;
                 }
-                if (SymbolTable.returnScopeCurrent() == 0)
+                if (SymTab.returnScopeCurrent() == 0)
                 {
-                    std::cout << ".global " << return_var_name() << std::endl;
+                    std::cout << ".global " << returnFuncId() << std::endl;
+                }
+            }
+            else if (returnType() == "FLOAT")
+            {
+                std::cout << "addi $sp, $sp, -4" << std::endl;
+                StkPtr.setIncrement(StkPtr.getIncrement() + 4);
+                StkPtr.setScopeIncrement(StkPtr.returnScopeIncrement() + 4);
+                address = std::to_string(StkPtr.getIncrement());
+                if (SymTab.lookup(varID) == "Unknown reference from ID")
+                {
+                    SymTab.insert(type, "var", varID, address);
+                }
+                else
+                {
+                    SymTab.edit(type, "var", varID, address);
+                }
+                if (Expr != nullptr)
+                {
+                    returnExpr()->Translate2MIPS("$f0");
+                    std::cout << "swc1 $f0, -" << address << "($fp)" << std::endl;
+                }
+                if (SymTab.returnScopeCurrent() == 0)
+                {
+                    std::cout << ".global " << returnFuncId() << std::endl;
+                }
+            }
+            else if (returnType() == "DOUBLE")
+            {
+                std::cout << "addi $sp, $sp, -8" << std::endl;
+                StkPtr.setIncrement(StkPtr.getIncrement() + 8);
+                StkPtr.setScopeIncrement(StkPtr.returnScopeIncrement() + 8);
+                address = std::to_string(StkPtr.getIncrement() - 4);
+                if (SymTab.lookup(varID) == "Unknown reference from ID")
+                {
+                    SymTab.insert(type, "var", varID, address);
+                }
+                else
+                {
+                    SymTab.edit(type, "var", varID, address);
+                }
+                if (Expr != nullptr)
+                {
+                    returnExpr()->Translate2MIPS("$f0");
+                    std::cout << "swc1 $f0, -" << address << "($fp)" << std::endl;
+                    std::cout << "swc1 $f1, -" << std::stoi(address) - 4 << "($fp)" << std::endl;
+                }
+                if (SymTab.returnScopeCurrent() == 0)
+                {
+                    std::cout << ".global " << returnFuncId() << std::endl;
+                }
+            }
+            else if (returnType() == "CHAR")
+            {
+                std::cout << "addi $sp, $sp, -4" << std::endl;
+                StkPtr.setIncrement(StkPtr.getIncrement() + 4);
+                StkPtr.setScopeIncrement(StkPtr.returnScopeIncrement() + 4);
+                address = std::to_string(StkPtr.getIncrement());
+                if (SymTab.lookup(varID) == "Unknown reference from ID")
+                {
+                    SymTab.insert(type, "var", varID, address);
+                }
+                else
+                {
+                    SymTab.edit(type, "var", varID, address);
+                }
+                if (Expr != nullptr)
+                {
+                    returnExpr()->Translate2MIPS("$t0");
+                    std::cout << "andi $t0, $t0, 0x00ff" << std::endl;
+                    std::cout << "sb $t0, -" << address << "($fp)" << std::endl;
+                }
+                if (SymTab.returnScopeCurrent() == 0)
+                {
+                    std::cout << ".global " << returnFuncId() << std::endl;
                 }
             }
             break;
-        case ARGUEMENT:
-            if (return_type() == "INTEGER")
+        case ARGUMENT:
+            if (returnType() == "INT")
             {
                 std::cout << "addi $sp, $sp, -4" << std::endl;
-                if (StackPointer.returnArgCount() < 4)
+                if (StkPtr.returnArgCount() < 4)
                 {
-                    std::cout << "sw $a" << StackPointer.returnArgCount() << ", 0($sp)" << std::endl;
+                    std::cout << "sw $a" << StkPtr.returnArgCount() << ", 0($sp)" << std::endl;
                 }
-                StackPointer.setIncrement(StackPointer.returnIncrement() + 4);
-                StackPointer.setScopeIncrement(StackPointer.returnScopeIncrement() + 4);
-                address = std::to_string(StackPointer.returnIncrement());
-                if (SymbolTable.lookup(var_name) == "Error: undefined reference")
+                StkPtr.setIncrement(StkPtr.getIncrement() + 4);
+                StkPtr.setScopeIncrement(StkPtr.returnScopeIncrement() + 4);
+                address = std::to_string(StkPtr.getIncrement());
+                if (SymTab.lookup(varID) == "Unknown reference from ID")
                 {
-                    SymbolTable.insert(var_name, "var", type, address);
+                    SymTab.insert(type, "var", varID, address);
                 }
                 else
                 {
-                    SymbolTable.edit(var_name, "var", type, address);
+                    SymTab.edit(type, "var", varID, address);
                 }
                 if (Expr != nullptr)
                 {
-                    return_expr()->Translate2MIPS("$t0");
+                    returnExpr()->Translate2MIPS("$t0");
                     std::cout << "sw $t0, -" << address << "($fp)" << std::endl;
                 }
-                if (SymbolTable.returnScopeCurrent() == 0)
+                if (SymTab.returnScopeCurrent() == 0)
                 {
-                    std::cout << ".global " << return_var_name() << std::endl;
+                    std::cout << ".global " << returnFuncId() << std::endl;
+                }
+            }
+            else if (returnType() == "FLOAT")
+            {
+                std::cout << "addi $sp, $sp, -4" << std::endl;
+                if (StkPtr.returnArgCount() < 4)
+                {
+                    if (StkPtr.returnArgCount() == 0)
+                    {
+                        std::cout << "swc1 $f12, 0($sp)" << std::endl;
+                    }
+                    else if (StkPtr.returnArgCount() == 1)
+                    {
+                        std::cout << "swc1 $f14, 0($sp)" << std::endl;
+                    }
+                    else if (StkPtr.returnArgCount() == 2)
+                    {
+                        std::cout << "sw $6, 0($sp)" << std::endl;
+                    }
+                    else if (StkPtr.returnArgCount() == 3)
+                    {
+                        std::cout << "sw $7, 0($sp)" << std::endl;
+                    }
+                }
+                StkPtr.setIncrement(StkPtr.getIncrement() + 4);
+                StkPtr.setScopeIncrement(StkPtr.returnScopeIncrement() + 4);
+                address = std::to_string(StkPtr.getIncrement());
+                if (SymTab.lookup(varID) == "Unknown reference from ID")
+                {
+                    SymTab.insert(type, "var", varID, address);
+                }
+                else
+                {
+                    SymTab.edit(type, "var", varID, address);
+                }
+                if (Expr != nullptr)
+                {
+                    returnExpr()->Translate2MIPS("$f0");
+                    std::cout << "swc1 $f0, -" << address << "($fp)" << std::endl;
+                }
+                if (SymTab.returnScopeCurrent() == 0)
+                {
+                    std::cout << ".global " << returnFuncId() << std::endl;
+                }
+            }
+            else if (returnType() == "DOUBLE")
+            {
+                std::cout << "addi $sp, $sp, -8" << std::endl;
+                if (StkPtr.returnArgCount() < 4)
+                {
+                    int float_argNum;
+                    if (StkPtr.returnArgCount() == 0)
+                    {
+                        float_argNum = 12;
+                    }
+                    else if (StkPtr.returnArgCount() == 1)
+                    {
+                        float_argNum = 14;
+                    }
+                    else if (StkPtr.returnArgCount() == 2)
+                    {
+                        float_argNum = 16;
+                    }
+                    else if (StkPtr.returnArgCount() == 3)
+                    {
+                        float_argNum = 18;
+                    }
+                    std::cout << "swc1 $f" << float_argNum << ", 0($sp)" << std::endl;
+                    std::cout << "swc1 $f" << float_argNum + 1 << ", 4($sp)" << std::endl;
+                }
+                StkPtr.setIncrement(StkPtr.getIncrement() + 8);
+                StkPtr.setScopeIncrement(StkPtr.returnScopeIncrement() + 8);
+                address = std::to_string(StkPtr.getIncrement());
+                if (SymTab.lookup(varID) == "Unknown reference from ID")
+                {
+                    SymTab.insert(type, "var", varID, address);
+                }
+                else
+                {
+                    SymTab.edit(type, "var", varID, address);
+                }
+                if (Expr != nullptr)
+                {
+                    returnExpr()->Translate2MIPS("$f0");
+                    std::cout << "swc1 $f0, -" << address << "($fp)" << std::endl;
+                    std::cout << "swc1 $f1, -" << std::stoi(address) - 4 << "($fp)" << std::endl;
+                }
+                if (SymTab.returnScopeCurrent() == 0)
+                {
+                    std::cout << ".global " << returnFuncId() << std::endl;
+                }
+            }
+            else if (returnType() == "CHAR")
+            {
+                std::cout << "addi $sp, $sp, -4" << std::endl;
+                if (StkPtr.returnArgCount() < 4)
+                {
+                    std::cout << "sb $a" << StkPtr.returnArgCount() << ", 0($sp)" << std::endl;
+                }
+                StkPtr.setIncrement(StkPtr.getIncrement() + 4);
+                StkPtr.setScopeIncrement(StkPtr.returnScopeIncrement() + 4);
+                address = std::to_string(StkPtr.getIncrement());
+                if (SymTab.lookup(varID) == "Unknown reference from ID")
+                {
+                    SymTab.insert(type, "var", varID, address);
+                }
+                else
+                {
+                    SymTab.edit(type, "var", varID, address);
+                }
+                if (Expr != nullptr)
+                {
+                    returnExpr()->Translate2MIPS("$t0");
+                    std::cout << "andi $t0, $t0, 0x00ff" << std::endl;
+                    std::cout << "sb $t0, -" << address << "($fp)" << std::endl;
+                }
+                if (SymTab.returnScopeCurrent() == 0)
+                {
+                    std::cout << ".global " << returnFuncId() << std::endl;
                 }
             }
             break;
         }
     }
-};
-
-class Number
-    : public Expression
-{
-private:
-    double value;
-
-public:
-    Number(double _value)
-        : value(_value)
-    {
-    }
-
-    double return_val() const
-    {
-        return value;
-    }
-
-    virtual void pretty_print(std::ostream &dst) const override
-    {
-        dst << value;
-    }
-
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        return value;
-    }
-
-    virtual void Translate2MIPS(std::string destReg) const override
-    {
-        std::cout << "addi " << destReg << " $0 " << value << std::endl;
+        return bindings.at(varID);
     }
 };
 
-class Decl_list;
-typedef const Decl_list *Decl_listPtr;
+class DecList;
 
-class Decl_list
-    : public Variable
+typedef const DecList *DecListPtr;
+
+class DecList
+    : public Identifier
 {
 private:
-    Variable *variable;
-    Decl_listPtr decl_list = nullptr;
+    Identifier *variable;
+    DecListPtr decList = nullptr;
 
 public:
-    Decl_list(Variable *_variable, Decl_listPtr _decl_list = nullptr)
-        : variable(_variable), decl_list(_decl_list)
+    DecList(Identifier *_variable, DecListPtr _decList = nullptr)
+        : variable(_variable), decList(_decList)
     {
     }
 
-    virtual ~Decl_list()
+    virtual ~DecList()
     {
         delete variable;
-        delete decl_list;
+        delete decList;
     }
-    Variable *return_var() const
+    Identifier *returnVar() const
     {
         return variable;
     }
 
-    Decl_listPtr return_decllist() const
+    DecListPtr returnDecList() const
     {
-        return decl_list;
+        return decList;
     }
 
     virtual void pretty_print(std::ostream &dst) const override
     {
         variable->pretty_print(dst);
-        if (decl_list != nullptr)
+        if (decList != nullptr)
         {
             dst << ", ";
-            decl_list->pretty_print(dst);
+            decList->pretty_print(dst);
         }
     }
+
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        return_var()->Translate2MIPS(destReg);
-        StackPointer.setArgCount(StackPointer.returnArgCount() + 1);
-        if (decl_list != nullptr)
+        returnVar()->Translate2MIPS(destReg);
+        StkPtr.setArgCount(StkPtr.returnArgCount() + 1);
+        if (decList != nullptr)
         {
-            return_decllist()->Translate2MIPS(destReg);
+            returnDecList()->Translate2MIPS(destReg);
         }
-        StackPointer.setArgCount(0);
+        StkPtr.setArgCount(0);
     }
 };
+
+// class Number_INT
+//     : public Expr
+// {
+// private:
+//     double value;
+
+// public:
+//     Number_INT(double _value)
+//     {
+//         value = _value;
+//     }
+//     double getValue() const
+//     {
+//         return value;
+//     }
+//     virtual void pretty_print(std::ostream &dst) const override
+//     {
+//         dst << value;
+//     }
+//     virtual double evaluate(
+//         const std::map<std::string, double> &bindings) const override
+//     {
+//         return value;
+//     }
+//     virtual const std::string returnData() const override
+//     {
+//         return "INT";
+//     }
+//     virtual void Translate2MIPS(std::string destReg) const override
+//     {
+//         std::cout << "addi " << destReg << ", $0, " << value << std::endl;
+//     }
+// };
+
+// class Number_DOUBLE
+//     : public Expr
+// {
+// private:
+//     double value;
+
+// public:
+//     Number_DOUBLE(double _value)
+//     {
+//         value = _value;
+//     }
+//     double getValue() const
+//     {
+//         return value;
+//     }
+//     virtual void pretty_print(std::ostream &dst) const override
+//     {
+//         dst << value;
+//     }
+//     virtual double evaluate(
+//         const std::map<std::string, double> &bindings) const override
+//     {
+//         return value;
+//     }
+//     virtual const std::string returnData() const override
+//     {
+//         return "FLOAT";
+//     }
+//     virtual void Translate2MIPS(std::string destReg) const override
+//     {
+//         std::cout << "li.s " << destReg << ", " << value << std::endl;
+//     }
+// };
 #endif

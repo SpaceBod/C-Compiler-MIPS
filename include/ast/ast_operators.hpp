@@ -4,17 +4,20 @@
 #include <string>
 #include <iostream>
 
+#include "ast_expressions.hpp"
+
 class Operator
-    : public Expression
+    : public Expr
 {
 private:
-    ExpressionPtr left;
-    ExpressionPtr right;
+    ExprPtr left;
+    ExprPtr right;
 
 protected:
-    Operator(ExpressionPtr _left, ExpressionPtr _right)
-        : left(_left), right(_right)
+    Operator(ExprPtr _left, ExprPtr _right)
     {
+        left = _left;
+        right = _right;
     }
 
 public:
@@ -24,16 +27,61 @@ public:
         delete right;
     }
 
-    virtual const char *return_opcode() const = 0;
+    virtual const char *returnOp() const = 0;
 
-    ExpressionPtr return_left() const
+    ExprPtr returnLeft() const
     {
         return left;
     }
 
-    ExpressionPtr return_right() const
+    ExprPtr returnRight() const
     {
         return right;
+    }
+
+    virtual const std::string returnData() const override
+    {
+        std::string leftDataType = returnLeft()->returnData();
+        std::string rightDataType = returnRight()->returnData();
+        if (leftDataType == "INT")
+        {
+            if (rightDataType == "INT")
+            {
+                return "INT";
+            }
+            else if (rightDataType == "FLOAT")
+            {
+                return "FLOAT";
+            }
+            else if (rightDataType == "DOUBLE")
+            {
+                return "DOUBLE";
+            }
+            else
+            {
+                return "Datatype error";
+            }
+        }
+        else if (leftDataType == "FLOAT")
+        {
+            if (rightDataType == "INT" || rightDataType == "FLOAT")
+            {
+                return "FLOAT";
+            }
+            else if (rightDataType == "DOUBLE")
+            {
+                return "DOUBLE";
+            }
+        }
+        else if (leftDataType == "DOUBLE")
+        {
+            return "DOUBLE";
+        }
+        else
+        {
+            return "Error";
+        }
+        return "Null";
     }
 
     virtual void pretty_print(std::ostream &dst) const override
@@ -41,26 +89,25 @@ public:
         dst << "( ";
         left->pretty_print(dst);
         dst << " ";
-        dst << return_opcode();
+        dst << returnOp();
         dst << " ";
         right->pretty_print(dst);
         dst << " )";
     }
 };
 
-// Arithmetic Operators
-
-class AddOperator
+// Arithmatical Operators
+class AddOp
     : public Operator
 {
 protected:
-    virtual const char *return_opcode() const override
+    virtual const char *returnOp() const override
     {
         return "+";
     }
 
 public:
-    AddOperator(ExpressionPtr _left, ExpressionPtr _right)
+    AddOp(ExprPtr _left, ExprPtr _right)
         : Operator(_left, _right)
     {
     }
@@ -68,33 +115,198 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-
-        double vl = return_left()->evaluate(bindings);
-        double vr = return_right()->evaluate(bindings);
+        double vl = returnLeft()->evaluate(bindings);
+        double vr = returnRight()->evaluate(bindings);
         return vl + vr;
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, -4($sp)" << std::endl;
-        return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, -4($sp)" << std::endl;
-        std::cout << "add " << destReg << ", $t0, $t1" << std::endl;
+        std::string leftVar = returnLeft()->returnData();
+        std::string rightVar = returnRight()->returnData();
+        std::string leftFormat = returnLeft()->returnDataKind();
+        if (leftFormat == "ptr")
+        {
+            returnLeft()->Translate2MIPS("$t0");
+            std::cout << "addi $sp, $sp, -4" << std::endl;
+            std::cout << "sw $t0, 0($sp)" << std::endl;
+            returnRight()->Translate2MIPS("$t1");
+            std::cout << "lw $t0, 0($sp)" << std::endl;
+            std::cout << "addi $sp, $sp, 4" << std::endl;
+            if (leftVar != "DOUBLE")
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    std::cout << "add $t0, $t0, $t1" << std::endl;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    std::cout << "add $t0, $t0, $t1" << std::endl;
+                }
+            }
+            std::cout << "addi " << destReg << ", $t0, 0" << std::endl;
+        }
+        else
+        {
+            if (leftVar == "INT")
+            {
+                if (rightVar == "INT")
+                {
+                    returnLeft()->Translate2MIPS("$t0");
+                    std::cout << "addi $sp, $sp, -4" << std::endl;
+                    std::cout << "sw $t0, 0($sp)" << std::endl;
+                    returnRight()->Translate2MIPS("$t1");
+                    std::cout << "lw $t0, 0($sp)" << std::endl;
+                    std::cout << "addi $sp, $sp, 4" << std::endl;
+                    if (destReg[1] == 'f')
+                    {
+                        std::cout << "wrong dstReg" << std::endl;
+                    }
+                    std::cout << "add " << destReg << ", $t0, $t1" << std::endl;
+                }
+                else if (rightVar == "FLOAT")
+                {
+                    returnLeft()->Translate2MIPS("$t0");
+                    std::cout << "addi $sp, $sp, -4" << std::endl;
+                    std::cout << "sw $t0, 0($sp)" << std::endl;
+                    returnRight()->Translate2MIPS("$f2");
+                    std::cout << "lwc1 $f0, 0($sp)" << std::endl;
+                    std::cout << "addi $sp, $sp, 4" << std::endl;
+                    if (destReg[1] != 'f')
+                    {
+                        std::cout << "Wrong dstReg" << std::endl;
+                    }
+                    std::cout << "add.s " << destReg << ", $f0, $f2" << std::endl;
+                }
+                else if (rightVar == "DOUBLE")
+                {
+                    returnLeft()->Translate2MIPS("$t0");
+                    std::cout << "addi $sp, $sp, -4" << std::endl;
+                    std::cout << "sw $t0, 0($sp)" << std::endl;
+                    returnRight()->Translate2MIPS("$f2");
+                    std::cout << "lwc1 $f0, 0($sp)" << std::endl;
+                    std::cout << "addi $sp, $sp, 4" << std::endl;
+                    std::cout << "cvt.d.s $f0, $f0" << std::endl;
+                    if (destReg[1] != 'f')
+                    {
+                        std::cout << "Wrong dstReg" << std::endl;
+                    }
+                    std::cout << "add.d " << destReg << ", $f0, $f2" << std::endl;
+                }
+            }
+            else if (leftVar == "FLOAT")
+            {
+                if (rightVar == "INT")
+                {
+                    returnRight()->Translate2MIPS("$t0");
+                    std::cout << "addi $sp, $sp, -4" << std::endl;
+                    std::cout << "sw $t0, 0($sp)" << std::endl;
+                    returnLeft()->Translate2MIPS("$f0");
+                    std::cout << "lwc1 $f2, 0($sp)" << std::endl;
+                    std::cout << "addi $sp, $sp, 4" << std::endl;
+                    if (destReg[1] != 'f')
+                    {
+                        std::cout << "Wrong dstReg" << std::endl;
+                    }
+                    std::cout << "add.s " << destReg << ", $f0, $f2" << std::endl;
+                }
+                else if (rightVar == "FLOAT")
+                {
+                    returnLeft()->Translate2MIPS("$f0");
+                    std::cout << "addi $sp, $sp, -4" << std::endl;
+                    std::cout << "swc1 $f0, 0($sp)" << std::endl;
+                    returnRight()->Translate2MIPS("$f2");
+                    std::cout << "lwc1 $f0, 0($sp)" << std::endl;
+                    std::cout << "addi $sp, $sp, 4" << std::endl;
+                    if (destReg[1] != 'f')
+                    {
+                        std::cout << "Wrong dstReg" << std::endl;
+                    }
+                    std::cout << "add.s " << destReg << ", $f0, $f2" << std::endl;
+                }
+                else if (rightVar == "DOUBLE")
+                {
+                    returnLeft()->Translate2MIPS("$f0");
+                    std::cout << "addi $sp, $sp, -4" << std::endl;
+                    std::cout << "swc1 $f0, 0($sp)" << std::endl;
+                    returnRight()->Translate2MIPS("$f2");
+                    std::cout << "lwc1 $f0, 0($sp)" << std::endl;
+                    std::cout << "addi $sp, $sp, 4" << std::endl;
+                    std::cout << "cvt.d.s $f0, $f0" << std::endl;
+                    if (destReg[1] != 'f')
+                    {
+                        std::cout << "Wrong dstReg" << std::endl;
+                    }
+                    std::cout << "add.d " << destReg << " , $f0, $f2" << std::endl;
+                }
+            }
+            else if (leftVar == "DOUBLE")
+            {
+                if (rightVar == "INT")
+                {
+                    returnRight()->Translate2MIPS("$t0");
+                    std::cout << "addi $sp, $sp, -4" << std::endl;
+                    std::cout << "sw $t0, 0($sp)" << std::endl;
+                    returnLeft()->Translate2MIPS("$f0");
+                    std::cout << "lwc1 $f2, 0($sp)" << std::endl;
+                    std::cout << "addi $sp, $sp, 4" << std::endl;
+                    std::cout << "cvt.d.s $f2, $f2" << std::endl;
+                    if (destReg[1] != 'f')
+                    {
+                        std::cout << "Wrong dstReg" << std::endl;
+                    }
+                    std::cout << "add.d " << destReg << ", $f0, $f2" << std::endl;
+                }
+                else if (rightVar == "FLOAT")
+                {
+                    returnRight()->Translate2MIPS("$f2");
+                    std::cout << "addi $sp, $sp, -4" << std::endl;
+                    std::cout << "swc1 $f2, 0($sp)" << std::endl;
+                    returnLeft()->Translate2MIPS("$f0");
+                    std::cout << "lwc1, $f2, 0($sp)" << std::endl;
+                    std::cout << "addi $sp, $sp, 4" << std::endl;
+                    std::cout << "cvt.d.s $f2, $f2" << std::endl;
+                    if (destReg[1] != 'f')
+                    {
+                        std::cout << "Wrong dstReg" << std::endl;
+                    }
+                    std::cout << "add.d " << destReg << ", $f0, $f2" << std::endl;
+                }
+                else if (rightVar == "DOUBLE")
+                {
+                    returnLeft()->Translate2MIPS("$f0");
+                    std::cout << "addi $sp, $sp, -8" << std::endl;
+                    std::cout << "swc1 $f1, 4($sp)" << std::endl;
+                    std::cout << "swc1 $f0, 0($sp)" << std::endl;
+                    returnRight()->Translate2MIPS("$f2");
+                    std::cout << "lwc1 $f1, 4($sp)" << std::endl;
+                    std::cout << "lwc1 $f0, 0($sp)" << std::endl;
+                    std::cout << "addi $sp, $sp, 8" << std::endl;
+                    if (destReg[1] != 'f')
+                    {
+                        std::cout << "Wrong dstReg" << std::endl;
+                    }
+                    std::cout << "add.d " << destReg << ", $f0, $f2" << std::endl;
+                }
+            }
+        }
     }
 };
 
-class SubOperator
+class SubOp
     : public Operator
 {
 protected:
-    virtual const char *return_opcode() const override
+    virtual const char *returnOp() const override
     {
         return "-";
     }
 
 public:
-    SubOperator(ExpressionPtr _left, ExpressionPtr _right)
+    SubOp(ExprPtr _left, ExprPtr _right)
         : Operator(_left, _right)
     {
     }
@@ -102,32 +314,203 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double vl = return_left()->evaluate(bindings);
-        double vr = return_right()->evaluate(bindings);
+        double vl = returnLeft()->evaluate(bindings);
+        double vr = returnRight()->evaluate(bindings);
         return vl - vr;
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, -4($sp)" << std::endl;
-        return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, -4($sp)" << std::endl;
-        std::cout << "sub " << destReg << ", $t0, $t1" << std::endl;
+        std::string leftVar = returnLeft()->returnData();
+        std::string rightVar = returnRight()->returnData();
+        std::string leftFormat = returnLeft()->returnDataKind();
+        if (leftFormat == "ptr")
+        {
+            returnLeft()->Translate2MIPS("$t0");
+            std::cout << "addi $sp, $sp, -4" << std::endl;
+            std::cout << "sw $t0, 0($sp)" << std::endl;
+            returnRight()->Translate2MIPS("$t1");
+            std::cout << "lw $t0, 0($sp)" << std::endl;
+            std::cout << "addi $sp, $sp, 4" << std::endl;
+            if (leftVar != "DOUBLE")
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    std::cout << "sub $t0, $t0, $t1" << std::endl;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    std::cout << "sub $t0, $t0, $t1" << std::endl;
+                }
+            }
+            std::cout << "addi " << destReg << ", $t0, 0" << std::endl;
+        }
+        else
+        {
+            if (leftVar == "INT")
+            {
+                if (rightVar == "INT")
+                {
+                    returnLeft()->Translate2MIPS("$t0");
+                    std::cout << "addi $sp, $sp, -4" << std::endl;
+                    std::cout << "sw $t0, 0($sp)" << std::endl;
+                    returnRight()->Translate2MIPS("$t1");
+                    std::cout << "lw $t0, 0($sp)" << std::endl;
+                    std::cout << "addi $sp, $sp, 4" << std::endl;
+                    if (destReg[1] == 'f')
+                    {
+                        std::cout << "wrong dstReg" << std::endl;
+                    }
+                    std::cout << "sub " << destReg << ", $t0, $t1" << std::endl;
+                }
+                else if (rightVar == "FLOAT")
+                {
+                    returnLeft()->Translate2MIPS("$t0");
+                    std::cout << "addi $sp, $sp, -4" << std::endl;
+                    std::cout << "sw $t0, 0($sp)" << std::endl;
+                    returnRight()->Translate2MIPS("$f2");
+                    std::cout << "lwc1 $f0, 0($sp)" << std::endl;
+                    std::cout << "addi $sp, $sp, 4" << std::endl;
+                    if (destReg[1] != 'f')
+                    {
+                        std::cout << "ERROR: Wrong destReg" << std::endl;
+                    }
+                    std::cout << "sub.s " << destReg << ", $f0, $f2" << std::endl;
+                }
+                else if (rightVar == "DOUBLE")
+                {
+                    returnLeft()->Translate2MIPS("$t0");
+                    std::cout << "addi $sp, $sp, -4" << std::endl;
+                    std::cout << "sw $t0, 0($sp)" << std::endl;
+                    returnRight()->Translate2MIPS("$f2");
+                    std::cout << "lwc1 $f0, 0($sp)" << std::endl;
+                    std::cout << "addi $sp, $sp, 4" << std::endl;
+                    std::cout << "cvt.d.s $f0, $f0" << std::endl;
+                    if (destReg[1] != 'f')
+                    {
+                        std::cout << "ERROR: Wrong destReg" << std::endl;
+                    }
+                    std::cout << "sub.d " << destReg << ", $f0, $f2" << std::endl;
+                }
+            }
+            else if (leftVar == "FLOAT")
+            {
+                if (rightVar == "INT")
+                {
+                    returnRight()->Translate2MIPS("$t0");
+                    std::cout << "addi $sp, $sp, -4" << std::endl;
+                    std::cout << "sw $t0, 0($sp)" << std::endl;
+                    returnLeft()->Translate2MIPS("$f0");
+                    std::cout << "lwc1 $f2, 0($sp)" << std::endl;
+                    std::cout << "addi $sp, $sp, 4" << std::endl;
+                    if (destReg[1] != 'f')
+                    {
+                        std::cout << "ERROR: Wrong destReg" << std::endl;
+                    }
+                    std::cout << "sub.s " << destReg << ", $f0, $f2" << std::endl;
+                }
+                else if (rightVar == "FLOAT")
+                {
+
+                    returnLeft()->Translate2MIPS("$f0");
+                    std::cout << "addi $sp, $sp, -4" << std::endl;
+                    std::cout << "swc1 $f0, 0($sp)" << std::endl;
+                    returnRight()->Translate2MIPS("$f2");
+                    std::cout << "lwc1 $f0, 0($sp)" << std::endl;
+                    std::cout << "addi $sp, $sp, 4" << std::endl;
+                    if (destReg[1] != 'f')
+                    {
+                        std::cout << "ERROR: Wrong destReg" << std::endl;
+                    }
+                    std::cout << "sub.s " << destReg << ", $f0, $f2" << std::endl;
+                }
+                else if (rightVar == "DOUBLE")
+                {
+
+                    returnLeft()->Translate2MIPS("$f0");
+                    std::cout << "addi $sp, $sp, -4" << std::endl;
+                    std::cout << "swc1 $f0, 0($sp)" << std::endl;
+                    returnRight()->Translate2MIPS("$f2");
+                    std::cout << "lwc1 $f0, 0($sp)" << std::endl;
+                    std::cout << "addi $sp, $sp, 4" << std::endl;
+                    std::cout << "cvt.d.s $f0, $f0" << std::endl;
+                    if (destReg[1] != 'f')
+                    {
+                        std::cout << "ERROR: Wrong destReg" << std::endl;
+                    }
+                    std::cout << "sub.d " << destReg << " , $f0, $f2" << std::endl;
+                }
+            }
+            else if (leftVar == "DOUBLE")
+            {
+                if (rightVar == "INT")
+                {
+
+                    returnRight()->Translate2MIPS("$t0");
+                    std::cout << "addi $sp, $sp, -4" << std::endl;
+                    std::cout << "sw $t0, 0($sp)" << std::endl;
+                    returnLeft()->Translate2MIPS("$f0");
+                    std::cout << "lwc1 $f2, 0($sp)" << std::endl;
+                    std::cout << "addi $sp, $sp, 4" << std::endl;
+                    std::cout << "cvt.d.s $f2, $f2" << std::endl;
+                    if (destReg[1] != 'f')
+                    {
+                        std::cout << "ERROR: Wrong destReg" << std::endl;
+                    }
+                    std::cout << "sub.d " << destReg << ", $f0, $f2" << std::endl;
+                }
+                else if (rightVar == "FLOAT")
+                {
+
+                    returnRight()->Translate2MIPS("$f2");
+                    std::cout << "addi $sp, $sp, -4" << std::endl;
+                    std::cout << "swc1 $f2, 0($sp)" << std::endl;
+                    returnLeft()->Translate2MIPS("$f0");
+                    std::cout << "lwc1, $f2, 0($sp)" << std::endl;
+                    std::cout << "addi $sp, $sp, 4" << std::endl;
+                    std::cout << "cvt.d.s $f2, $f2" << std::endl;
+                    if (destReg[1] != 'f')
+                    {
+                        std::cout << "ERROR: Wrong destReg" << std::endl;
+                    }
+                    std::cout << "sub.d " << destReg << ", $f0, $f2" << std::endl;
+                }
+                else if (rightVar == "DOUBLE")
+                {
+
+                    returnLeft()->Translate2MIPS("$f0");
+                    std::cout << "addi $sp, $sp, -8" << std::endl;
+                    std::cout << "swc1 $f1, 4($sp)" << std::endl;
+                    std::cout << "swc1 $f0, 0($sp)" << std::endl;
+                    returnRight()->Translate2MIPS("$f2");
+                    std::cout << "lwc1 $f1, 4($sp)" << std::endl;
+                    std::cout << "lwc1 $f0, 0($sp)" << std::endl;
+                    std::cout << "addi $sp, $sp, 8" << std::endl;
+                    if (destReg[1] != 'f')
+                    {
+                        std::cout << "ERROR: Wrong destReg" << std::endl;
+                    }
+                    std::cout << "sub.d " << destReg << ", $f0, $f2" << std::endl;
+                }
+            }
+        }
     }
 };
 
-class MulOperator
+class MultOp
     : public Operator
 {
 protected:
-    virtual const char *return_opcode() const override
+    virtual const char *returnOp() const override
     {
         return "*";
     }
 
 public:
-    MulOperator(ExpressionPtr _left, ExpressionPtr _right)
+    MultOp(ExprPtr _left, ExprPtr _right)
         : Operator(_left, _right)
     {
     }
@@ -135,253 +518,427 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double vl = return_left()->evaluate(bindings);
-        double vr = return_right()->evaluate(bindings);
+        double vl = returnLeft()->evaluate(bindings);
+        double vr = returnRight()->evaluate(bindings);
         return vl * vr;
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, -4($sp)" << std::endl;
-        return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, -4($sp)" << std::endl;
-        std::cout << "mul " << destReg << ", $t0, $t1" << std::endl;
+        std::string leftVar = returnLeft()->returnData();
+        std::string rightVar = returnRight()->returnData();
+        if (leftVar == "INT")
+        {
+            if (rightVar == "INT")
+            {
+                returnLeft()->Translate2MIPS("$t0");
+                std::cout << "addi $sp, $sp, -4" << std::endl;
+                std::cout << "sw $t0, 0($sp)" << std::endl;
+                returnRight()->Translate2MIPS("$t1");
+                std::cout << "lw $t0, 0($sp)" << std::endl;
+                std::cout << "addi $sp, $sp, 4" << std::endl;
+                if (destReg[1] == 'f')
+                {
+                    std::cout << "wrong dstReg" << std::endl;
+                }
+                std::cout << "mul " << destReg << ", $t0, $t1" << std::endl;
+            }
+            else if (rightVar == "FLOAT")
+            {
+                returnLeft()->Translate2MIPS("$t0");
+                std::cout << "addi $sp, $sp, -4" << std::endl;
+                std::cout << "sw $t0, 0($sp)" << std::endl;
+                returnRight()->Translate2MIPS("$f2");
+                std::cout << "lwc1 $f0, 0($sp)" << std::endl;
+                std::cout << "addi $sp, $sp, 4" << std::endl;
+                if (destReg[1] != 'f')
+                {
+                    std::cout << "ERROR: Wrong destReg" << std::endl;
+                }
+                std::cout << "mul.s " << destReg << ", $f0, $f2" << std::endl;
+            }
+            else if (rightVar == "DOUBLE")
+            {
+                returnLeft()->Translate2MIPS("$t0");
+                std::cout << "addi $sp, $sp, -4" << std::endl;
+                std::cout << "sw $t0, 0($sp)" << std::endl;
+                returnRight()->Translate2MIPS("$f2");
+                std::cout << "lwc1 $f0, 0($sp)" << std::endl;
+                std::cout << "addi $sp, $sp, 4" << std::endl;
+                std::cout << "cvt.d.s $f0, $f0" << std::endl;
+                if (destReg[1] != 'f')
+                {
+                    std::cout << "ERROR: Wrong destReg" << std::endl;
+                }
+                std::cout << "mul.d " << destReg << ", $f0, $f2" << std::endl;
+            }
+        }
+        else if (leftVar == "FLOAT")
+        {
+            if (rightVar == "INT")
+            {
+                returnRight()->Translate2MIPS("$t0");
+                std::cout << "addi $sp, $sp, -4" << std::endl;
+                std::cout << "sw $t0, 0($sp)" << std::endl;
+                returnLeft()->Translate2MIPS("$f0");
+                std::cout << "lwc1 $f2, 0($sp)" << std::endl;
+                std::cout << "addi $sp, $sp, 4" << std::endl;
+                if (destReg[1] != 'f')
+                {
+                    std::cout << "ERROR: Wrong destReg" << std::endl;
+                }
+                std::cout << "mul.s " << destReg << ", $f0, $f2" << std::endl;
+            }
+            else if (rightVar == "FLOAT")
+            {
+                returnLeft()->Translate2MIPS("$f0");
+                std::cout << "addi $sp, $sp, -4" << std::endl;
+                std::cout << "swc1 $f0, 0($sp)" << std::endl;
+                returnRight()->Translate2MIPS("$f2");
+                std::cout << "lwc1 $f0, 0($sp)" << std::endl;
+                std::cout << "addi $sp, $sp, 4" << std::endl;
+                if (destReg[1] != 'f')
+                {
+                    std::cout << "ERROR: Wrong destReg" << std::endl;
+                }
+                std::cout << "mul.s " << destReg << ", $f0, $f2" << std::endl;
+            }
+            else if (rightVar == "DOUBLE")
+            {
+                returnLeft()->Translate2MIPS("$f0");
+                std::cout << "addi $sp, $sp, -4" << std::endl;
+                std::cout << "swc1 $f0, 0($sp)" << std::endl;
+                returnRight()->Translate2MIPS("$f2");
+                std::cout << "lwc1 $f0, 0($sp)" << std::endl;
+                std::cout << "addi $sp, $sp, 4" << std::endl;
+                std::cout << "cvt.d.s $f0, $f0" << std::endl;
+                if (destReg[1] != 'f')
+                {
+                    std::cout << "ERROR: Wrong destReg" << std::endl;
+                }
+                std::cout << "mul.d " << destReg << " , $f0, $f2" << std::endl;
+            }
+        }
+        else if (leftVar == "DOUBLE")
+        {
+            if (rightVar == "INT")
+            {
+                returnRight()->Translate2MIPS("$t0");
+                std::cout << "addi $sp, $sp, -4" << std::endl;
+                std::cout << "sw $t0, 0($sp)" << std::endl;
+                returnLeft()->Translate2MIPS("$f0");
+                std::cout << "lwc1 $f2, 0($sp)" << std::endl;
+                std::cout << "addi $sp, $sp, 4" << std::endl;
+                std::cout << "cvt.d.s $f2, $f2" << std::endl;
+                if (destReg[1] != 'f')
+                {
+                    std::cout << "ERROR: Wrong destReg" << std::endl;
+                }
+                std::cout << "mul.d " << destReg << ", $f0, $f2" << std::endl;
+            }
+            else if (rightVar == "FLOAT")
+            {
+                returnRight()->Translate2MIPS("$f2");
+                std::cout << "addi $sp, $sp, -4" << std::endl;
+                std::cout << "swc1 $f2, 0($sp)" << std::endl;
+                returnLeft()->Translate2MIPS("$f0");
+                std::cout << "lwc1, $f2, 0($sp)" << std::endl;
+                std::cout << "addi $sp, $sp, 4" << std::endl;
+                std::cout << "cvt.d.s $f2, $f2" << std::endl;
+                if (destReg[1] != 'f')
+                {
+                    std::cout << "ERROR: Wrong destReg" << std::endl;
+                }
+                std::cout << "mul.d " << destReg << ", $f0, $f2" << std::endl;
+            }
+            else if (rightVar == "DOUBLE")
+            {
+                returnLeft()->Translate2MIPS("$f0");
+                std::cout << "addi $sp, $sp, -8" << std::endl;
+                std::cout << "swc1 $f1, 4($sp)" << std::endl;
+                std::cout << "swc1 $f0, 0($sp)" << std::endl;
+                returnRight()->Translate2MIPS("$f2");
+                std::cout << "lwc1 $f1, 4($sp)" << std::endl;
+                std::cout << "lwc1 $f0, 0($sp)" << std::endl;
+                std::cout << "addi $sp, $sp, 8" << std::endl;
+                if (destReg[1] != 'f')
+                {
+                    std::cout << "ERROR: Wrong destReg" << std::endl;
+                }
+                std::cout << "mul.d " << destReg << ", $f0, $f2" << std::endl;
+            }
+        }
     }
 };
 
-class DivOperator
+class DivOp
     : public Operator
 {
 protected:
-    virtual const char *return_opcode() const override
+    virtual const char *returnOp() const override
     {
         return "/";
     }
 
 public:
-    DivOperator(ExpressionPtr _left, ExpressionPtr _right)
+    DivOp(ExprPtr _left, ExprPtr _right)
         : Operator(_left, _right)
     {
+    }
+
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
+        std::string leftVar = returnLeft()->returnData();
+        std::string rightVar = returnRight()->returnData();
+        if (leftVar == "INT")
+        {
+            if (rightVar == "INT")
+            {
+                returnLeft()->Translate2MIPS("$t0");
+                std::cout << "addi $sp, $sp, -4" << std::endl;
+                std::cout << "sw $t0, 0($sp)" << std::endl;
+                returnRight()->Translate2MIPS("$t1");
+                std::cout << "lw $t0, 0($sp)" << std::endl;
+                std::cout << "addi $sp, $sp, 4" << std::endl;
+                std::cout << "div $t0, $t1" << std::endl;
+                if (destReg[1] == 'f')
+                {
+                    std::cout << "wrong dstReg" << std::endl;
+                }
+                std::cout << "mflo " << destReg << std::endl;
+            }
+            else if (rightVar == "FLOAT")
+            {
+
+                returnLeft()->Translate2MIPS("$t0");
+                std::cout << "addi $sp, $sp, -4" << std::endl;
+                std::cout << "sw $t0, 0($sp)" << std::endl;
+                returnRight()->Translate2MIPS("$f2");
+                std::cout << "lwc1 $f0, 0($sp)" << std::endl;
+                std::cout << "addi $sp, $sp, 4" << std::endl;
+                if (destReg[1] != 'f')
+                {
+                    std::cout << "ERROR: Wrong destReg" << std::endl;
+                }
+                std::cout << "div.s " << destReg << ", $f0, $f2" << std::endl;
+            }
+            else if (rightVar == "DOUBLE")
+            {
+                returnLeft()->Translate2MIPS("$t0");
+                std::cout << "addi $sp, $sp, -4" << std::endl;
+                std::cout << "sw $t0, 0($sp)" << std::endl;
+                returnRight()->Translate2MIPS("$f2");
+                std::cout << "lwc1 $f0, 0($sp)" << std::endl;
+                std::cout << "addi $sp, $sp, 4" << std::endl;
+                std::cout << "cvt.d.s $f0, $f0" << std::endl;
+                if (destReg[1] != 'f')
+                {
+                    std::cout << "ERROR: Wrong destReg" << std::endl;
+                }
+                std::cout << "div.d " << destReg << ", $f0, $f2" << std::endl;
+            }
+        }
+        else if (leftVar == "FLOAT")
+        {
+            if (rightVar == "INT")
+            {
+                returnRight()->Translate2MIPS("$t0");
+                std::cout << "addi $sp, $sp, -4" << std::endl;
+                std::cout << "sw $t0, 0($sp)" << std::endl;
+                returnLeft()->Translate2MIPS("$f0");
+                std::cout << "lwc1 $f2, 0($sp)" << std::endl;
+                std::cout << "addi $sp, $sp, 4" << std::endl;
+                if (destReg[1] != 'f')
+                {
+                    std::cout << "ERROR: Wrong destReg" << std::endl;
+                }
+                std::cout << "div.s " << destReg << ", $f0, $f2" << std::endl;
+            }
+            else if (rightVar == "FLOAT")
+            {
+                returnLeft()->Translate2MIPS("$f0");
+                std::cout << "addi $sp, $sp, -4" << std::endl;
+                std::cout << "swc1 $f0, 0($sp)" << std::endl;
+                returnRight()->Translate2MIPS("$f2");
+                std::cout << "lwc1 $f0, 0($sp)" << std::endl;
+                std::cout << "addi $sp, $sp, 4" << std::endl;
+                if (destReg[1] != 'f')
+                {
+                    std::cout << "ERROR: Wrong destReg" << std::endl;
+                }
+                std::cout << "div.s " << destReg << ", $f0, $f2" << std::endl;
+            }
+            else if (rightVar == "DOUBLE")
+            {
+                returnLeft()->Translate2MIPS("$f0");
+                std::cout << "addi $sp, $sp, -4" << std::endl;
+                std::cout << "swc1 $f0, 0($sp)" << std::endl;
+                returnRight()->Translate2MIPS("$f2");
+                std::cout << "lwc1 $f0, 0($sp)" << std::endl;
+                std::cout << "addi $sp, $sp, 4" << std::endl;
+                std::cout << "cvt.d.s $f0, $f0" << std::endl;
+                if (destReg[1] != 'f')
+                {
+                    std::cout << "ERROR: Wrong destReg" << std::endl;
+                }
+                std::cout << "div.d " << destReg << " , $f0, $f2" << std::endl;
+            }
+        }
+        else if (leftVar == "DOUBLE")
+        {
+            if (rightVar == "INT")
+            {
+                returnRight()->Translate2MIPS("$t0");
+                std::cout << "addi $sp, $sp, -4" << std::endl;
+                std::cout << "sw $t0, 0($sp)" << std::endl;
+                returnLeft()->Translate2MIPS("$f0");
+                std::cout << "lwc1 $f2, 0($sp)" << std::endl;
+                std::cout << "addi $sp, $sp, 4" << std::endl;
+                std::cout << "cvt.d.s $f2, $f2" << std::endl;
+                if (destReg[1] != 'f')
+                {
+                    std::cout << "ERROR: Wrong destReg" << std::endl;
+                }
+                std::cout << "div.d " << destReg << ", $f0, $f2" << std::endl;
+            }
+            else if (rightVar == "FLOAT")
+            {
+                returnRight()->Translate2MIPS("$f2");
+                std::cout << "addi $sp, $sp, -4" << std::endl;
+                std::cout << "swc1 $f2, 0($sp)" << std::endl;
+                returnLeft()->Translate2MIPS("$f0");
+                std::cout << "lwc1, $f2, 0($sp)" << std::endl;
+                std::cout << "addi $sp, $sp, 4" << std::endl;
+                std::cout << "cvt.d.s $f2, $f2" << std::endl;
+                if (destReg[1] != 'f')
+                {
+                    std::cout << "ERROR: Wrong destReg" << std::endl;
+                }
+                std::cout << "div.d " << destReg << ", $f0, $f2" << std::endl;
+            }
+            else if (rightVar == "DOUBLE")
+            {
+                returnLeft()->Translate2MIPS("$f0");
+                std::cout << "addi $sp, $sp, -8" << std::endl;
+                std::cout << "swc1 $f1, 4($sp)" << std::endl;
+                std::cout << "swc1 $f0, 0($sp)" << std::endl;
+                returnRight()->Translate2MIPS("$f2");
+                std::cout << "lwc1 $f1, 4($sp)" << std::endl;
+                std::cout << "lwc1 $f0, 0($sp)" << std::endl;
+                std::cout << "addi $sp, $sp, 8" << std::endl;
+                if (destReg[1] != 'f')
+                {
+                    std::cout << "ERROR: Wrong destReg" << std::endl;
+                }
+                std::cout << "div.d " << destReg << ", $f0, $f2" << std::endl;
+            }
+        }
     }
 
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double vl = return_left()->evaluate(bindings);
-        double vr = return_right()->evaluate(bindings);
+        double vl = returnLeft()->evaluate(bindings);
+        double vr = returnRight()->evaluate(bindings);
         return vl / vr;
-    }
-
-    virtual void Translate2MIPS(std::string destReg) const override
-    {
-        return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, -4($sp)" << std::endl;
-        return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, -4($sp)" << std::endl;
-        std::cout << "div $t0, $t1" << std::endl;
-        std::cout << "mfhi " << destReg << std::endl;
     }
 };
 
-class ModOperator
+class ModOp
     : public Operator
 {
 protected:
-    virtual const char *return_opcode() const override
+    virtual const char *returnOp() const override
     {
         return "%";
     }
 
 public:
-    ModOperator(ExpressionPtr _left, ExpressionPtr _right)
+    ModOp(ExprPtr _left, ExprPtr _right)
         : Operator(_left, _right)
     {
+    }
+
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
+        returnLeft()->Translate2MIPS("$t0");
+        std::cout << "addi $sp, $sp, -4" << std::endl;
+        std::cout << "sw $t0, 0($sp)" << std::endl;
+        returnRight()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 0($sp)" << std::endl;
+        std::cout << "addi $sp, $sp, 4" << std::endl;
+        std::cout << "div $t0, $t1" << std::endl;
+        std::cout << "mfhi " << destReg << std::endl;
     }
 
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        int vl = return_left()->evaluate(bindings);
-        int vr = return_right()->evaluate(bindings);
+        int vl = returnLeft()->evaluate(bindings);
+        int vr = returnRight()->evaluate(bindings);
         return vl % vr;
     }
-
-    virtual void Translate2MIPS(std::string destReg) const override
-    {
-        return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, -4($sp)" << std::endl;
-        return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, -4($sp)" << std::endl;
-        std::cout << "div $t0, $t1" << std::endl;
-        std::cout << "mflo " << destReg << std::endl;
-    }
 };
 
-class LeftShift
+// Compare Operators
+class GreaterThanOp
     : public Operator
 {
 protected:
-    virtual const char *return_opcode() const override
-    {
-        return "<<";
-    }
-
-public:
-    LeftShift(ExpressionPtr _left, ExpressionPtr _right)
-        : Operator(_left, _right)
-    {
-    }
-
-    virtual int evaluate() const override
-    {
-        int vl = return_left()->evaluate();
-        int vr = return_right()->evaluate();
-        return vl << vr;
-    }
-
-    virtual void Translate2MIPS(std::string destReg) const override
-    {
-        return_left()->Translate2MIPS("$t0");
-        std::cout << "addi $sp, $sp, -4" << std::endl;
-        std::cout << "sw $t0, 0($sp)" << std::endl;
-        return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, 0($sp)" << std::endl;
-        std::cout << "addi $sp, $sp, 4" << std::endl;
-        std::cout << "sllv " << destReg << ", $t0, $t1" << std::endl;
-    }
-};
-
-class RightShift
-    : public Operator
-{
-protected:
-    virtual const char *return_opcode() const override
-    {
-        return ">>";
-    }
-
-public:
-    RightShift(ExpressionPtr _left, ExpressionPtr _right)
-        : Operator(_left, _right)
-    {
-    }
-
-    virtual int evaluate() const override
-    {
-        int vl = return_left()->evaluate();
-        int vr = return_right()->evaluate();
-        return vl >> vr;
-    }
-
-    virtual void Translate2MIPS(std::string destReg) const override
-    {
-        return_left()->Translate2MIPS("$t0");
-        std::cout << "addi $sp, $sp, -4" << std::endl;
-        std::cout << "sw $t0, 0($sp)" << std::endl;
-        return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, 0($sp)" << std::endl;
-        std::cout << "addi $sp, $sp, 4" << std::endl;
-        std::cout << "srlv " << destReg << ", $t0, $t1" << std::endl;
-    }
-};
-
-// Comparitive Operators
-
-class GreaterThanOperator
-    : public Operator
-{
-protected:
-    virtual const char *return_opcode() const override
+    virtual const char *returnOp() const override
     {
         return ">";
     }
 
 public:
-    GreaterThanOperator(ExpressionPtr _left, ExpressionPtr _right)
+    GreaterThanOp(ExprPtr _left, ExprPtr _right)
         : Operator(_left, _right)
     {
     }
 
-    virtual double evaluate(
-        const std::map<std::string, double> &bindings) const override
-    {
-        double vl = return_left()->evaluate(bindings);
-        double vr = return_right()->evaluate(bindings);
-        return vl > vr;
-    }
-
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, -4($sp)" << std::endl;
-        return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, -4($sp)" << std::endl;
+        returnLeft()->Translate2MIPS("$t0");
+        std::cout << "addi $sp, $sp, -4" << std::endl;
+        std::cout << "sw $t0, 0($sp)" << std::endl;
+        returnRight()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 0($sp)" << std::endl;
+        std::cout << "addi $sp, $sp, 4" << std::endl;
         std::cout << "slt " << destReg << ", $t1, $t0" << std::endl;
     }
-};
-
-class LessThanOperator
-    : public Operator
-{
-protected:
-    virtual const char *return_opcode() const override
-    {
-        return "<";
-    }
-
-public:
-    LessThanOperator(ExpressionPtr _left, ExpressionPtr _right)
-        : Operator(_left, _right)
-    {
-    }
 
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double vl = return_left()->evaluate(bindings);
-        double vr = return_right()->evaluate(bindings);
-        return vl < vr;
-    }
-
-    virtual void Translate2MIPS(std::string destReg) const override
-    {
-        return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, -4($sp)" << std::endl;
-        return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, -4($sp)" << std::endl;
-        std::cout << "slt " << destReg << ", $t0, $t1" << std::endl;
+        double vl = returnLeft()->evaluate(bindings);
+        double vr = returnRight()->evaluate(bindings);
+        return vl > vr;
     }
 };
 
-class GreaterOrEqualThanOperator
+class GreaterOrEqualOp
     : public Operator
 {
 protected:
-    virtual const char *return_opcode() const override
+    virtual const char *returnOp() const override
     {
         return ">=";
     }
 
 public:
-    GreaterOrEqualThanOperator(ExpressionPtr _left, ExpressionPtr _right)
+    GreaterOrEqualOp(ExprPtr _left, ExprPtr _right)
         : Operator(_left, _right)
     {
     }
 
-    virtual int evaluate() const override
-    {
-        int vl = return_left()->evaluate();
-        int vr = return_right()->evaluate();
-        return vl >= vr;
-    }
-
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, -4($sp)" << std::endl;
-        return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, -4($sp)" << std::endl;
+        returnLeft()->Translate2MIPS("$t0");
+        std::cout << "addi $sp, $sp, -4" << std::endl;
+        std::cout << "sw $t0, 0($sp)" << std::endl;
+        returnRight()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 0($sp)" << std::endl;
+        std::cout << "addi $sp, $sp, 4" << std::endl;
         std::string one = makeName("one");
         std::cout << "beq $t0, $t1, " << one << std::endl;
         std::cout << "slt " << destReg << ", $t1, $t0" << std::endl;
@@ -391,36 +948,74 @@ public:
         std::cout << "addi " << destReg << ", $0, 1" << std::endl;
         std::cout << exit << ":" << std::endl;
     }
+
+    virtual double evaluate(
+        const std::map<std::string, double> &bindings) const override
+    {
+        double vl = returnLeft()->evaluate(bindings);
+        double vr = returnRight()->evaluate(bindings);
+        return vl >= vr;
+    }
 };
 
-class LessOrEqualThanOperator
+class LessThanOp
     : public Operator
 {
 protected:
-    virtual const char *return_opcode() const override
+    virtual const char *returnOp() const override
+    {
+        return "<";
+    }
+
+public:
+    LessThanOp(ExprPtr _left, ExprPtr _right)
+        : Operator(_left, _right)
+    {
+    }
+
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
+        returnLeft()->Translate2MIPS("$t0");
+        std::cout << "addi $sp, $sp, -4" << std::endl;
+        std::cout << "sw $t0, 0($sp)" << std::endl;
+        returnRight()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 0($sp)" << std::endl;
+        std::cout << "addi $sp, $sp, 4" << std::endl;
+        std::cout << "slt " << destReg << ", $t0, $t1" << std::endl;
+    }
+
+    virtual double evaluate(
+        const std::map<std::string, double> &bindings) const override
+    {
+        double vl = returnLeft()->evaluate(bindings);
+        double vr = returnRight()->evaluate(bindings);
+        return vl < vr;
+    }
+};
+
+class LessOrEqualOp
+    : public Operator
+{
+protected:
+    virtual const char *returnOp() const override
     {
         return "<=";
     }
 
 public:
-    LessOrEqualThanOperator(ExpressionPtr _left, ExpressionPtr _right)
+    LessOrEqualOp(ExprPtr _left, ExprPtr _right)
         : Operator(_left, _right)
     {
     }
 
-    virtual int evaluate() const override
-    {
-        int vl = return_left()->evaluate();
-        int vr = return_right()->evaluate();
-        return vl <= vr;
-    }
-
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, -4($sp)" << std::endl;
-        return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, -4($sp)" << std::endl;
+        returnLeft()->Translate2MIPS("$t0");
+        std::cout << "addi $sp, $sp, -4" << std::endl;
+        std::cout << "sw $t0, 0($sp)" << std::endl;
+        returnRight()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 0($sp)" << std::endl;
+        std::cout << "addi $sp, $sp, 4" << std::endl;
         std::string one = makeName("one");
         std::cout << "beq $t0, $t1, " << one << std::endl;
         std::cout << "slt " << destReg << ", $t0, $t1" << std::endl;
@@ -430,77 +1025,81 @@ public:
         std::cout << "addi " << destReg << ", $0, 1" << std::endl;
         std::cout << exit << ":" << std::endl;
     }
+
+    virtual double evaluate(
+        const std::map<std::string, double> &bindings) const override
+    {
+        double vl = returnLeft()->evaluate(bindings);
+        double vr = returnRight()->evaluate(bindings);
+        return vl <= vr;
+    }
 };
 
-class EqualOperator
+class EqualOp
     : public Operator
 {
 protected:
-    virtual const char *return_opcode() const override
+    virtual const char *returnOp() const override
     {
         return "==";
     }
 
 public:
-    EqualOperator(ExpressionPtr _left, ExpressionPtr _right)
+    EqualOp(ExprPtr _left, ExprPtr _right)
         : Operator(_left, _right)
     {
+    }
+
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
+        returnLeft()->Translate2MIPS("$t0");
+        std::cout << "addi $sp, $sp, -4" << std::endl;
+        std::cout << "sw $t0, 0($sp)" << std::endl;
+        returnRight()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 0($sp)" << std::endl;
+        std::cout << "addi $sp, $sp, 4" << std::endl;
+        std::string one = makeName("one");
+        std::cout << "beq $t0, $t1, " << one << std::endl;
+        std::cout << "add " << destReg << ", $0, $0" << std::endl;
+        std::string exit = makeName("exit");
+        std::cout << "j " << exit << std::endl;
+        std::cout << one << ":" << std::endl;
+        std::cout << "addi " << destReg << ", $0, 1" << std::endl;
+        std::cout << exit << ":" << std::endl;
     }
 
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double vl = return_left()->evaluate(bindings);
-        double vr = return_right()->evaluate(bindings);
+        double vl = returnLeft()->evaluate(bindings);
+        double vr = returnRight()->evaluate(bindings);
         return vl == vr;
-    }
-
-    virtual void Translate2MIPS(std::string destReg) const override
-    {
-        return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, -4($sp)" << std::endl;
-        return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, -4($sp)" << std::endl;
-        std::string one = makeName("one");
-        std::cout << "beq $t0, $t1, " << one << std::endl;
-        std::cout << "add " << destReg << ", $0, $0" << std::endl;
-        std::string exit = makeName("exit");
-        std::cout << exit << "j " << std::endl;
-        std::cout << one << ":" << std::endl;
-        std::cout << "addi " << destReg << ", $0, 1" << std::endl;
-        std::cout << exit << ":" << std::endl;
     }
 };
 
-class NotEqualOperator
+class NotEqualOp
     : public Operator
 {
 protected:
-    virtual const char *return_opcode() const override
+    virtual const char *returnOp() const override
     {
         return "!=";
     }
 
 public:
-    NotEqualOperator(ExpressionPtr _left, ExpressionPtr _right)
+    NotEqualOp(ExprPtr _left, ExprPtr _right)
         : Operator(_left, _right)
     {
     }
 
-    virtual double evaluate(
-        const std::map<std::string, double> &bindings) const override
-    {
-        double vl = return_left()->evaluate(bindings);
-        double vr = return_right()->evaluate(bindings);
-        return vl != vr;
-    }
-
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, -4($sp)" << std::endl;
-        return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, -4($sp)" << std::endl;
+        returnLeft()->Translate2MIPS("$t0");
+        std::cout << "addi $sp, $sp, -4" << std::endl;
+        std::cout << "sw $t0, 0($sp)" << std::endl;
+        returnRight()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 0($sp)" << std::endl;
+        std::cout << "addi $sp, $sp, 4" << std::endl;
         std::string one = makeName("one");
         std::cout << "bne $t0, $t1, " << one << std::endl;
         std::cout << "add " << destReg << ", $0, $0" << std::endl;
@@ -510,21 +1109,28 @@ public:
         std::cout << "addi " << destReg << ", $0, 1" << std::endl;
         std::cout << exit << ":" << std::endl;
     }
+
+    virtual double evaluate(
+        const std::map<std::string, double> &bindings) const override
+    {
+        double vl = returnLeft()->evaluate(bindings);
+        double vr = returnRight()->evaluate(bindings);
+        return vl != vr;
+    }
 };
+// Bitwise Operators
 
-// Logic Operators
-
-class LogicAnd
+class BitAndOp
     : public Operator
 {
 protected:
-    virtual const char *return_opcode() const override
+    virtual const char *returnOp() const override
     {
-        return "&&";
+        return "&";
     }
 
 public:
-    LogicAnd(ExpressionPtr _left, ExpressionPtr _right)
+    BitAndOp(ExprPtr _left, ExprPtr _right)
         : Operator(_left, _right)
     {
     }
@@ -532,17 +1138,171 @@ public:
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double vl = return_left()->evaluate(bindings);
-        double vr = return_right()->evaluate(bindings);
-        return vl && vr;
+        int vl = returnLeft()->evaluate(bindings);
+        int vr = returnRight()->evaluate(bindings);
+        return vl & vr;
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, -4($sp)" << std::endl;
-        return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, -4($sp)" << std::endl;
+        returnLeft()->Translate2MIPS("$t0");
+        std::cout << "addi $sp, $sp, -4" << std::endl;
+        std::cout << "sw $t0, 0($sp)" << std::endl;
+        returnRight()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 0($sp)" << std::endl;
+        std::cout << "addi $sp, $sp, 4" << std::endl;
+        std::cout << "and " << destReg << ", $t0, $t1" << std::endl;
+    }
+};
+
+class BitOrOp
+    : public Operator
+{
+protected:
+    virtual const char *returnOp() const override
+    {
+        return "|";
+    }
+
+public:
+    BitOrOp(ExprPtr _left, ExprPtr _right)
+        : Operator(_left, _right)
+    {
+    }
+
+    virtual double evaluate(
+        const std::map<std::string, double> &bindings) const override
+    {
+        int vl = returnLeft()->evaluate(bindings);
+        int vr = returnRight()->evaluate(bindings);
+        return vl | vr;
+    }
+
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
+        returnLeft()->Translate2MIPS("$t0");
+        std::cout << "addi $sp, $sp, -4" << std::endl;
+        std::cout << "sw $t0, 0($sp)" << std::endl;
+        returnRight()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 0($sp)" << std::endl;
+        std::cout << "addi $sp, $sp, 4" << std::endl;
+        std::cout << "or " << destReg << ", $t0, $t1" << std::endl;
+    }
+};
+
+class BitXorOp
+    : public Operator
+{
+protected:
+    virtual const char *returnOp() const override
+    {
+        return "^";
+    }
+
+public:
+    BitXorOp(ExprPtr _left, ExprPtr _right)
+        : Operator(_left, _right)
+    {
+    }
+
+    virtual double evaluate(
+        const std::map<std::string, double> &bindings) const override
+    {
+        double vl = returnLeft()->evaluate(bindings);
+        double vr = returnRight()->evaluate(bindings);
+        return vl - vr;
+    }
+
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
+        returnLeft()->Translate2MIPS("$t0");
+        std::cout << "addi $sp, $sp, -4" << std::endl;
+        std::cout << "sw $t0, 0($sp)" << std::endl;
+        returnRight()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 0($sp)" << std::endl;
+        std::cout << "addi $sp, $sp, 4" << std::endl;
+        std::cout << "xor " << destReg << ", $t0, $t1" << std::endl;
+    }
+};
+
+class LeftShiftOp
+    : public Operator
+{
+protected:
+    virtual const char *returnOp() const override
+    {
+        return "<<";
+    }
+
+public:
+    LeftShiftOp(ExprPtr _left, ExprPtr _right)
+        : Operator(_left, _right)
+    {
+    }
+
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
+        returnLeft()->Translate2MIPS("$t0");
+        std::cout << "addi $sp, $sp, -4" << std::endl;
+        std::cout << "sw $t0, 0($sp)" << std::endl;
+        returnRight()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 0($sp)" << std::endl;
+        std::cout << "addi $sp, $sp, 4" << std::endl;
+        std::cout << "sllv " << destReg << ", $t0, $t1" << std::endl;
+    }
+};
+
+class RightShiftOp
+    : public Operator
+{
+protected:
+    virtual const char *returnOp() const override
+    {
+        return ">>";
+    }
+
+public:
+    RightShiftOp(ExprPtr _left, ExprPtr _right)
+        : Operator(_left, _right)
+    {
+    }
+
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
+        returnLeft()->Translate2MIPS("$t0");
+        std::cout << "addi $sp, $sp, -4" << std::endl;
+        std::cout << "sw $t0, 0($sp)" << std::endl;
+        returnRight()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 0($sp)" << std::endl;
+        std::cout << "addi $sp, $sp, 4" << std::endl;
+        std::cout << "srlv " << destReg << ", $t0, $t1" << std::endl;
+    }
+};
+
+// Logic Operators
+class LogicAndOp
+    : public Operator
+{
+protected:
+    virtual const char *returnOp() const override
+    {
+        return "&&";
+    }
+
+public:
+    LogicAndOp(ExprPtr _left, ExprPtr _right)
+        : Operator(_left, _right)
+    {
+    }
+
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
+        returnLeft()->Translate2MIPS("$t0");
+        std::cout << "addi $sp, $sp, -4" << std::endl;
+        std::cout << "sw $t0, 0($sp)" << std::endl;
+        returnRight()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 0($sp)" << std::endl;
+        std::cout << "addi $sp, $sp, 4" << std::endl;
         std::string zero = makeName("zero");
         std::cout << "beq $t0, $0, " << zero << std::endl;
         std::cout << "beq $t1, $0, " << zero << std::endl;
@@ -553,70 +1313,39 @@ public:
         std::cout << "add " << destReg << ", $0, $0" << std::endl;
         std::cout << exit << ":" << std::endl;
     }
-};
-
-class BitAnd
-    : public Operator
-{
-protected:
-    virtual const char *return_opcode() const override
-    {
-        return "&";
-    }
-
-public:
-    BitAnd(ExpressionPtr _left, ExpressionPtr _right)
-        : Operator(_left, _right)
-    {
-    }
 
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        int vl = return_left()->evaluate(bindings);
-        int vr = return_right()->evaluate(bindings);
-        return vl & vr;
-    }
-
-    virtual void Translate2MIPS(std::string destReg) const override
-    {
-        return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, -4($sp)" << std::endl;
-        return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, -4($sp)" << std::endl;
-        std::cout << "and " << destReg << ", $t0, $t1" << std::endl;
+        double vl = returnLeft()->evaluate(bindings);
+        double vr = returnRight()->evaluate(bindings);
+        return vl && vr;
     }
 };
 
-class LogicOr
+class LogicOrOp
     : public Operator
 {
 protected:
-    virtual const char *return_opcode() const override
+    virtual const char *returnOp() const override
     {
         return "||";
     }
 
 public:
-    LogicOr(ExpressionPtr _left, ExpressionPtr _right)
+    LogicOrOp(ExprPtr _left, ExprPtr _right)
         : Operator(_left, _right)
     {
     }
 
-    virtual double evaluate(
-        const std::map<std::string, double> &bindings) const override
-    {
-        double vl = return_left()->evaluate(bindings);
-        double vr = return_right()->evaluate(bindings);
-        return vl || vr;
-    }
-
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, -4($sp)" << std::endl;
-        return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, -4($sp)" << std::endl;
+        returnLeft()->Translate2MIPS("$t0");
+        std::cout << "addi $sp, $sp, -4" << std::endl;
+        std::cout << "sw $t0, 0($sp)" << std::endl;
+        returnRight()->Translate2MIPS("$t1");
+        std::cout << "lw $t0, 0($sp)" << std::endl;
+        std::cout << "addi $sp, $sp, 4" << std::endl;
         std::string one = makeName("one");
         std::cout << "bne $t0, $0, " << one << std::endl;
         std::cout << "bne $t1, $0, " << one << std::endl;
@@ -627,71 +1356,13 @@ public:
         std::cout << "addi " << destReg << ", $0, 1" << std::endl;
         std::cout << exit << ":" << std::endl;
     }
-};
-
-class BitOr
-    : public Operator
-{
-protected:
-    virtual const char *return_opcode() const override
-    {
-        return "|";
-    }
-
-public:
-    BitOr(ExpressionPtr _left, ExpressionPtr _right)
-        : Operator(_left, _right)
-    {
-    }
 
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        int vl = return_left()->evaluate(bindings);
-        int vr = return_right()->evaluate(bindings);
-        return vl | vr;
-    }
-
-    virtual void Translate2MIPS(std::string destReg) const override
-    {
-        return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, -4($sp)" << std::endl;
-        return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, -4($sp)" << std::endl;
-        std::cout << "or " << destReg << ", $t0, $t1" << std::endl;
-    }
-};
-
-class BitXOr
-    : public Operator
-{
-protected:
-    virtual const char *return_opcode() const override
-    {
-        return "^";
-    }
-
-public:
-    BitXOr(ExpressionPtr _left, ExpressionPtr _right)
-        : Operator(_left, _right)
-    {
-    }
-
-    virtual double evaluate(
-        const std::map<std::string, double> &bindings) const override
-    {
-        int vl = return_left()->evaluate(bindings);
-        int vr = return_right()->evaluate(bindings);
-        return vl ^ vr;
-    }
-
-    virtual void Translate2MIPS(std::string destReg) const override
-    {
-        return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, -4($sp)" << std::endl;
-        return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, -4($sp)" << std::endl;
-        std::cout << "xor " << destReg << ", $t0, $t1" << std::endl;
+        double vl = returnLeft()->evaluate(bindings);
+        double vr = returnRight()->evaluate(bindings);
+        return vl || vr;
     }
 };
 

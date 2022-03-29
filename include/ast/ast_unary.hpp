@@ -5,13 +5,13 @@
 #include <iostream>
 
 class Unary
-    : public Expression
+    : public Expr
 {
 private:
-    ExpressionPtr expr;
+    ExprPtr expr;
 
 protected:
-    Unary(const ExpressionPtr _expr)
+    Unary(const ExprPtr _expr)
         : expr(_expr)
     {
     }
@@ -22,9 +22,9 @@ public:
         delete expr;
     }
 
-    virtual const char *return_Opcode() const = 0;
+    virtual const char *returnOp() const = 0;
 
-    ExpressionPtr return_Expr() const
+    ExprPtr returnExpr() const
     {
         return expr;
     }
@@ -32,98 +32,98 @@ public:
     virtual void pretty_print(std::ostream &dst) const override
     {
         dst << "( ";
-        dst << return_Opcode();
+        dst << returnOp();
         dst << " ";
         expr->pretty_print(dst);
         dst << " )";
     }
 };
 
-class NegOperator
+class NegOp
     : public Unary
 {
 public:
-    NegOperator(const ExpressionPtr _expr)
+    NegOp(const ExprPtr _expr)
         : Unary(_expr)
     {
     }
 
-    virtual const char *return_Opcode() const override
+    virtual const char *returnOp() const override
     {
         return "-";
     }
 
-    virtual double evaluate(
-        const std::map<std::string, double> &bindings) const override
-    {
-        double neg = return_Expr()->evaluate(bindings);
-        return -neg;
-    }
-
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        return_Expr()->Translate2MIPS("$t0");
+        returnExpr()->Translate2MIPS("$t0");
         std::cout << "subu " << destReg << ", $0, $t0" << std::endl;
     }
-};
-
-class NotOperator
-    : public Unary
-{
-public:
-    NotOperator(const ExpressionPtr _expr)
-        : Unary(_expr)
-    {
-    }
-
-    virtual const char *return_Opcode() const override
-    {
-        return "!";
-    }
 
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double val = return_Expr()->evaluate(bindings);
-        return (!val);
-    }
-
-    virtual void Translate2MIPS(std::string destReg) const override
-    {
-        return_Expr()->Translate2MIPS("t0");
-        std::string zero = makeName("zero");
-        std::cout << "bne $t0, $0, " << zero << std::endl;
-        std::cout << "addi " << destReg << ", $0, 1" << std::endl;
-        std::cout << zero << ":" << std::endl;
-        std::cout << "add " << destReg << ", $0, $0" << std::endl;
+        double neg = returnExpr()->evaluate(bindings);
+        return (-neg);
     }
 };
 
-class PosOperator
+class PosOp
     : public Unary
 {
 public:
-    PosOperator(const ExpressionPtr _expr)
+    PosOp(const ExprPtr _expr)
         : Unary(_expr)
     {
     }
 
-    virtual const char *return_Opcode() const override
+    virtual const char *returnOp() const override
     {
         return "+";
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-        return_Expr()->Translate2MIPS("$t0");
+        returnExpr()->Translate2MIPS("$t0");
         std::cout << "subu " << destReg << ", $t0, $0" << std::endl;
     }
 
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const override
     {
-        double pos = return_Expr()->evaluate(bindings);
-        return (+pos);
+        double pos = returnExpr()->evaluate(bindings);
+        return (-pos);
+    }
+};
+
+class NotOp
+    : public Unary
+{
+public:
+    NotOp(const ExprPtr _expr)
+        : Unary(_expr)
+    {
+    }
+
+    virtual const char *returnOp() const override
+    {
+        return "!";
+    }
+
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
+        returnExpr()->Translate2MIPS("$t0");
+        std::string zero = makeName("zero");
+        std::cout << "bne $t0, $0, " << zero << std::endl;
+        std::cout << "addi " << destReg << ", $0, 1" << std::endl;
+        std::cout << zero << ":" << std::endl;
+        std::cout << "add " << destReg << ", $0, $0" << std::endl;
+    }
+
+    virtual double evaluate(
+        const std::map<std::string, double> &bindings) const override
+    {
+        double val = returnExpr()->evaluate(bindings);
+        return (!val);
     }
 };
 

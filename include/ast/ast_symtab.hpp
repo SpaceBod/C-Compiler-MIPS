@@ -1,289 +1,255 @@
-#ifndef symtab_hpp
-#define symtab_hpp
-#include <vector>
+#ifndef ast_symtab_hpp
+#define ast_symtab_hpp
+
 #include <cassert>
-#include <map>
-
+#include "ast_stacks.hpp"
 #include "ast_nodes.hpp"
-#include "ast_stackptr.hpp"
 
-// +--------+-------+--------+
-// |   ID   | KIND  |  TYPE  |
-// +--------+-------+--------+
-// | _var_1 | var   | int    |
-// | _var_2 | var   | bool   |
-// | _var_3 | var   | double |
-// +--------+-------+--------+
-
-// Class for the symbol table - accesses NODES
-class SymTab
+class SymTabADT
 {
 private:
-    Node *head[MAX];
-
-    int scopeCurrent;
-    int scopeFunction;
-    int scopeLoop;
-
-    std::string startFunction[MAX], endFunction[MAX];
-    std::string startLoop[MAX], endLoop[MAX];
+    Node *head[50];
+    int current_scope;
+    std::string funcstart[50];
+    std::string funcend[50];
+    std::string loopstart[50];
+    std::string loopend[50];
+    int funcscope;
+    int loopscope;
 
 public:
-    SymTab()
+    SymTabADT()
     {
         int size = sizeof(head) / sizeof(head[0]);
         for (int i = 0; i < size; i++)
         {
-            // sets head[i] to "zero as an symAddr"
             head[i] = nullptr;
         }
-        // Init scope to zero
-        scopeCurrent = 0;
+        current_scope = 0;
+    }
+
+    std::string getfuncstart()
+    {
+        return funcstart[funcscope];
+    }
+
+    std::string returnEndFunc()
+    {
+        return funcend[funcscope];
+    }
+
+    std::string returnStartLoop()
+    {
+        return loopstart[loopscope];
+    }
+
+    std::string returnEndLoop()
+    {
+        return loopend[loopscope];
+    }
+
+    int getScopeFunc()
+    {
+        return funcscope;
+    }
+
+    int returnLoopScope()
+    {
+        return loopscope;
+    }
+
+    void setfuncstart(std::string _funcstart)
+    {
+        funcstart[funcscope] = _funcstart;
+    }
+
+    void setfuncend(std::string _funcend)
+    {
+        funcend[funcscope] = _funcend;
+    }
+
+    void setStartLoop(std::string _loopstart)
+    {
+        loopstart[loopscope] = _loopstart;
+    }
+
+    void setEndLoop(std::string _loopend)
+    {
+        loopend[loopscope] = _loopend;
     }
 
     int returnScopeCurrent()
     {
-        return scopeCurrent;
+        return current_scope;
     }
 
-    // Function scopes
-    void setScopeFunction(int newScopeFunction)
+    void setScopeFunc(int _funcscope)
     {
-        scopeFunction = newScopeFunction;
-    }
-    int returnScopeFunction()
-    {
-        return scopeFunction;
-    }
-    std::string returnStartFunction()
-    {
-        return startFunction[scopeFunction];
-    }
-    void setStartFunction(std::string newStartFunction)
-    {
-        startFunction[scopeFunction] = newStartFunction;
-    }
-    std::string returnEndFunction()
-    {
-        return endFunction[scopeFunction];
-    }
-    void setEndFunction(std::string newEndFunction)
-    {
-        endFunction[scopeFunction] = newEndFunction;
+        funcscope = _funcscope;
     }
 
-    // Loop scopes
-    void setScopeLoop(int newScopeLoop)
+    void setScopeLoop(int _loopscope)
     {
-        scopeLoop = newScopeLoop;
-    }
-    int returnScopeLoop()
-    {
-        return scopeLoop;
-    }
-    std::string returnStartLoop()
-    {
-        return startLoop[scopeLoop];
-    }
-    std::string returnEndLoop()
-    {
-        return endLoop[scopeLoop];
-    }
-    void setStartLoop(std::string newStartLoop)
-    {
-        startLoop[scopeLoop] = newStartLoop;
-    }
-    void setEndLoop(std::string newEndLoop)
-    {
-        endLoop[scopeLoop] = newEndLoop;
+        loopscope = _loopscope;
     }
 
-    // Inserting a new symbol into the table
-    // Table: ID    KIND    TYPE
-    bool insert(std::string symID, std::string symKind, std::string symType, std::string symAddr)
+    bool insert(std::string type, std::string kind, std::string name, std::string address)
     {
-        if (head[scopeCurrent] != nullptr)
+        if (head[current_scope] == nullptr)
         {
-            Node *start = head[scopeCurrent];
-            // Finds free location
-            while (start->returnNext() != nullptr)
-            {
-                start = start->returnNext();
-            }
-            // Inserts new symbol
-            start->setNext(new Node(symID, symKind, symType, symAddr));
+            head[current_scope] = new Node(type, kind, name, address);
             return true;
         }
         else
         {
-            // Inserts new symbol if first location is free
-            head[scopeCurrent] = new Node(symID, symKind, symType, symAddr);
+            Node *start = head[current_scope];
+            while (start->getNext() != nullptr)
+            {
+                start = start->getNext();
+            }
+            start->setNext(new Node(type, kind, name, address));
             return true;
         }
         return false;
     }
 
-    // returns the length of th symID
-    int getSize(std::string symID)
+    bool edit(std::string type, std::string kind, std::string name, std::string address)
     {
-        Node *start = head[scopeCurrent];
+        if (head[current_scope] == nullptr)
+        {
+            return false;
+        }
+        else
+        {
+            Node *start = head[current_scope];
+            while (start != nullptr)
+            {
+                if (start->getName() == name)
+                {
+                    start->setFormat(kind);
+                    start->setAddress(address);
+                    start->setType(type);
+                    return true;
+                }
+                start = start->getNext();
+            }
+        }
+        return false;
+    }
+
+    std::string lookup(std::string name)
+    {
+        Node *start = head[current_scope];
+        if (start == nullptr)
+        {
+            return "Unknown reference from ID";
+        }
         while (start != nullptr)
         {
-            if (start->returnSymID() == symID)
+            if (start->getName() == name)
             {
-                return start->returnLen();
+                return start->getAddress();
             }
             else
             {
-                start = start->returnNext();
+                start = start->getNext();
             }
         }
-        return 0;
+        return "Unknown reference from ID";
     }
 
-    // Looks up the address location of the symID
-    std::string lookup(std::string symID)
+    std::string returnType(std::string name)
     {
-        Node *start = head[scopeCurrent];
-        while (start != nullptr)
+        Node *start = head[current_scope];
+        if (start == nullptr)
         {
-            if (start->returnSymID() == symID)
-            {
-                return start->returnAddress();
-            }
-            else
-            {
-                start = start->returnNext();
-            }
+            return "Unknown reference from ID";
         }
-        return ("Symbol ID: " + symID + " not found");
-    }
-
-    // Looks up the symID and return the type
-    std::string returnType(std::string symID)
-    {
-        Node *start = head[scopeCurrent];
         while (start != nullptr)
         {
-            if (start->returnSymID() == symID)
+            if (start->getName() == name)
             {
                 return start->returnType();
             }
             else
             {
-                start = start->returnNext();
+                start = start->getNext();
             }
         }
-        return ("Symbol ID: " + symID + " not found");
+        return "Unknown reference from ID";
     }
 
-    // Returns a vector of symIDs of the same symKind
-    std::vector<std::string> vectorSymID(std::string symKind)
+    std::string returnKind(std::string name)
     {
-        std::vector<std::string> vectorSymIDs;
-        Node *start = head[scopeCurrent];
-        while (start != nullptr)
+        Node *start = head[current_scope];
+        if (start == nullptr)
         {
-            if (start->returnKind() == symKind)
-            {
-                vectorSymIDs.push_back(start->returnSymID());
-            }
-            start = start->returnNext();
+            return "Unknown reference from ID";
         }
-        return vectorSymIDs;
-    }
-
-    // Looks up the symID and return the kind
-    std::string returnKind(std::string symID)
-    {
-        Node *start = head[scopeCurrent];
         while (start != nullptr)
         {
-            if (start->returnSymID() == symID)
+            if (start->getName() == name)
             {
                 return start->returnKind();
             }
             else
             {
-                start = start->returnNext();
+                start = start->getNext();
             }
         }
-        return ("Symbol ID: " + symID + " not found");
+        return "Unknown reference from ID";
     }
 
-    // Edit an existing symID's values
-    bool edit(std::string symID, std::string symKind, std::string symType, std::string symAddr)
+    bool enterScope()
     {
-        if (head[scopeCurrent] != nullptr)
+        current_scope = current_scope + 1;
+        assert(head[current_scope] == nullptr);
+        Node *old_list = head[current_scope - 1];
+        if (old_list != nullptr)
         {
-            Node *start = head[scopeCurrent];
-            while (start != nullptr)
+            head[current_scope] = new Node(old_list->returnType(), old_list->returnKind(), old_list->getName(), old_list->getAddress());
+            Node *start = head[current_scope];
+            while (old_list->next != nullptr)
             {
-                // if symID matches -> edit properties
-                if (start->returnSymID() == symID)
-                {
-                    start->setType(symType);
-                    start->setKind(symKind);
-                    start->setAddress(symAddr);
-                    return true;
-                }
-                start = start->returnNext();
+                old_list = old_list->next;
+                head[current_scope]->next = new Node(old_list->returnType(), old_list->returnKind(), old_list->getName(), old_list->getAddress());
+                head[current_scope] = head[current_scope]->next;
             }
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    // Adding a new scope
-    bool scopeEnter()
-    {
-        scopeCurrent += 1;
-        Node *plist = head[scopeCurrent - 1];
-        if (plist != nullptr)
-        {
-            head[scopeCurrent] = new Node(plist->returnSymID(), plist->returnKind(), plist->returnType(), plist->returnAddress());
-            Node *start = head[scopeCurrent];
-            while (plist->next != nullptr)
-            {
-                plist = plist->next;
-                head[scopeCurrent]->next = new Node(plist->returnSymID(), plist->returnKind(), plist->returnType(), plist->returnAddress());
-                head[scopeCurrent] = head[scopeCurrent]->next;
-            }
-            head[scopeCurrent] = start;
+            head[current_scope] = start;
             return true;
         }
         else
         {
-            head[scopeCurrent] = nullptr;
+            head[current_scope] = nullptr;
             return true;
         }
     }
 
-    bool scopeExit()
+    bool exitScope()
     {
-        if (head[scopeCurrent] == nullptr)
+        if (head[current_scope] == nullptr)
         {
-            scopeCurrent -= 1;
+            current_scope = current_scope - 1;
             return true;
         }
-        Node **list = &head[scopeCurrent]; // pointer-to-pointer
+        Node **list = &head[current_scope];
         Node *current = *list;
         Node *next = nullptr;
         if (current != nullptr)
         {
-            next = current->returnNext();
+            next = current->getNext();
             delete (current);
             current = next;
         }
         *list = nullptr;
-        if (head[scopeCurrent] != nullptr)
+        if (head[current_scope] != nullptr)
         {
+            std::cout << "this is wrong" << std::endl;
             return false;
         }
-        scopeCurrent -= 1;
+        current_scope = current_scope - 1;
         return true;
     }
 };
+
 #endif
