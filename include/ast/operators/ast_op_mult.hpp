@@ -1,25 +1,33 @@
-#ifndef ast_op_div_hpp
-#define ast_op_div_hpp
+#ifndef ast_op_mult_hpp
+#define ast_op_mult_hpp
 
 #include <string>
 #include <iostream>
-#include "ast_expressions.hpp"
-#include "ast_operators.hpp"
+#include "../ast_expressions.hpp"
+#include "../ast_operators.hpp"
 
-// Arithmatical Operator DIV
-class DivOp
+// Arithmatical Operator MULT
+class MultOp
     : public Operator
 {
 protected:
     virtual const char *returnOp() const override
     {
-        return "/";
+        return "*";
     }
 
 public:
-    DivOp(ExprPtr _left, ExprPtr _right)
+    MultOp(ExprPtr _left, ExprPtr _right)
         : Operator(_left, _right)
     {
+    }
+
+    virtual double evaluate(
+        const std::map<std::string, double> &bindings) const override
+    {
+        double vl = returnLeft()->evaluate(bindings);
+        double vr = returnRight()->evaluate(bindings);
+        return vl * vr;
     }
 
     virtual void Translate2MIPS(std::string destReg) const override
@@ -36,16 +44,14 @@ public:
                 returnRight()->Translate2MIPS("$t1");
                 std::cout << "lw $t0, 0($sp)" << std::endl;
                 std::cout << "addi $sp, $sp, 4" << std::endl;
-                std::cout << "div $t0, $t1" << std::endl;
                 if (destReg[1] == 'f')
                 {
                     std::cout << "wrong dstReg" << std::endl;
                 }
-                std::cout << "mflo " << destReg << std::endl;
+                std::cout << "mul " << destReg << ", $t0, $t1" << std::endl;
             }
             else if (rightVar == "FLOAT")
             {
-
                 returnLeft()->Translate2MIPS("$t0");
                 std::cout << "addi $sp, $sp, -4" << std::endl;
                 std::cout << "sw $t0, 0($sp)" << std::endl;
@@ -56,7 +62,7 @@ public:
                 {
                     std::cout << "ERROR: Wrong destReg" << std::endl;
                 }
-                std::cout << "div.s " << destReg << ", $f0, $f2" << std::endl;
+                std::cout << "mul.s " << destReg << ", $f0, $f2" << std::endl;
             }
             else if (rightVar == "DOUBLE")
             {
@@ -71,7 +77,7 @@ public:
                 {
                     std::cout << "ERROR: Wrong destReg" << std::endl;
                 }
-                std::cout << "div.d " << destReg << ", $f0, $f2" << std::endl;
+                std::cout << "mul.d " << destReg << ", $f0, $f2" << std::endl;
             }
         }
         else if (leftVar == "FLOAT")
@@ -88,7 +94,7 @@ public:
                 {
                     std::cout << "ERROR: Wrong destReg" << std::endl;
                 }
-                std::cout << "div.s " << destReg << ", $f0, $f2" << std::endl;
+                std::cout << "mul.s " << destReg << ", $f0, $f2" << std::endl;
             }
             else if (rightVar == "FLOAT")
             {
@@ -102,7 +108,7 @@ public:
                 {
                     std::cout << "ERROR: Wrong destReg" << std::endl;
                 }
-                std::cout << "div.s " << destReg << ", $f0, $f2" << std::endl;
+                std::cout << "mul.s " << destReg << ", $f0, $f2" << std::endl;
             }
             else if (rightVar == "DOUBLE")
             {
@@ -117,7 +123,7 @@ public:
                 {
                     std::cout << "ERROR: Wrong destReg" << std::endl;
                 }
-                std::cout << "div.d " << destReg << " , $f0, $f2" << std::endl;
+                std::cout << "mul.d " << destReg << " , $f0, $f2" << std::endl;
             }
         }
         else if (leftVar == "DOUBLE")
@@ -135,7 +141,7 @@ public:
                 {
                     std::cout << "ERROR: Wrong destReg" << std::endl;
                 }
-                std::cout << "div.d " << destReg << ", $f0, $f2" << std::endl;
+                std::cout << "mul.d " << destReg << ", $f0, $f2" << std::endl;
             }
             else if (rightVar == "FLOAT")
             {
@@ -150,7 +156,7 @@ public:
                 {
                     std::cout << "ERROR: Wrong destReg" << std::endl;
                 }
-                std::cout << "div.d " << destReg << ", $f0, $f2" << std::endl;
+                std::cout << "mul.d " << destReg << ", $f0, $f2" << std::endl;
             }
             else if (rightVar == "DOUBLE")
             {
@@ -166,17 +172,9 @@ public:
                 {
                     std::cout << "ERROR: Wrong destReg" << std::endl;
                 }
-                std::cout << "div.d " << destReg << ", $f0, $f2" << std::endl;
+                std::cout << "mul.d " << destReg << ", $f0, $f2" << std::endl;
             }
         }
-    }
-
-    virtual double evaluate(
-        const std::map<std::string, double> &bindings) const override
-    {
-        double vl = returnLeft()->evaluate(bindings);
-        double vr = returnRight()->evaluate(bindings);
-        return vl / vr;
     }
 };
 

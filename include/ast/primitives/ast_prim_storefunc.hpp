@@ -4,10 +4,10 @@
 #include <string>
 #include <iostream>
 
-#include "ast_symtab.hpp"
-#include "ast_expressions.hpp"
-#include "ast_primitives.hpp"
-#include "ast_primitives.hpp"
+#include "../ast_symtab.hpp"
+#include "../ast_expressions.hpp"
+#include "../ast_primitives.hpp"
+#include "../ast_primitives.hpp"
 
 class StoreFunc
     : public Expr

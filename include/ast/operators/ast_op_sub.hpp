@@ -3,8 +3,8 @@
 
 #include <string>
 #include <iostream>
-#include "ast_expressions.hpp"
-#include "ast_operators.hpp"
+#include "../ast_expressions.hpp"
+#include "../ast_operators.hpp"
 
 // Arithmatical Operator SUB
 class SubOp

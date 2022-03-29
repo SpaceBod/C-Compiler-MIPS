@@ -4,7 +4,7 @@
 #include "ast_primitives.hpp"
 #include "ast_statements.hpp"
 #include "ast_expressions.hpp"
-#include "ast_prim_storefunc.hpp"
+#include "primitives/ast_prim_storefunc.hpp"
 
 class Function
 {

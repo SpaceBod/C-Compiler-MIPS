@@ -4,10 +4,10 @@
 #include <string>
 #include <iostream>
 
-#include "ast_expressions.hpp"
-#include "ast_statements.hpp"
-#include "ast_primitives.hpp"
-#include "ast_symtab.hpp"
+#include "../ast_expressions.hpp"
+#include "../ast_primitives.hpp"
+#include "../ast_statements.hpp"
+#include "../ast_symtab.hpp"
 
 class LoopStat
     : public Stat
