@@ -15,6 +15,7 @@
   const Stat *stat;
   const Expression *expr;
   const Stat_list *statlist;
+  const Decl_list *declist;
   Variable *var;
   double number;
   std::string *str;
@@ -36,9 +37,10 @@
 %type <stat> STAT COMPOUND_STAT EXPRESSION_STAT SELECTION_STAT ITERATION_STAT JUMP_STAT LABEL_STAT
 %type <expr> EXPR CONDITIONAL_EXPR LOR_EXPR LAND_EXPR BOR_EXPR BAND_EXPR BXOR_EXPR EQUAL_EXPR RELATION_EXPR SHIFT_EXPR ARITHMETIC_EXPR TERM_EXPR UNARY_EXPR FACTOR_EXPR
 %type <statlist> STAT_LIST
+%type <declist> ARGUEMENTS
 %type <number> T_NUMBER
 %type <str> T_INT_TYPE T_VARIABLE ASSIGNS
-%type <var> DECLARATION
+%type <var> DECLARATION ARGUEMENT
 %type <T_type> VAR_TYPE
 
 %start PROGRAM
@@ -47,15 +49,21 @@
 
 PROGRAM             : FUNCTION                                                      { g_root = $1; }
 
-FUNCTION            : VAR_TYPE T_VARIABLE T_LPAREN T_RPAREN COMPOUND_STAT           { $$ = new Function((new Variable($1, $2)), $5); }
+FUNCTION            : VAR_TYPE T_VARIABLE T_LPAREN T_RPAREN COMPOUND_STAT             { $$ = new Function((new Variable($1, $2, DecType::DECLARATION)), $5); }
+                    | VAR_TYPE T_VARIABLE T_LPAREN ARGUEMENTS T_RPAREN COMPOUND_STAT  { $$ = new Function((new Variable($1, $2, DecType::DECLARATION)), $4, $6); }
+
+ARGUEMENTS          : ARGUEMENT                                                    { $$ = new Decl_list($1, nullptr); }
+                    | ARGUEMENT T_COMMA ARGUEMENTS                                 { $$ = new Decl_list($1, $3); }
+
+ARGUEMENT           : VAR_TYPE T_VARIABLE                                           { $$ = new Variable($1, $2, DecType::ARGUEMENT); }
 
 STAT_LIST           : STAT                                                          { $$ = new Stat_list($1, nullptr); }
                     | DECLARATION                                                   { $$ = new Stat_list($1, nullptr); }
                     | STAT STAT_LIST                                                { $$ = new Stat_list($1, $2)     ; }
                     | DECLARATION STAT_LIST                                         { $$ = new Stat_list($1, $2)     ; }
 
-DECLARATION         : VAR_TYPE T_VARIABLE T_SEMI                                    { $$ = new Variable($1, $2, nullptr); }
-                    | VAR_TYPE T_VARIABLE T_ASSIGN EXPR T_SEMI                      { $$ = new Variable($1, $2, $4)     ; }
+DECLARATION         : VAR_TYPE T_VARIABLE T_SEMI                                    { $$ = new Variable($1, $2, DecType::DECLARATION); }
+                    | VAR_TYPE T_VARIABLE T_ASSIGN EXPR T_SEMI                      { $$ = new Variable($1, $2, DecType::DECLARATION, $4)     ; }
 
 STAT                : COMPOUND_STAT                                                 { $$ = $1; }
                     | EXPRESSION_STAT                                               { $$ = $1; }
@@ -78,8 +86,8 @@ ITERATION_STAT      : T_WHILE T_LPAREN EXPR T_RPAREN STAT                       
                     | T_FOR T_LPAREN EXPR T_SEMI EXPR T_SEMI EXPR T_RPAREN STAT     { $$ = new For_Stat($3, $5, $7, $9); }
                     | T_FOR T_LPAREN DECLARATION EXPR T_SEMI EXPR T_RPAREN STAT     { $$ = new For_Stat($3, $4, $6, $8); }
 
-JUMP_STAT           : T_RETURN T_SEMI                                               { $$ = new Return_Stat()    ; }
-                    | T_RETURN EXPR T_SEMI                                          { $$ = new Return_Stat($2)  ; }
+JUMP_STAT           : T_RETURN T_SEMI                                               { $$ = new ReturnStat()    ; }
+                    | T_RETURN EXPR T_SEMI                                          { $$ = new ReturnStat($2)  ; }
                     | T_CONTINUE T_SEMI                                             { $$ = new Continue_Stat(); }
                     | T_BREAK T_SEMI                                                { $$ = new Break_Stat()   ; }
 
@@ -160,7 +168,7 @@ ENUM_DECL           : ENUM T_LBRACE ENUM_LIST T_RBRACE                          
 ENUM_LIST           : ENUM                                                          {}
                     | ENUM T_COMMA ENUM_LIST                                        {} */
  
-VAR_TYPE            : T_INT_TYPE                                                    { $$ = VarType::INT; }
+VAR_TYPE            : T_INT_TYPE                                                    { $$ = VarType::INTEGER; }
 
 %%
 

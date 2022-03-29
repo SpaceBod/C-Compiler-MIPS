@@ -131,6 +131,5 @@ public:
     {
         declaration = newDeclaration;
     }
-
 };
 #endif

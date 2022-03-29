@@ -6,11 +6,6 @@
 #include <map>
 #include <memory>
 
-#include "ast_symtab.hpp"
-
-extern SymTab SymbolTable;
-extern StackPtr StackPointer;
-
 class Expression;
 
 typedef const Expression *ExpressionPtr;
@@ -25,7 +20,8 @@ public:
     virtual void Translate2MIPS(std::string destReg) const = 0;
 
     virtual int evaluate() const
-    {}
+    {
+    }
 
     virtual double evaluate(
         const std::map<std::string, double> &bindings) const

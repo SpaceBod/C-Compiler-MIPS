@@ -11,16 +11,16 @@
 // |   ID   | KIND  |  TYPE  |
 // +--------+-------+--------+
 // | _var_1 | var   | int    |
-// | _var_2 | var   | bool   |  
+// | _var_2 | var   | bool   |
 // | _var_3 | var   | double |
 // +--------+-------+--------+
 
-// Class for the symbol table - accesses NODES 
+// Class for the symbol table - accesses NODES
 class SymTab
 {
 private:
     Node *head[MAX];
-    
+
     int scopeCurrent;
     int scopeFunction;
     int scopeLoop;
@@ -31,8 +31,8 @@ private:
 public:
     SymTab()
     {
-        int size = sizeof(head)/sizeof(head[0]);
-        for(int i = 0; i < size; i++)
+        int size = sizeof(head) / sizeof(head[0]);
+        for (int i = 0; i < size; i++)
         {
             // sets head[i] to "zero as an symAddr"
             head[i] = nullptr;
@@ -41,10 +41,10 @@ public:
         scopeCurrent = 0;
     }
 
-    int getScopeCurrent()
-        {
-            return scopeCurrent;
-        }
+    int returnScopeCurrent()
+    {
+        return scopeCurrent;
+    }
 
     // Function scopes
     void setScopeFunction(int newScopeFunction)
@@ -71,7 +71,7 @@ public:
     {
         endFunction[scopeFunction] = newEndFunction;
     }
-    
+
     // Loop scopes
     void setScopeLoop(int newScopeLoop)
     {
@@ -101,12 +101,12 @@ public:
     // Inserting a new symbol into the table
     // Table: ID    KIND    TYPE
     bool insert(std::string symID, std::string symKind, std::string symType, std::string symAddr)
-    {        
-        if(head[scopeCurrent] != nullptr)
+    {
+        if (head[scopeCurrent] != nullptr)
         {
             Node *start = head[scopeCurrent];
             // Finds free location
-            while(start->returnNext() != nullptr)
+            while (start->returnNext() != nullptr)
             {
                 start = start->returnNext();
             }
@@ -127,9 +127,9 @@ public:
     int getSize(std::string symID)
     {
         Node *start = head[scopeCurrent];
-        while(start != nullptr)
+        while (start != nullptr)
         {
-            if(start->returnSymID() == symID)
+            if (start->returnSymID() == symID)
             {
                 return start->returnLen();
             }
@@ -145,9 +145,9 @@ public:
     std::string lookup(std::string symID)
     {
         Node *start = head[scopeCurrent];
-        while(start != nullptr)
+        while (start != nullptr)
         {
-            if(start->returnSymID() == symID)
+            if (start->returnSymID() == symID)
             {
                 return start->returnAddress();
             }
@@ -163,9 +163,9 @@ public:
     std::string returnType(std::string symID)
     {
         Node *start = head[scopeCurrent];
-        while(start != nullptr)
+        while (start != nullptr)
         {
-            if(start->returnSymID() == symID)
+            if (start->returnSymID() == symID)
             {
                 return start->returnType();
             }
@@ -182,9 +182,9 @@ public:
     {
         std::vector<std::string> vectorSymIDs;
         Node *start = head[scopeCurrent];
-        while(start != nullptr)
+        while (start != nullptr)
         {
-            if(start->returnKind() == symKind)
+            if (start->returnKind() == symKind)
             {
                 vectorSymIDs.push_back(start->returnSymID());
             }
@@ -197,9 +197,9 @@ public:
     std::string returnKind(std::string symID)
     {
         Node *start = head[scopeCurrent];
-        while(start != nullptr)
+        while (start != nullptr)
         {
-            if(start->returnSymID() == symID)
+            if (start->returnSymID() == symID)
             {
                 return start->returnKind();
             }
@@ -214,13 +214,13 @@ public:
     // Edit an existing symID's values
     bool edit(std::string symID, std::string symKind, std::string symType, std::string symAddr)
     {
-        if(head[scopeCurrent] != nullptr)
+        if (head[scopeCurrent] != nullptr)
         {
             Node *start = head[scopeCurrent];
-            while(start != nullptr)
+            while (start != nullptr)
             {
                 // if symID matches -> edit properties
-                if(start->returnSymID() == symID)
+                if (start->returnSymID() == symID)
                 {
                     start->setType(symType);
                     start->setKind(symKind);
@@ -240,12 +240,12 @@ public:
     bool scopeEnter()
     {
         scopeCurrent += 1;
-        Node *plist = head[scopeCurrent-1];
+        Node *plist = head[scopeCurrent - 1];
         if (plist != nullptr)
         {
             head[scopeCurrent] = new Node(plist->returnSymID(), plist->returnKind(), plist->returnType(), plist->returnAddress());
             Node *start = head[scopeCurrent];
-            while(plist->next != nullptr)
+            while (plist->next != nullptr)
             {
                 plist = plist->next;
                 head[scopeCurrent]->next = new Node(plist->returnSymID(), plist->returnKind(), plist->returnType(), plist->returnAddress());
@@ -263,7 +263,7 @@ public:
 
     bool scopeExit()
     {
-        if(head[scopeCurrent] == nullptr)
+        if (head[scopeCurrent] == nullptr)
         {
             scopeCurrent -= 1;
             return true;
@@ -274,11 +274,11 @@ public:
         if (current != nullptr)
         {
             next = current->returnNext();
-            delete(current);
+            delete (current);
             current = next;
         }
         *list = nullptr;
-        if(head[scopeCurrent] != nullptr)
+        if (head[scopeCurrent] != nullptr)
         {
             return false;
         }

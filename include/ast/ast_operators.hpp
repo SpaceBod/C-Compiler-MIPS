@@ -24,7 +24,7 @@ public:
         delete right;
     }
 
-    virtual const char *getOpcode() const = 0;
+    virtual const char *return_opcode() const = 0;
 
     ExpressionPtr return_left() const
     {
@@ -41,7 +41,7 @@ public:
         dst << "( ";
         left->pretty_print(dst);
         dst << " ";
-        dst << getOpcode();
+        dst << return_opcode();
         dst << " ";
         right->pretty_print(dst);
         dst << " )";
@@ -54,7 +54,7 @@ class AddOperator
     : public Operator
 {
 protected:
-    virtual const char *getOpcode() const override
+    virtual const char *return_opcode() const override
     {
         return "+";
     }
@@ -77,9 +77,9 @@ public:
     virtual void Translate2MIPS(std::string destReg) const override
     {
         return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, 4($sp)" << std::endl;
+        std::cout << "sw $t0, -4($sp)" << std::endl;
         return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, 4($sp)" << std::endl;
+        std::cout << "lw $t0, -4($sp)" << std::endl;
         std::cout << "add " << destReg << ", $t0, $t1" << std::endl;
     }
 };
@@ -88,7 +88,7 @@ class SubOperator
     : public Operator
 {
 protected:
-    virtual const char *getOpcode() const override
+    virtual const char *return_opcode() const override
     {
         return "-";
     }
@@ -110,18 +110,18 @@ public:
     virtual void Translate2MIPS(std::string destReg) const override
     {
         return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, 4($sp)" << std::endl;
+        std::cout << "sw $t0, -4($sp)" << std::endl;
         return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, 4($sp)" << std::endl;
+        std::cout << "lw $t0, -4($sp)" << std::endl;
         std::cout << "sub " << destReg << ", $t0, $t1" << std::endl;
-        }
+    }
 };
 
 class MulOperator
     : public Operator
 {
 protected:
-    virtual const char *getOpcode() const override
+    virtual const char *return_opcode() const override
     {
         return "*";
     }
@@ -143,9 +143,9 @@ public:
     virtual void Translate2MIPS(std::string destReg) const override
     {
         return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, 4($sp)" << std::endl;
+        std::cout << "sw $t0, -4($sp)" << std::endl;
         return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, 4($sp)" << std::endl;
+        std::cout << "lw $t0, -4($sp)" << std::endl;
         std::cout << "mul " << destReg << ", $t0, $t1" << std::endl;
     }
 };
@@ -154,7 +154,7 @@ class DivOperator
     : public Operator
 {
 protected:
-    virtual const char *getOpcode() const override
+    virtual const char *return_opcode() const override
     {
         return "/";
     }
@@ -176,9 +176,9 @@ public:
     virtual void Translate2MIPS(std::string destReg) const override
     {
         return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, 4($sp)" << std::endl;
+        std::cout << "sw $t0, -4($sp)" << std::endl;
         return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, 4($sp)" << std::endl;
+        std::cout << "lw $t0, -4($sp)" << std::endl;
         std::cout << "div $t0, $t1" << std::endl;
         std::cout << "mfhi " << destReg << std::endl;
     }
@@ -188,7 +188,7 @@ class ModOperator
     : public Operator
 {
 protected:
-    virtual const char *getOpcode() const override
+    virtual const char *return_opcode() const override
     {
         return "%";
     }
@@ -210,9 +210,9 @@ public:
     virtual void Translate2MIPS(std::string destReg) const override
     {
         return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, 4($sp)" << std::endl;
+        std::cout << "sw $t0, -4($sp)" << std::endl;
         return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, 4($sp)" << std::endl;
+        std::cout << "lw $t0, -4($sp)" << std::endl;
         std::cout << "div $t0, $t1" << std::endl;
         std::cout << "mflo " << destReg << std::endl;
     }
@@ -222,21 +222,26 @@ class LeftShift
     : public Operator
 {
 protected:
-    virtual const char *getOpcode() const override
-    { return "<<"; }
+    virtual const char *return_opcode() const override
+    {
+        return "<<";
+    }
+
 public:
     LeftShift(ExpressionPtr _left, ExpressionPtr _right)
         : Operator(_left, _right)
-    {}
+    {
+    }
 
     virtual int evaluate() const override
     {
-        int vl=return_left()->evaluate();
-        int vr=return_right()->evaluate();
-        return vl<<vr;
+        int vl = return_left()->evaluate();
+        int vr = return_right()->evaluate();
+        return vl << vr;
     }
 
-    virtual void Translate2MIPS(std::string destReg) const override {
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
         return_left()->Translate2MIPS("$t0");
         std::cout << "addi $sp, $sp, -4" << std::endl;
         std::cout << "sw $t0, 0($sp)" << std::endl;
@@ -251,21 +256,26 @@ class RightShift
     : public Operator
 {
 protected:
-    virtual const char *getOpcode() const override
-    { return ">>"; }
+    virtual const char *return_opcode() const override
+    {
+        return ">>";
+    }
+
 public:
     RightShift(ExpressionPtr _left, ExpressionPtr _right)
         : Operator(_left, _right)
-    {}
+    {
+    }
 
     virtual int evaluate() const override
     {
-        int vl=return_left()->evaluate();
-        int vr=return_right()->evaluate();
-        return vl>>vr;
+        int vl = return_left()->evaluate();
+        int vr = return_right()->evaluate();
+        return vl >> vr;
     }
 
-    virtual void Translate2MIPS(std::string destReg) const override {
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
         return_left()->Translate2MIPS("$t0");
         std::cout << "addi $sp, $sp, -4" << std::endl;
         std::cout << "sw $t0, 0($sp)" << std::endl;
@@ -276,18 +286,13 @@ public:
     }
 };
 
-
-
-
-
-
 // Comparitive Operators
 
 class GreaterThanOperator
     : public Operator
 {
 protected:
-    virtual const char *getOpcode() const override
+    virtual const char *return_opcode() const override
     {
         return ">";
     }
@@ -309,9 +314,9 @@ public:
     virtual void Translate2MIPS(std::string destReg) const override
     {
         return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, 4($sp)" << std::endl;
+        std::cout << "sw $t0, -4($sp)" << std::endl;
         return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, 4($sp)" << std::endl;
+        std::cout << "lw $t0, -4($sp)" << std::endl;
         std::cout << "slt " << destReg << ", $t1, $t0" << std::endl;
     }
 };
@@ -320,7 +325,7 @@ class LessThanOperator
     : public Operator
 {
 protected:
-    virtual const char *getOpcode() const override
+    virtual const char *return_opcode() const override
     {
         return "<";
     }
@@ -341,10 +346,10 @@ public:
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-       return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, 4($sp)" << std::endl;
+        return_left()->Translate2MIPS("$t0");
+        std::cout << "sw $t0, -4($sp)" << std::endl;
         return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, 4($sp)" << std::endl;
+        std::cout << "lw $t0, -4($sp)" << std::endl;
         std::cout << "slt " << destReg << ", $t0, $t1" << std::endl;
     }
 };
@@ -353,7 +358,7 @@ class GreaterOrEqualThanOperator
     : public Operator
 {
 protected:
-    virtual const char *getOpcode() const override
+    virtual const char *return_opcode() const override
     {
         return ">=";
     }
@@ -374,17 +379,17 @@ public:
     virtual void Translate2MIPS(std::string destReg) const override
     {
         return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, 4($sp)" << std::endl;
+        std::cout << "sw $t0, -4($sp)" << std::endl;
         return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, 4($sp)" << std::endl;
-        std::string set_one = makeName("set_one");
-        std::cout << "beq $t0, $t1, " << set_one << std::endl;
+        std::cout << "lw $t0, -4($sp)" << std::endl;
+        std::string one = makeName("one");
+        std::cout << "beq $t0, $t1, " << one << std::endl;
         std::cout << "slt " << destReg << ", $t1, $t0" << std::endl;
         std::string exit = makeName("exit");
-        std::cout << "jump " << exit << std::endl;
-        std::cout <<  set_one << ":" <<std::endl;
+        std::cout << "j " << exit << std::endl;
+        std::cout << one << ":" << std::endl;
         std::cout << "addi " << destReg << ", $0, 1" << std::endl;
-        std::cout << exit <<  ":" <<std::endl;
+        std::cout << exit << ":" << std::endl;
     }
 };
 
@@ -392,7 +397,7 @@ class LessOrEqualThanOperator
     : public Operator
 {
 protected:
-    virtual const char *getOpcode() const override
+    virtual const char *return_opcode() const override
     {
         return "<=";
     }
@@ -413,17 +418,15 @@ public:
     virtual void Translate2MIPS(std::string destReg) const override
     {
         return_left()->Translate2MIPS("$t0");
-        std::cout << "addi $sp, $sp, -4" << std::endl;
-        std::cout << "sw $t0, 0($sp)" << std::endl;
+        std::cout << "sw $t0, -4($sp)" << std::endl;
         return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, 0($sp)" << std::endl;
-        std::cout << "addi $sp, $sp, 4" << std::endl;
-        std::string set_one = makeName("set_one");
-        std::cout << "beq $t0, $t1, " << set_one << std::endl;
+        std::cout << "lw $t0, -4($sp)" << std::endl;
+        std::string one = makeName("one");
+        std::cout << "beq $t0, $t1, " << one << std::endl;
         std::cout << "slt " << destReg << ", $t0, $t1" << std::endl;
         std::string exit = makeName("exit");
         std::cout << "j " << exit << std::endl;
-        std::cout << set_one << ":" << std::endl;
+        std::cout << one << ":" << std::endl;
         std::cout << "addi " << destReg << ", $0, 1" << std::endl;
         std::cout << exit << ":" << std::endl;
     }
@@ -433,7 +436,7 @@ class EqualOperator
     : public Operator
 {
 protected:
-    virtual const char *getOpcode() const override
+    virtual const char *return_opcode() const override
     {
         return "==";
     }
@@ -454,18 +457,18 @@ public:
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-         return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, 4($sp)" << std::endl;
+        return_left()->Translate2MIPS("$t0");
+        std::cout << "sw $t0, -4($sp)" << std::endl;
         return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, 4($sp)" << std::endl;
-        std::string set_one = makeName("set_one");
-        std::cout << "beq $t0, $t1, " << set_one << std::endl;
+        std::cout << "lw $t0, -4($sp)" << std::endl;
+        std::string one = makeName("one");
+        std::cout << "beq $t0, $t1, " << one << std::endl;
         std::cout << "add " << destReg << ", $0, $0" << std::endl;
         std::string exit = makeName("exit");
-        std::cout << "jump " << exit << std::endl;
-        std::cout << ":" << set_one << std::endl;
+        std::cout << exit << "j " << std::endl;
+        std::cout << one << ":" << std::endl;
         std::cout << "addi " << destReg << ", $0, 1" << std::endl;
-        std::cout << ":" << exit << std::endl;
+        std::cout << exit << ":" << std::endl;
     }
 };
 
@@ -473,7 +476,7 @@ class NotEqualOperator
     : public Operator
 {
 protected:
-    virtual const char *getOpcode() const override
+    virtual const char *return_opcode() const override
     {
         return "!=";
     }
@@ -495,17 +498,17 @@ public:
     virtual void Translate2MIPS(std::string destReg) const override
     {
         return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, 4($sp)" << std::endl;
+        std::cout << "sw $t0, -4($sp)" << std::endl;
         return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, 4($sp)" << std::endl;
-        std::string set_one = makeName("set_one");
-        std::cout << "bne $t0, $t1, " << set_one << std::endl;
+        std::cout << "lw $t0, -4($sp)" << std::endl;
+        std::string one = makeName("one");
+        std::cout << "bne $t0, $t1, " << one << std::endl;
         std::cout << "add " << destReg << ", $0, $0" << std::endl;
         std::string exit = makeName("exit");
-        std::cout << "jump " << exit << std::endl;
-        std::cout << ":" << set_one << std::endl;
+        std::cout << "j " << exit << std::endl;
+        std::cout << one << ":" << std::endl;
         std::cout << "addi " << destReg << ", $0, 1" << std::endl;
-        std::cout << ":" << exit << std::endl;
+        std::cout << exit << ":" << std::endl;
     }
 };
 
@@ -515,7 +518,7 @@ class LogicAnd
     : public Operator
 {
 protected:
-    virtual const char *getOpcode() const override
+    virtual const char *return_opcode() const override
     {
         return "&&";
     }
@@ -537,18 +540,18 @@ public:
     virtual void Translate2MIPS(std::string destReg) const override
     {
         return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, 4($sp)" << std::endl;
+        std::cout << "sw $t0, -4($sp)" << std::endl;
         return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, 4($sp)" << std::endl;
-        std::string set_zero = makeName("set_zero");
-        std::cout << "beq $t0, $0, " << set_zero << std::endl;
-        std::cout << "beq $t1, $0, " << set_zero << std::endl;
+        std::cout << "lw $t0, -4($sp)" << std::endl;
+        std::string zero = makeName("zero");
+        std::cout << "beq $t0, $0, " << zero << std::endl;
+        std::cout << "beq $t1, $0, " << zero << std::endl;
         std::cout << "addi " << destReg << ", $0, 1" << std::endl;
         std::string exit = makeName("exit");
-        std::cout << "jump " << exit << std::endl;
-        std::cout <<  set_zero <<":" << std::endl;
+        std::cout << "j " << exit << std::endl;
+        std::cout << zero << ":" << std::endl;
         std::cout << "add " << destReg << ", $0, $0" << std::endl;
-        std::cout <<  exit <<":" << std::endl;
+        std::cout << exit << ":" << std::endl;
     }
 };
 
@@ -556,7 +559,7 @@ class BitAnd
     : public Operator
 {
 protected:
-    virtual const char *getOpcode() const override
+    virtual const char *return_opcode() const override
     {
         return "&";
     }
@@ -578,9 +581,9 @@ public:
     virtual void Translate2MIPS(std::string destReg) const override
     {
         return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, 4($sp)" << std::endl;
+        std::cout << "sw $t0, -4($sp)" << std::endl;
         return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, 4($sp)" << std::endl;
+        std::cout << "lw $t0, -4($sp)" << std::endl;
         std::cout << "and " << destReg << ", $t0, $t1" << std::endl;
     }
 };
@@ -589,7 +592,7 @@ class LogicOr
     : public Operator
 {
 protected:
-    virtual const char *getOpcode() const override
+    virtual const char *return_opcode() const override
     {
         return "||";
     }
@@ -611,18 +614,18 @@ public:
     virtual void Translate2MIPS(std::string destReg) const override
     {
         return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, 4($sp)" << std::endl;
+        std::cout << "sw $t0, -4($sp)" << std::endl;
         return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, 4($sp)" << std::endl;
-        std::string set_one = makeName("set_one");
-        std::cout << "bne $t0, $0, " << set_one << std::endl;
-        std::cout << "bne $t1, $0, " << set_one << std::endl;
+        std::cout << "lw $t0, -4($sp)" << std::endl;
+        std::string one = makeName("one");
+        std::cout << "bne $t0, $0, " << one << std::endl;
+        std::cout << "bne $t1, $0, " << one << std::endl;
         std::cout << "add " << destReg << ", $0, $0" << std::endl;
         std::string exit = makeName("exit");
-        std::cout << "jump " << exit << std::endl;
-        std::cout << set_one << ":" <<  std::endl;
+        std::cout << "j " << exit << std::endl;
+        std::cout << one << ":" << std::endl;
         std::cout << "addi " << destReg << ", $0, 1" << std::endl;
-        std::cout <<exit << ":" <<  std::endl;
+        std::cout << exit << ":" << std::endl;
     }
 };
 
@@ -630,7 +633,7 @@ class BitOr
     : public Operator
 {
 protected:
-    virtual const char *getOpcode() const override
+    virtual const char *return_opcode() const override
     {
         return "|";
     }
@@ -652,9 +655,9 @@ public:
     virtual void Translate2MIPS(std::string destReg) const override
     {
         return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, 4($sp)" << std::endl;
+        std::cout << "sw $t0, -4($sp)" << std::endl;
         return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, 4($sp)" << std::endl;
+        std::cout << "lw $t0, -4($sp)" << std::endl;
         std::cout << "or " << destReg << ", $t0, $t1" << std::endl;
     }
 };
@@ -663,7 +666,7 @@ class BitXOr
     : public Operator
 {
 protected:
-    virtual const char *getOpcode() const override
+    virtual const char *return_opcode() const override
     {
         return "^";
     }
@@ -685,9 +688,9 @@ public:
     virtual void Translate2MIPS(std::string destReg) const override
     {
         return_left()->Translate2MIPS("$t0");
-        std::cout << "sw $t0, 4($sp)" << std::endl;
+        std::cout << "sw $t0, -4($sp)" << std::endl;
         return_right()->Translate2MIPS("$t1");
-        std::cout << "lw $t0, 4($sp)" << std::endl;
+        std::cout << "lw $t0, -4($sp)" << std::endl;
         std::cout << "xor " << destReg << ", $t0, $t1" << std::endl;
     }
 };

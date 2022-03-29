@@ -94,7 +94,7 @@ public:
         std::string zero = makeName("zero");
         std::cout << "bne $t0, $0, " << zero << std::endl;
         std::cout << "addi " << destReg << ", $0, 1" << std::endl;
-        std::cout <<  zero << ":" << std::endl;
+        std::cout << zero << ":" << std::endl;
         std::cout << "add " << destReg << ", $0, $0" << std::endl;
     }
 };
@@ -105,25 +105,26 @@ class PosOperator
 public:
     PosOperator(const ExpressionPtr _expr)
         : Unary(_expr)
-    {}
+    {
+    }
 
     virtual const char *return_Opcode() const override
-    { return "+"; }
+    {
+        return "+";
+    }
 
-    virtual void Translate2MIPS(std::string destReg) const override {
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
         return_Expr()->Translate2MIPS("$t0");
         std::cout << "subu " << destReg << ", $t0, $0" << std::endl;
     }
 
     virtual double evaluate(
-        const std::map<std::string, double> &bindings
-    ) const override
+        const std::map<std::string, double> &bindings) const override
     {
-        double in=return_Expr()->evaluate(bindings);
-        return (+in);
+        double pos = return_Expr()->evaluate(bindings);
+        return (+pos);
     }
 };
-
-
 
 #endif

@@ -6,16 +6,21 @@
 
 #include "ast_symtab.hpp"
 
+extern SymTab SymbolTable;
+extern StackPtr StackPointer;
+
 enum VarType
 {
-    INT,
+    INTEGER,
     DOUBLE,
     FLOAT
 };
 
-enum DecType{
+enum DecType
+{
     CALL,
     ASSIGN,
+    ARGUEMENT,
     DECLARATION
 };
 
@@ -25,77 +30,116 @@ class Variable
 private:
     std::string var_name;
     std::string type;
-    ExpressionPtr Expr;
-    DecType Dec_type;
+    ExpressionPtr Expr = nullptr;
+    DecType dec_type;
     std::string assign_type;
-    std::string address;    
+    mutable std::string address;
 
 public:
-    Variable(){
-
+    Variable()
+    {
     }
 
     Variable(const std::string *_var_name)
-    { 
-        Dec_type = CALL;
-        var_name = *_var_name;
-        address= SymbolTable.lookup(var_name);
-    }
-
-    Variable(const std::string *_var_name, std::string *_assign_type, ExpressionPtr _Expr) {
-    Dec_type = ASSIGN;
-    var_name = *_var_name;
-    assign_type= *_assign_type;
-    address = SymbolTable.lookup(var_name);
-    Expr = _Expr;
-    }
-
-    Variable(VarType _type, const std::string *_var_name, ExpressionPtr _Expr = nullptr)
     {
-        switch (_type)
+        dec_type = CALL;
+        var_name = *_var_name;
+    }
+
+    Variable(const std::string *_var_name, std::string *_assign_type, ExpressionPtr _Expr)
+    {
+        dec_type = ASSIGN;
+        var_name = *_var_name;
+        assign_type = *_assign_type;
+        Expr = _Expr;
+    }
+
+    Variable(VarType _type, const std::string *_var_name, DecType _kind, ExpressionPtr _Expr = nullptr)
+    {
+        if (_kind == ARGUEMENT)
         {
-        case INT:
-            type = "int";
-            Expr = _Expr;
-            var_name = *_var_name;
-            StackPointer.setIncrement(StackPointer.returnIncrement()+4);
-            address = std::to_string(StackPointer.returnIncrement() + 2000);
-            if(SymbolTable.lookup(var_name) == "Error"){
-                SymbolTable.insert(type, "var", var_name, address);
-            }else{
-                SymbolTable.edit(type, "var", var_name, address);
+            dec_type = ARGUEMENT;
+            switch (_type)
+            {
+            case INTEGER:
+                type = "int";
+                Expr = _Expr;
+                var_name = *_var_name;
+
+                // StackPointer.setIncrement(StackPointer.returnIncrement() + 4);
+                // address = std::to_string(StackPointer.returnIncrement() + 2000);
+                // if (SymbolTable.lookup(var_name) == "Error")
+                // {
+                //     SymbolTable.insert(type, "var", var_name, address);
+                // }
+                // else
+                // {
+                //     SymbolTable.edit(type, "var", var_name, address);
+                // }
+
+                break;
+            case DOUBLE:
+                type = "double";
+                var_name = *_var_name;
+
+                // StackPointer.setIncrement(StackPointer.returnIncrement() + 4);
+                // address = std::to_string(StackPointer.returnIncrement() + 2000);
+                // if (SymbolTable.lookup(var_name) == "Error")
+                // {
+                //     SymbolTable.insert(var_name, "var", type, address);
+                // }
+                // else
+                // {
+                //     SymbolTable.edit(var_name, "var", type, address);
+                // }
+                break;
+            case FLOAT:
+                type = "float";
+                var_name = *_var_name;
+
+                // StackPointer.setIncrement(StackPointer.returnIncrement() + 4);
+                // address = std::to_string(StackPointer.returnIncrement() + 2000);
+                // if (SymbolTable.lookup(var_name) == "Error")
+                // {
+                //     SymbolTable.insert(var_name, "var", type, address);
+                // }
+                // else
+                // {
+                //     SymbolTable.edit(var_name, "var", type, address);
+                // }
+                break;
+            default:
+                type = "UNDEFINED";
             }
-            break;
-        case DOUBLE:
-            type = "double";
-            Expr = _Expr;
-            var_name = *_var_name;
-            StackPointer.setIncrement(StackPointer.returnIncrement()+4);
-            address = std::to_string(StackPointer.returnIncrement() + 2000);
-            if(SymbolTable.lookup(var_name) == "Error"){
-                SymbolTable.insert(var_name, "var", type, address);
-            }else{
-                SymbolTable.edit(var_name, "var", type, address);
+        }
+
+        else if (_kind == DECLARATION)
+        {
+            dec_type = DECLARATION;
+            switch (_type)
+            {
+            case INTEGER:
+                type = "int";
+                var_name = *_var_name;
+                Expr = _Expr;
+                break;
+            case DOUBLE:
+                type = "double";
+                var_name = *_var_name;
+                Expr = _Expr;
+                break;
+            case FLOAT:
+                type = "float";
+                var_name = *_var_name;
+                Expr = _Expr;
+                break;
+            default:
+                type = "UNDEFINED";
             }
-            break;
-        case FLOAT:
-            type = "float";
-            Expr = _Expr;
-            var_name = *_var_name;
-            StackPointer.setIncrement(StackPointer.returnIncrement()+4);
-            address = std::to_string(StackPointer.returnIncrement() + 2000);
-            if(SymbolTable.lookup(var_name) == "Error"){
-                SymbolTable.insert(var_name, "var", type, address);
-            }else{
-                SymbolTable.edit(var_name, "var", type, address);
-            }
-            break;
-        default:
-            type = "UNDEFINED";
         }
     }
 
-    const std::string getVar_name() const
+    const std::string return_var_name() const
     {
         return var_name;
     }
@@ -115,23 +159,22 @@ public:
         return Expr;
     }
 
-
-
     virtual void pretty_print(std::ostream &dst) const override
     {
-        switch(Dec_type){ 
+        switch (dec_type)
+        {
         case CALL:
-            dst<<var_name;
+            dst << var_name;
             break;
 
         case ASSIGN:
-            dst<<var_name;
-            dst<<" ";
-            dst<<assign_type;
-            dst<<" ";
-            Expr ->pretty_print(dst);
-            break;      
-              
+            dst << var_name;
+            dst << " ";
+            dst << assign_type;
+            dst << " ";
+            Expr->pretty_print(dst);
+            break;
+
         case DECLARATION:
             dst << type;
             dst << " ";
@@ -140,13 +183,11 @@ public:
             {
                 dst << " = ";
                 Expr->pretty_print(dst);
-            }            
+            }
             dst << ";";
             dst << '\n';
             break;
-        
         }
-
     }
 
     virtual double evaluate(
@@ -157,62 +198,149 @@ public:
 
     virtual void Translate2MIPS(std::string destReg) const override
     {
-    switch(Dec_type){
+        switch (dec_type)
+        {
         case CALL:
-            std::cout<<"addi $t0, $0, "<< address <<std::endl;
+            address = SymbolTable.lookup(var_name);
+            std::cout << "addi $t0, $0, " << address << std::endl;
             break;
         case ASSIGN:
-                    if(assign_type == "="){
-                    return_expr()->Translate2MIPS("$t1");
-                    std::cout << "addi $t0, $0, " << address << std::endl;
-                    std::cout << "sw $t1, 0($t0)" << std::endl;
-                }else if(assign_type == "+="){
-                    return_expr()->Translate2MIPS("$t1");
-                    std::cout << "addi $t0, $0, " << address << std::endl;
-                    std::cout << "lw $t2, 0($t0)" << std::endl;
-                    std::cout << "add $t2, $t2, $t1" << std::endl;
-                    std::cout << "sw $t2, 0($t0)" << std::endl;
-                }else if(assign_type == "-="){
-                    return_expr()->Translate2MIPS("$t1");
-                    std::cout << "addi $t0, $0, " << address << std::endl;
-                    std::cout << "lw $t2, 0($t0)" << std::endl;
-                    std::cout << "sub $t2, $t2, $t1" << std::endl;
-                    std::cout << "sw $t2, 0($t0)" << std::endl;
-                }else if(assign_type == "/="){
-                    return_expr()->Translate2MIPS("$t1");
-                    std::cout << "addi $t0, $0, " << address << std::endl;
-                    std::cout << "lw $t2, 0($t0)" << std::endl;
-                    std::cout << "div $t2, $t1" << std::endl;
-                    std::cout << "mfhi $t2" << std::endl;
-                    std::cout << "sw $t2, 0($t0)" << std::endl;
-                }else if(assign_type == "*="){
-                    return_expr()->Translate2MIPS("$t1");
-                    std::cout << "addi $t0, $0, " << address << std::endl;
-                    std::cout << "lw $t2, 0($t0)" << std::endl;
-                    std::cout << "mul $t2, $t2, $t1" << std::endl;
-                    std::cout << "sw $t2, 0($t0)" << std::endl;
-                }else if(assign_type == "%="){
+            if (assign_type == "=")
+            {
+                return_expr()->Translate2MIPS("$t0");
+                std::cout << "sw $t0, -" << address << "($fp)" << std::endl;
+            }
+            else if (assign_type == "+=")
+            {
+                return_expr()->Translate2MIPS("$t0");
+                std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                std::cout << "add $t1, $t1, $t0" << std::endl;
+                std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+            }
+            else if (assign_type == "-=")
+            {
+                return_expr()->Translate2MIPS("$t0");
+                std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                std::cout << "sub $t1, $t1, $t0" << std::endl;
+                std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+            }
+            else if (assign_type == "/=")
+            {
+                return_expr()->Translate2MIPS("$t0");
+                std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                std::cout << "div $t1, $t0" << std::endl;
+                std::cout << "mfhi $t1" << std::endl;
+                std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+            }
+            else if (assign_type == "*=")
+            {
+                return_expr()->Translate2MIPS("$t0");
+                std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                std::cout << "mul $t1, $t1, $t0" << std::endl;
+                std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+            }
+            else if (assign_type == "%=")
+            {
+                return_expr()->Translate2MIPS("$t0");
+                std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                std::cout << "div $t1, $t0" << std::endl;
+                std::cout << "mflo $t1" << std::endl;
+                std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+            }
+            else if (assign_type == "<<=")
+            {
+                return_expr()->Translate2MIPS("$t0");
+                std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                std::cout << "sllv $t1, $t1, $t0" << std::endl;
+                std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+            }
+            else if (assign_type == ">>=")
+            {
+                return_expr()->Translate2MIPS("$t0");
+                std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                std::cout << "srlv $t1, $t1, $t0" << std::endl;
+                std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+            }
+            else if (assign_type == "^=")
+            {
+                return_expr()->Translate2MIPS("$t0");
+                std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                std::cout << "xor $t1, $t1, $t0" << std::endl;
+                std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+            }
+            else if (assign_type == "&=")
+            {
+                return_expr()->Translate2MIPS("$t0");
+                std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                std::cout << "and $t1, $t1, $t0" << std::endl;
+                std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+            }
+            else if (assign_type == "|=")
+            {
+                return_expr()->Translate2MIPS("$t0");
+                std::cout << "lw $t1, -" << address << "($fp)" << std::endl;
+                std::cout << "or $t1, $t1, $t0" << std::endl;
+                std::cout << "sw $t1, -" << address << "($fp)" << std::endl;
+            }
+            break;
 
-                }else if(assign_type == "<<="){
-
-                }else if(assign_type == ">>="){
-
-                }else if(assign_type == "^="){
-
-                }else if(assign_type == "^="){
-
-                }
-                break;
         case DECLARATION:
-                if(return_type()=="INT"){
-                    if(Expr!=nullptr){
-                        return_expr()->Translate2MIPS("$t1");
-                        std::cout << "addi $t0, $0, " << address << std::endl;
-                        std::cout << "sw $t1, 0($t0)" << std::endl;
-                    }
+            if (return_type() == "INTEGER")
+            {
+                std::cout << "addi $sp, $sp, -4" << std::endl;
+                StackPointer.setIncrement(StackPointer.returnIncrement() + 4);
+                StackPointer.setScopeIncrement(StackPointer.returnScopeIncrement() + 4);
+                address = std::to_string(StackPointer.returnIncrement());
+                if (SymbolTable.lookup(var_name) == "Error: undefined reference")
+                {
+                    SymbolTable.insert(var_name, "var", type, address);
                 }
-                break;
-    }
+                else
+                {
+                    SymbolTable.edit(var_name, "var", type, address);
+                }
+                if (Expr != nullptr)
+                {
+                    return_expr()->Translate2MIPS("$t0");
+                    std::cout << "sw $t0, -" << address << "($fp)" << std::endl;
+                }
+                if (SymbolTable.returnScopeCurrent() == 0)
+                {
+                    std::cout << ".global " << return_var_name() << std::endl;
+                }
+            }
+            break;
+        case ARGUEMENT:
+            if (return_type() == "INTEGER")
+            {
+                std::cout << "addi $sp, $sp, -4" << std::endl;
+                if (StackPointer.returnArgCount() < 4)
+                {
+                    std::cout << "sw $a" << StackPointer.returnArgCount() << ", 0($sp)" << std::endl;
+                }
+                StackPointer.setIncrement(StackPointer.returnIncrement() + 4);
+                StackPointer.setScopeIncrement(StackPointer.returnScopeIncrement() + 4);
+                address = std::to_string(StackPointer.returnIncrement());
+                if (SymbolTable.lookup(var_name) == "Error: undefined reference")
+                {
+                    SymbolTable.insert(var_name, "var", type, address);
+                }
+                else
+                {
+                    SymbolTable.edit(var_name, "var", type, address);
+                }
+                if (Expr != nullptr)
+                {
+                    return_expr()->Translate2MIPS("$t0");
+                    std::cout << "sw $t0, -" << address << "($fp)" << std::endl;
+                }
+                if (SymbolTable.returnScopeCurrent() == 0)
+                {
+                    std::cout << ".global " << return_var_name() << std::endl;
+                }
+            }
+            break;
+        }
     }
 };
 
@@ -228,7 +356,7 @@ public:
     {
     }
 
-    double return_var() const
+    double return_val() const
     {
         return value;
     }
@@ -252,45 +380,53 @@ public:
 
 class Decl_list;
 typedef const Decl_list *Decl_listPtr;
+
 class Decl_list
     : public Variable
 {
 private:
     Variable *variable;
     Decl_listPtr decl_list = nullptr;
+
 public:
     Decl_list(Variable *_variable, Decl_listPtr _decl_list = nullptr)
-        : variable(_variable)
-        , decl_list(_decl_list)
-    {}
+        : variable(_variable), decl_list(_decl_list)
+    {
+    }
 
-    virtual ~Decl_list() {
+    virtual ~Decl_list()
+    {
         delete variable;
         delete decl_list;
     }
     Variable *return_var() const
-    { return variable; }
+    {
+        return variable;
+    }
 
     Decl_listPtr return_decllist() const
-    { return decl_list; }
+    {
+        return decl_list;
+    }
 
     virtual void pretty_print(std::ostream &dst) const override
     {
         variable->pretty_print(dst);
-        if(decl_list!=nullptr){
+        if (decl_list != nullptr)
+        {
             dst << ", ";
             decl_list->pretty_print(dst);
         }
     }
-    virtual void Translate2MIPS(std::string destReg) const override{
+    virtual void Translate2MIPS(std::string destReg) const override
+    {
         return_var()->Translate2MIPS(destReg);
-        StackPointer.setArgCount(StackPointer.returnArgCount()+1);
-        if(decl_list!=nullptr){
+        StackPointer.setArgCount(StackPointer.returnArgCount() + 1);
+        if (decl_list != nullptr)
+        {
             return_decllist()->Translate2MIPS(destReg);
         }
         StackPointer.setArgCount(0);
-    }  
+    }
 };
-
-
 #endif

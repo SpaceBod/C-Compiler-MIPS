@@ -6,14 +6,16 @@
 
 #include "ast_symtab.hpp"
 
-class Node {
+class Node
+{
 private:
     friend class SymTab;
     int len;
-    std::string symID, kind , type, address;
-    Node* next;
+    std::string symID, kind, type, address;
+    Node *next;
+
 public:
-    Node() 
+    Node()
     {
         next = nullptr;
     }
