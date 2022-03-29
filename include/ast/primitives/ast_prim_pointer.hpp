@@ -629,6 +629,11 @@ public:
             {
                 std::cout << "sw $a" << StkPtr.returnArgCount() << ", 0($sp)" << std::endl;
             }
+            else
+            {
+                std::cout << "lw $t0, " << StkPtr.returnArgCount() * 4 << "($fp)" << std::endl;
+                std::cout << "sw $t0, 0($sp)" << std::endl;
+            }
             StkPtr.setIncrement(StkPtr.getIncrement() + 4);
             StkPtr.setScopeIncrement(StkPtr.returnScopeIncrement() + 4);
             address = std::to_string(StkPtr.getIncrement());

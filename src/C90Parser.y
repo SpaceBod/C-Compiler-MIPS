@@ -120,12 +120,12 @@ ENUM_DECL           : ENUM T_LBRACE ENUM_LIST T_RBRACE                          
                     | ENUM T_VARIABLE T_LBRACE ENUM_LIST T_RBRACE                   {}
                     | ENUM T_VARIABLE                                               {}
 
-DECLARATION         : TYPE_DEF T_VARIABLE T_SEMI                             { $$ = new Identifier($1, $2, DecType::DECLARATION); }
-                    | TYPE_DEF T_VARIABLE T_ASSIGN EXPR T_SEMI                      { $$ = new Identifier($1, $2, DecType::DECLARATION, $4); }
-                    | TYPE_DEF T_VARIABLE T_LSQUARE T_NUMBER_INT T_RSQUARE T_SEMI   { $$ = new Array($1, $2, $4); }
-                    | TYPE_DEF T_VARIABLE T_LSQUARE CONDITIONAL_EXPR T_RSQUARE T_ASSIGN EXPR T_SEMI {}
-                    | TYPE_DEF T_MULT T_VARIABLE T_SEMI                             { $$ = new Pointer($1, $3, DecType::DECLARATION); }
-                    | TYPE_DEF T_MULT T_VARIABLE T_ASSIGN EXPR T_SEMI               { $$ = new Pointer($1, $3, DecType::DECLARATION, $5); }
+DECLARATION         : TYPE_DEF T_VARIABLE T_SEMI                                    { $$ = new Identifier($1, $2, DecType::DECLARATION)     ; }
+                    | TYPE_DEF T_VARIABLE T_ASSIGN EXPR T_SEMI                      { $$ = new Identifier($1, $2, DecType::DECLARATION, $4) ; }
+                    | TYPE_DEF T_VARIABLE T_LSQUARE T_NUMBER_INT T_RSQUARE T_SEMI   { $$ = new Array($1, $2, $4)                            ; }
+                    | TYPE_DEF T_VARIABLE T_LSQUARE CONDITIONAL_EXPR T_RSQUARE T_ASSIGN EXPR T_SEMI                                          {}
+                    | TYPE_DEF T_MULT T_VARIABLE T_SEMI                             { $$ = new Pointer($1, $3, DecType::DECLARATION)        ; }
+                    | TYPE_DEF T_MULT T_VARIABLE T_ASSIGN EXPR T_SEMI               { $$ = new Pointer($1, $3, DecType::DECLARATION, $5)    ; }
 
 
 

@@ -809,6 +809,11 @@ public:
                 {
                     std::cout << "sw $a" << StkPtr.returnArgCount() << ", 0($sp)" << std::endl;
                 }
+                else
+                {
+                    std::cout << "lw $t0, " << StkPtr.returnArgCount() * 4 << "($fp)" << std::endl;
+                    std::cout << "sw $t0, 0($sp)" << std::endl;
+                }
                 StkPtr.setIncrement(StkPtr.getIncrement() + 4);
                 StkPtr.setScopeIncrement(StkPtr.returnScopeIncrement() + 4);
                 address = std::to_string(StkPtr.getIncrement());
@@ -819,11 +824,6 @@ public:
                 else
                 {
                     SymTab.edit(type, "var", varID, address);
-                }
-                if (Expr != nullptr)
-                {
-                    returnExpr()->Translate2MIPS("$t0");
-                    std::cout << "sw $t0, -" << address << "($fp)" << std::endl;
                 }
                 if (SymTab.returnScopeCurrent() == 0)
                 {

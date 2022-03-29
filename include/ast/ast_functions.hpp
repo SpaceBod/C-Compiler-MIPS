@@ -92,7 +92,7 @@ public:
                 }
                 else
                 {
-                    std::cout << "Function datatype missing" << std::endl;
+                    std::cout << "Function is missing datatype" << std::endl;
                 }
                 std::cout << funcName->returnFuncId() << "end:" << std::endl;
                 for (int i = StkPtr.returnScopeCurrent(); i < 50; i++)
@@ -100,6 +100,7 @@ public:
                     if (StkPtr.returnScopeIncrement(i) != 0)
                     {
                         std::cout << "addiu $sp, $sp, " << StkPtr.returnScopeIncrement(i) << std::endl;
+                        StkPtr.setIncrement(StkPtr.getIncrement() - StkPtr.returnScopeIncrement(i));
                     }
                 }
                 StkPtr.setScopeIncrement(0);
@@ -123,7 +124,7 @@ public:
                 }
                 else
                 {
-                    std::cout << "ERROR: function datatype missing" << std::endl;
+                    std::cout << "ERROR: Function is missing datatype" << std::endl;
                 }
                 std::cout << funcName->returnFuncId() << "end:" << std::endl;
                 for (int i = StkPtr.returnScopeCurrent() + 1; i < 50; i++)
@@ -131,6 +132,7 @@ public:
                     if (StkPtr.returnScopeIncrement(i) != 0)
                     {
                         std::cout << "addiu $sp, $sp, " << StkPtr.returnScopeIncrement(i) << std::endl;
+                        StkPtr.setIncrement(StkPtr.getIncrement() - StkPtr.returnScopeIncrement(i));
                     }
                 }
             }
@@ -152,20 +154,6 @@ public:
                 std::cout << ".global " << funcName->returnFuncId() << std::endl;
                 SymTab.setScopeFunc(SymTab.getScopeFunc() - 1);
                 StkPtr.setReturnFunc(0);
-            }
-        }
-        else
-        {
-            if (args != nullptr)
-            {
-                SymTab.enterScope();
-                StkPtr.setScopeCurrent(StkPtr.returnScopeCurrent() + 1);
-                StkPtr.setScopeIncrement(0);
-                args->Translate2MIPS(destReg);
-                std::cout << "addiu $sp, $sp, " << StkPtr.returnScopeIncrement() << std::endl;
-                StkPtr.setScopeIncrement(0);
-                StkPtr.setScopeCurrent(StkPtr.returnScopeCurrent() - 1);
-                SymTab.exitScope();
             }
         }
     }

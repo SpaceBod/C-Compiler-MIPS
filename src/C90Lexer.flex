@@ -76,7 +76,7 @@ extern "C" int fileno(FILE *stream);
 [0-9]+                         { yylval.number=strtod(yytext, 0); return T_NUMBER_INT; }
 [0-9]+[.]([0-9]+)*             { yylval.number=strtod(yytext, 0); return T_NUMBER_DOUBLE; }
 [0-9]+[.]([0-9]+)*f            { yylval.number=strtod(yytext, 0); return T_NUMBER_DOUBLE; }
-[a-zA-Z_][a-zA-Z_\d]*          { yylval.string=new std::string(yytext); return T_VARIABLE; }
+[a-zA-Z_][a-zA-Z_0-9]*         { yylval.string=new std::string(yytext); return T_VARIABLE; }
 [\'][^\n][\']                  { yylval.string=new std::string(yytext); return T_CHARS; }
 
 [ \t\r\n]+		                 {;}

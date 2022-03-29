@@ -85,12 +85,18 @@ public:
         {
             if (StkPtr.returnArgCount() < 4)
             {
+                StkPtr.setIncrement(StkPtr.getIncrement() + 4);
+                StkPtr.setScopeIncrement(StkPtr.returnScopeIncrement() + 4);
+                std::cout << "addiu $sp, $sp, -4" << std::endl;
                 returnArg()->Translate2MIPS("$a" + std::to_string(StkPtr.returnArgCount()));
             }
             else
             {
                 returnArg()->Translate2MIPS("$t0");
-                std::cout << "sw $t0, -" << std::to_string(44 + (StkPtr.returnArgCount() + 1) * 4) << "($sp)" << std::endl;
+                StkPtr.setIncrement(StkPtr.getIncrement() + 4);
+                StkPtr.setScopeIncrement(StkPtr.returnScopeIncrement() + 4);
+                std::cout << "addiu $sp, $sp, -4" << std::endl;
+                std::cout << "sw $t0, " << std::to_string(StkPtr.returnArgCount() * 4) << "($sp)" << std::endl;
             }
             StkPtr.setArgCount(StkPtr.returnArgCount() + 1);
         }
@@ -98,7 +104,6 @@ public:
         {
             returnArgList()->Translate2MIPS(destReg, address);
         }
-        StkPtr.setArgCount(0);
     }
 };
 

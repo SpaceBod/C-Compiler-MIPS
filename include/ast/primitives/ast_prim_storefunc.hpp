@@ -106,6 +106,10 @@ public:
                     Args->Translate2MIPS(destReg, address);
                 }
                 std::cout << "jal " << varID << std::endl;
+                std::cout << "addiu $sp, $sp, " << StkPtr.returnArgCount() * 4 << std::endl;
+                StkPtr.setIncrement(StkPtr.getIncrement() - StkPtr.returnArgCount() * 4);
+                StkPtr.setScopeIncrement(StkPtr.returnScopeIncrement() - StkPtr.returnArgCount() * 4);
+                StkPtr.setArgCount(0);
             }
             else
             {
@@ -115,6 +119,11 @@ public:
                     Args->Translate2MIPS(destReg, address);
                 }
                 std::cout << "jal " << varID << std::endl;
+                std::cout << "addiu $sp, $sp, " << StkPtr.returnArgCount() * 4 << std::endl;
+                StkPtr.setIncrement(StkPtr.getIncrement() - StkPtr.returnArgCount() * 4);
+                StkPtr.setScopeIncrement(StkPtr.returnScopeIncrement() - StkPtr.returnArgCount() * 4);
+                StkPtr.setArgCount(0);
+
                 if (returnData() == "INT")
                 {
                     std::cout << "add " << destReg << ", $v0, $0" << std::endl;
