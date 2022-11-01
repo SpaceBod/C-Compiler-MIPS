@@ -16,7 +16,7 @@
 **Symbol Table Reference**  
 *https://www.geeksforgeeks.org/cpp-program-to-implement-symbol-table/*
 
-<img src="https://proftriumph.com/wp-content/uploads/2021/05/image-26.png" width="500" height="300">  
+<img src="https://media.geeksforgeeks.org/wp-content/uploads/asd1-1.png" width="500" height="300">  
 
 
 
