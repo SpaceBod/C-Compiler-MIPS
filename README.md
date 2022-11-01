@@ -8,6 +8,9 @@
   
 <img src="https://c.tenor.com/y2JXkY1pXkwAAAAC/cat-computer.gif" width="100" height="100">  
 
+As part of the EIE 2nd Year Instruction Set Architecture and Compilers coursework, we were tasked to implement a C90 Compiler.  
+C code would be translated into MIPS assembly code, then executed. 
+
 **MIPS REGISTERS**  
 
 ![alt text](https://www.cise.ufl.edu/~mssz/CompOrg/Table2.1-MIPSregisters.gif?raw=true)  
