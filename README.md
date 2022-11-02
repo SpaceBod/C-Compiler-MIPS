@@ -12,6 +12,8 @@ As part of the EIE 2nd Year Instruction Set Architecture and Compilers coursewor
 C code would be translated into MIPS assembly code, then executed.  
 We worked closely toward the coursework's [specification](specification.md).
 
+Throughout the duration of the coursework, we maintained a [log](management.pdf) of all the milestones and progress.
+
 **ANSI C90 Language Specification Reference**  
 https://web.archive.org/web/20200909074736if_/https://www.pdf-archive.com/2014/10/02/ansi-iso-9899-1990-1/ansi-iso-9899-1990-1.pdf
 
