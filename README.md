@@ -10,7 +10,7 @@
 
 As part of the EIE 2nd Year Instruction Set Architecture and Compilers coursework, we were tasked to implement a C90 Compiler.  
 C code would be translated into MIPS assembly code, then executed.  
-We worked closely toward the coursework's [specification](specification.md).
+We worked closely toward the coursework's [specification](specification.md) and scored in the top percentile.
 
 Throughout the duration of the coursework, we maintained a [log](Management.pdf) of all the milestones and progress.
 
