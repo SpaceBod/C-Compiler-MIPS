@@ -3,8 +3,8 @@
 
 
 **Team SyntaxError**  
-*[Gian-Luca Fenocchi](https://github.com/SpaceBod)* EIE
-*[Xuan Cai](https://github.com/xc720)* EIE
+*[Gian-Luca Fenocchi](https://github.com/SpaceBod)*  
+*[Xuan Cai](https://github.com/xc720)* 
   
 <img src="https://c.tenor.com/y2JXkY1pXkwAAAAC/cat-computer.gif" width="100" height="100">  
 
